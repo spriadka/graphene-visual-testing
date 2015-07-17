@@ -14,10 +14,18 @@
 
     <modules>
 	<module>api</module>
-	<module>impl</module>
+	 <module>impl</module>
     </modules>
 
     <description>
         This is the parent for Graphene Visual Testing Arquillian Extension.
     </description>
+
+
+    <repositories>
+      <repository>
+        <id>org-jboss-nexus</id>
+        <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+      </repository>
+    </repositories>
 </project>
