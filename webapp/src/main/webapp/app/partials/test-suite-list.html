@@ -13,12 +13,23 @@
         <thead>
         <tr>
             <th style="min-width: 80px;">Test suite name</th>
+            <th style="min-width: 100px">Last run</th>
             <th style="width:20px;"> </th>
         </tr>
         </thead>
         <tbody>
         <tr ng-repeat="suite in suites | filter:query | orderBy:orderProp">
             <td><a href="#/suites/{{suite.testSuiteID}}">{{suite.name}}</a></td>
+            <td>
+                <div ng-if="isRun(suite.runs[suite.runs.length - 1])" class="progress progress-striped" style="margin: 10px 20px 10px 0px; border-radius: 25px;">
+                    <div class="progress-bar progress-bar-success" style="width: {{getSuccessfullPercentage(suite.runs[suite.runs.length - 1])}}%" role="progressbar">SAME {{suite.runs[suite.runs.length - 1].numberOfSuccessfullComparisons}}</div>
+                    <div class="progress-bar progress-bar-danger" style="width: {{getFailedPercentage(suite.runs[suite.runs.length - 1])}}%" role="progressbar">DIFFERS {{suite.runs[suite.runs.length - 1].numberOfFailedComparisons}}</div>
+                    <div class="progress-bar progress-bar-error" style="width: {{getFailedTestsPercentage(suite.runs[suite.runs.length - 1])}}%"  role="progressbar">FAILED {{suite.runs[suite.runs.length - 1].numberOfFailedFunctionalTests}}</div>                    
+                </div>
+                <div ng-if="!isRun(suite.runs[suite.runs.length - 1])" class="progress progress-striped" style="margin: 10px 20px 10px 0px; border-radius: 25px;">
+                    <div class="progress-bar progress-bar-warning" style="width: 100%" role="progressbar">COMPARISONS NOT AVAILABLE</div>
+                </div>
+            </td>
             <td><a ng-click="deleteSuite(suite.testSuiteID)" class="btn btn-small btn-danger">delete</a></td>
         </tr>
         </tbody>

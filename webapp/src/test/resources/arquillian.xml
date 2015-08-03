@@ -20,5 +20,14 @@
 
 	<container qualifier="jbossas-remote" default="true">
 	</container>
+        
+        <extension qualifier="visual-testing">
+            <property name="testSuiteName">firstSuite</property>
+            <property name="firstRun">true</property>
+            <property name="managedContextRootURL">https://localhost:8080/</property>
+            <property name="jcrContextRootURL">https://localhost:8080/modeshape-rest/</property>
+            <property name="jcrUserName">admin</property>
+            <property name="jcrUserPassword">admin</property>
+        </extension>
 
 </arquillian>

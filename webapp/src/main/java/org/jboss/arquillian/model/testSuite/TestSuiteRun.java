@@ -37,6 +37,8 @@ public class TestSuiteRun implements Serializable {
     private int numberOfFailedFunctionalTests;
 
     private int numberOfFailedComparisons;
+    
+    private int numberOfSuccessfullComparisons;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "TEST_SUITE_ID")
@@ -90,6 +92,7 @@ public class TestSuiteRun implements Serializable {
     public void setNumberOfFailedComparisons(int numberOfFailedComparisons) {
         this.numberOfFailedComparisons = numberOfFailedComparisons;
     }
+
 
     public TestSuite getTestSuite() {
         return testSuite;
@@ -164,5 +167,19 @@ public class TestSuiteRun implements Serializable {
     @Override
     public String toString() {
         return "TestSuiteRun: " + "TestSuite name: " + testSuite.getName() + ", TestSuite ID: " + testSuite.getTestSuiteID();
+    }
+
+    /**
+     * @return the numberOfSuccessfullComparisions
+     */
+    public int getNumberOfSuccessfullComparisons() {
+        return numberOfSuccessfullComparisons;
+    }
+
+    /**
+     * @param numberOfSuccessfullComparisions the numberOfSuccessfullComparisions to set
+     */
+    public void setNumberOfSuccessfullComparisions(int numberOfSuccessfullComparisions) {
+        this.numberOfSuccessfullComparisons = numberOfSuccessfullComparisions;
     }
 }

@@ -190,11 +190,13 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
                 String patternRelativePath = absolutePath.split(rootOfPatterns + File.separator)[1];
                 String patternName = patternRelativePath.substring(0, patternRelativePath.lastIndexOf(File.separator))
                         .replaceAll(File.separator, ".");
-                if (failedTestCollection.get().getTests().contains(patternName)
+                
+                
+                /*if (failedTestCollection.get().getTests().contains(patternName)
                         || visuallyUnstableTestCollection.get().getTests().contains(patternName)) {
                     //FAILED OF UNSTABLE TEST, skip uploading of pattern
                     continue;
-                }
+                }*/
                 String urlOfScreenshot = grapheneVisualTestingConf.get().getJcrContextRootURL() + "/upload/"
                         + suiteName + "/patterns/"
                         + patternRelativePath;

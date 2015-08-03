@@ -25,6 +25,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.xml.sax.SAXException;
 import java.util.logging.Level;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import org.apache.http.entity.StringEntity;
 import org.jboss.rusheye.suite.ResultConclusion;
 import org.w3c.dom.Document;
@@ -47,7 +50,7 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
 
     @Inject
     private Instance<ScreenshooterConfiguration> screenshooterConf;
-    
+
     @Inject
     private Instance<DiffsUtils> diffsUtils;
 
@@ -80,8 +83,9 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
         postCreateSuiteRun.setHeader("Content-Type", "application/json");
         StringEntity suiteRunEntity = new StringEntity(
                 "{\"timestamp\":\"" + timestamp.getTime() + "\",\"projectRevision\":\"ffff1111\","
-                + "\"numberOfFailedFunctionalTests\":\"-1\","
+                + "\"numberOfFailedFunctionalTests\":\"" + getNumberOfFailed() + "\","
                 + "\"numberOfFailedComparisons\":\"" + getDiffNames().size() + "\","
+                + "\"numberOfSuccessfullComparisons\":\"" + getSame() + "\","
                 + "\"testSuite\":{\"name\":\"" + suiteName + "\"}}", ContentType.APPLICATION_JSON);
         postCreateSuiteRun.setEntity(suiteRunEntity);
         String testSuiteRunID = RestUtils.executePost(postCreateSuiteRun, httpclient,
@@ -124,8 +128,8 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
                     HttpPost postCreateSample = new HttpPost(gVC.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/samples");
                     postCreateSample.setHeader("Content-Type", "application/json");
                     StringEntity toDatabaseSample = new StringEntity(
-                            "{\"name\":\"" + patternSource + "\",\"urlOfScreenshot\":\"" + 
-                                    url.replace("/upload/", "/binary/") + "/jcr%3acontent/jcr%3adata"
+                            "{\"name\":\"" + patternSource + "\",\"urlOfScreenshot\":\""
+                            + url.replace("/upload/", "/binary/") + "/jcr%3acontent/jcr%3adata"
                             + "\",\"testSuiteRun\":{\"testSuiteRunID\":\"" + testSuiteRunID
                             + "\"}}", ContentType.APPLICATION_JSON);
                     postCreateSample.setEntity(toDatabaseSample);
@@ -175,8 +179,8 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
                 postCreateDiff.setHeader("Content-Type", "application/json");
                 Long sampleID = sampleAndItsIDs.get(patternAndDiff.getKey());
                 StringEntity toDatabaseDiff = new StringEntity(
-                        "{\"name\":\"" + diffToUpload.getName() + "\",\"urlOfScreenshot\":\"" + 
-                                diffURL.replace("/upload/", "/binary/") + "/jcr%3acontent/jcr%3adata"
+                        "{\"name\":\"" + diffToUpload.getName() + "\",\"urlOfScreenshot\":\""
+                        + diffURL.replace("/upload/", "/binary/") + "/jcr%3acontent/jcr%3adata"
                         + "\",\"sample\":{\"sampleID\":\"" + sampleID
                         + "\"},\"testSuiteRun\":{\"testSuiteRunID\":\"" + testSuiteRunID + "\"}}", ContentType.APPLICATION_JSON);
                 postCreateDiff.setEntity(toDatabaseDiff);
@@ -189,19 +193,55 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
 
     private Map<String, String> getDiffNames() {
         Map<String, String> result = new HashMap<>();
-        NodeList testNodes = getDOMFromResultXMLazily().getElementsByTagName("test");
-        for (int i = 0; i < testNodes.getLength(); i++) {
-            Node patternTag = testNodes.item(i).getChildNodes().item(1);
-            String resultAttribute = patternTag.getAttributes().
-                    getNamedItem("result").getNodeValue();
-            if (ResultConclusion.valueOf(resultAttribute).equals(ResultConclusion.DIFFER)) {
-                String outputAttrValue = patternTag.getAttributes().getNamedItem("output").getNodeValue();
-                String nameAttrValue = patternTag.getAttributes().getNamedItem("name").getNodeValue();
-                result.put(nameAttrValue, outputAttrValue);
+        try {
+            NodeList testNodes = getDOMFromResultXMLazily().getElementsByTagName("test");
+            for (int i = 0; i < testNodes.getLength(); i++) {
+                Node patternTag = testNodes.item(i).getChildNodes().item(1);
+                String resultAttribute = patternTag.getAttributes().
+                        getNamedItem("result").getNodeValue();
+                if (ResultConclusion.valueOf(resultAttribute).equals(ResultConclusion.DIFFER)) {
+                    String outputAttrValue = patternTag.getAttributes().getNamedItem("output").getNodeValue();
+                    String nameAttrValue = patternTag.getAttributes().getNamedItem("name").getNodeValue();
+                    result.put(nameAttrValue, outputAttrValue);
+                }
             }
+        } catch (NullPointerException e) {
+
         }
         return result;
     }
+
+    private int getSame() {
+        int result = 0;
+        try {
+            XPathFactory xPathFactory = XPathFactory.newInstance();
+            XPath xPath = xPathFactory.newXPath();
+            Document resultXml = getDOMFromResultXMLazily();
+            result = Integer.parseInt(xPath.compile("count(/visual-suite-result/test/pattern[@result=" + "'" + ResultConclusion.SAME.toString() + "'])").evaluate(resultXml));
+        } catch (NullPointerException e) {
+
+        } catch (XPathExpressionException ex) {
+            Logger.getLogger(JCRSamplesAndDiffsHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+    
+    
+    private int getNumberOfFailed() {
+        int result = 0;
+        try {
+            XPathFactory xPathFactory = XPathFactory.newInstance();
+            XPath xPath = xPathFactory.newXPath();
+            Document resultXml = getDOMFromResultXMLazily();
+            result = Integer.parseInt(xPath.compile("count(/visual-suite-result/test/pattern[@result=" + "'" + ResultConclusion.ERROR.toString() + "'])").evaluate(resultXml));
+        } catch (NullPointerException e) {
+
+        } catch (XPathExpressionException ex) {
+            Logger.getLogger(JCRSamplesAndDiffsHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return result;
+    }
+    
 
     private Document getDOMFromResultXMLazily() {
         String resultFilePath = rusheyeConf.get().getWorkingDirectory()

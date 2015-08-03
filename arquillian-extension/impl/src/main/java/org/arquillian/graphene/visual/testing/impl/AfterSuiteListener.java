@@ -25,31 +25,45 @@ public class AfterSuiteListener {
 
     @Inject
     private Event<StartParsingEvent> startParsingEvent;
-    
+
     @Inject
     private Event<StartCrawlinglEvent> crawlEvent;
 
     @Inject
     private Instance<ServiceLoader> serviceLoader;
-    
+
     @Inject
     private Instance<FailedTestsCollection> failedTestsCollection;
-    
+
     @Inject
     private Instance<VisuallyUnstableTestsCollection> visuallyUnstableTestsCollection;
-    
+
     private static final Logger LOGGER = Logger.getLogger(AfterSuiteListener.class.getName());
 
     public void listenToAfterSuite(@Observes AfterSuite event) {
         String samplesPath = screenshooterConfiguration.get().getRootDir().getAbsolutePath();
         if (visualTestingConfiguration.get().isFirstRun()) {
-            crawlEvent.fire(new StartCrawlinglEvent(samplesPath, failedTestsCollection.get(), 
-                    visuallyUnstableTestsCollection.get()));
+
+            //HANDLES FAILED TESTS IN FIRST RUN 
+            if (!failedTestsCollection.get().getTests().isEmpty() || !visuallyUnstableTestsCollection.get().getTests().isEmpty()) {
+                crawlEvent.fire(new StartCrawlinglEvent(samplesPath, failedTestsCollection.get(),
+                        visuallyUnstableTestsCollection.get()));
+                String descriptorAndPatternsDir
+                        = serviceLoader.get().onlyOne(DescriptorAndPatternsHandler.class).retrieveDescriptorAndPatterns();
+                startParsingEvent.fire(new StartParsingEvent(descriptorAndPatternsDir, samplesPath,
+                        failedTestsCollection.get(),
+                        visuallyUnstableTestsCollection.get()));
+
+            } else {
+                crawlEvent.fire(new StartCrawlinglEvent(samplesPath, failedTestsCollection.get(),
+                        visuallyUnstableTestsCollection.get()));
+            }
+
         } else {
             String descriptorAndPatternsDir
                     = serviceLoader.get().onlyOne(DescriptorAndPatternsHandler.class).retrieveDescriptorAndPatterns();
-            startParsingEvent.fire(new StartParsingEvent(descriptorAndPatternsDir, samplesPath, 
-                    failedTestsCollection.get(), 
+            startParsingEvent.fire(new StartParsingEvent(descriptorAndPatternsDir, samplesPath,
+                    failedTestsCollection.get(),
                     visuallyUnstableTestsCollection.get()));
         }
     }
