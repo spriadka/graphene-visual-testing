@@ -1,8 +1,10 @@
 package org.jboss.arquillian.managers;
 
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import org.jboss.arquillian.model.testSuite.Sample;
 
 /**
@@ -26,5 +28,11 @@ public class SampleManager {
     
     public void deleteSample(Sample sample) {
         em.remove(em.contains(sample) ? sample : em.merge(sample));
+    }
+    
+    public List<Sample> getSamples(Long testSuiteRunID){
+        Query query = em.createQuery("SELECT s FROM SAMPLE s WHERE s.testSuiteRun.testSuiteRunID = :testSuiteRunID");
+        query.setParameter("testSuiteRunID", testSuiteRunID);
+        return query.getResultList();
     }
 }

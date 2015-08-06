@@ -79,25 +79,33 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
 
     @Override
     public String retrieveDescriptorAndPatterns() {
-        GrapheneVisualTestingConfiguration gVC = grapheneVisualTestingConf.get();
-        CloseableHttpClient httpClient = RestUtils.getHTTPClient(gVC.getJcrContextRootURL(), gVC.getJcrUserName(), gVC.getJcrPassword());
-        String suiteName = grapheneVisualTestingConf.get().getTestSuiteName();
 
-        HttpGet getDescriptor = new HttpGet(gVC.getJcrContextRootURL() + "/binary/" + suiteName + "/suite.xml/jcr%3acontent/jcr%3adata");
-        createDir(PATTERNS_DEFAULT_DIR);
-        RestUtils.executeGetAndSaveToFile(getDescriptor, httpClient, PATTERNS_DEFAULT_DIR + "/suite.xml",
-                String.format("Suite descriptor for %s was retrieved.", suiteName),
-                String.format("ERROR occurred while retrieving suite descriptor for %s", suiteName));
+        try {
+            GrapheneVisualTestingConfiguration gVC = grapheneVisualTestingConf.get();
+            CloseableHttpClient httpClient = RestUtils.getHTTPClient(gVC.getJcrContextRootURL(), gVC.getJcrUserName(), gVC.getJcrPassword());
+            String suiteName = grapheneVisualTestingConf.get().getTestSuiteName();
 
-        HttpGet getAllChildren = new HttpGet(gVC.getJcrContextRootURL() + "/items/" + suiteName + "?depth=-1");
-        getAllChildren.addHeader("Accept", "application/json");
-        JSONObject allSuiteChildren = new JSONObject(RestUtils.executeGet(getAllChildren, httpClient, "All children retrieved",
-                "Error while retrieving all children"));
-        JSONObject testClasses = allSuiteChildren.getJSONObject("children").getJSONObject("patterns").getJSONObject("children");
+            HttpGet getDescriptor = new HttpGet(gVC.getJcrContextRootURL() + "/binary/" + suiteName + "/suite.xml/jcr%3acontent/jcr%3adata");
+            createDir(PATTERNS_DEFAULT_DIR);
+            RestUtils.executeGetAndSaveToFile(getDescriptor, httpClient, PATTERNS_DEFAULT_DIR + "/suite.xml",
+                    String.format("Suite descriptor for %s was retrieved.", suiteName),
+                    String.format("ERROR occurred while retrieving suite descriptor for %s", suiteName));
 
-        findAndDownloadScreenshot(testClasses, suiteName, httpClient);
+            HttpGet getAllChildren = new HttpGet(gVC.getJcrContextRootURL() + "/items/" + suiteName + "?depth=-1");
+            getAllChildren.addHeader("Accept", "application/json");
+            JSONObject allSuiteChildren = new JSONObject(RestUtils.executeGet(getAllChildren, httpClient, "All children retrieved",
+                    "Error while retrieving all children"));
+            JSONObject testClasses = allSuiteChildren.getJSONObject("children").getJSONObject("patterns").getJSONObject("children");
 
-        return PATTERNS_DEFAULT_DIR;
+            findAndDownloadScreenshot(testClasses, suiteName, httpClient);
+        } catch (Exception e) {
+            LOGGER.info("SUITE NOT FOUND, GOING TO CREATE NEW");
+
+        }
+        finally {
+            return PATTERNS_DEFAULT_DIR;
+        }
+
     }
 
     private void findAndDownloadScreenshot(JSONObject testClasses, String suiteName, CloseableHttpClient httpClient) {
@@ -190,13 +198,12 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
                 String patternRelativePath = absolutePath.split(rootOfPatterns + File.separator)[1];
                 String patternName = patternRelativePath.substring(0, patternRelativePath.lastIndexOf(File.separator))
                         .replaceAll(File.separator, ".");
-                
-                
+
                 /*if (failedTestCollection.get().getTests().contains(patternName)
-                        || visuallyUnstableTestCollection.get().getTests().contains(patternName)) {
-                    //FAILED OF UNSTABLE TEST, skip uploading of pattern
-                    continue;
-                }*/
+                 || visuallyUnstableTestCollection.get().getTests().contains(patternName)) {
+                 //FAILED OF UNSTABLE TEST, skip uploading of pattern
+                 continue;
+                 }*/
                 String urlOfScreenshot = grapheneVisualTestingConf.get().getJcrContextRootURL() + "/upload/"
                         + suiteName + "/patterns/"
                         + patternRelativePath;

@@ -16,10 +16,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jboss.arquillian.bean.JCRBean;
 import org.jboss.arquillian.managers.DiffManager;
+import org.jboss.arquillian.managers.PatternManager;
 import org.jboss.arquillian.managers.SampleManager;
 import org.jboss.arquillian.managers.TestSuiteManager;
 import org.jboss.arquillian.managers.TestSuiteRunManager;
 import org.jboss.arquillian.model.testSuite.Diff;
+import org.jboss.arquillian.model.testSuite.Pattern;
 import org.jboss.arquillian.model.testSuite.Sample;
 import org.jboss.arquillian.model.testSuite.TestSuite;
 import org.jboss.arquillian.model.testSuite.TestSuiteRun;
@@ -40,13 +42,16 @@ public class TestSuiteRunRESTService {
 
     @Inject
     private DiffManager diffManager;
-    
+
     @Inject
     private SampleManager sampleManager;
     
     @Inject
+    private PatternManager patternManager;
+
+    @Inject
     private JCRBean jcrBean;
-    
+
     private static final Logger LOGGER = Logger.getLogger(TestSuiteRunRESTService.class.getName());
 
     @POST
@@ -65,7 +70,7 @@ public class TestSuiteRunRESTService {
         TestSuiteRun result = testSuiteRunManager.findById(id);
         return result;
     }
-    
+
     @DELETE
     @Path("/{testSuiteRunID:[0-9][0-9]*}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -78,15 +83,15 @@ public class TestSuiteRunRESTService {
         testSuiteRunManager.deleteTestSuiteRun(testSuiteRunToRemove);
         return Response.ok().build();
     }
-    
+
     private void deleteSamplesFromTestSuiteRun(TestSuiteRun run) {
-        for(Sample sample : run.getSamples()) {
+        for (Sample sample : run.getSamples()) {
             sampleManager.deleteSample(sample);
         }
     }
-    
+
     private void deleteDiffsFromTestSuiteRun(TestSuiteRun run) {
-        for(Diff diff : run.getDiffs()) {
+        for (Diff diff : run.getDiffs()) {
             diffManager.deleteDiff(diff);
         }
     }
@@ -95,13 +100,22 @@ public class TestSuiteRunRESTService {
     @Path("/comparison-result/{testSuiteRunID:[0-9][0-9]*}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ComparisonResult> getTestSuiteRunComparisonResults(@PathParam("testSuiteRunID") long id) {
-        List<Diff> diffs = diffManager.getDiffsForRun(id);
         List<ComparisonResult> result = new ArrayList<>();
-        for (Diff diff : diffs) {
-            result.add(new ComparisonResult(diff.getPattern().getUrlOfScreenshot(), diff.getPattern().getPatternID(),
-                    diff.getSample().getUrlOfScreenshot(), diff.getSample().getSampleID(),
-                    diff.getUrlOfScreenshot(), diff.getDiffID(), getTestClassName(diff),
-                    getTestName(diff)));
+        List<Diff> diffs = diffManager.getDiffsForRun(id);
+        if (diffManager.areThereDiffs(id)) {
+            for (Diff diff : diffs) {
+                result.add(new ComparisonResult(diff.getPattern().getUrlOfScreenshot(), diff.getPattern().getPatternID(),
+                        diff.getSample().getUrlOfScreenshot(), diff.getSample().getSampleID(),
+                        diff.getUrlOfScreenshot(), diff.getDiffID(), getTestClassName(diff),
+                        getTestName(diff)));
+            }
+        }
+        else {
+            List<Sample> samples = sampleManager.getSamples(id);
+            for (Sample sample : samples){
+                result.add(new ComparisonResult(null,null,sample.getUrlOfScreenshot(),sample.getSampleID(),null,null,getTestClassName(sample),getTestName(sample)));
+            }
+            
         }
         return result;
     }
@@ -109,8 +123,18 @@ public class TestSuiteRunRESTService {
     private String getTestClassName(Diff diff) {
         return diff.getSample().getName().split("/")[0];
     }
+    
+    private String getTestClassName(Sample sample){
+        return sample.getName().split("/")[0];
+    }
+    
+    
 
     private String getTestName(Diff diff) {
         return diff.getSample().getName().split("/")[1];
+    }
+    
+    private String getTestName(Sample sample) {
+        return sample.getName().split("/")[1];
     }
 }

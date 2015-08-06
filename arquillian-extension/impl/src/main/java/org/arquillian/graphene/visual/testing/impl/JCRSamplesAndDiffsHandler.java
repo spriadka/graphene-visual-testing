@@ -3,8 +3,10 @@ package org.arquillian.graphene.visual.testing.impl;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.apache.http.client.methods.HttpPost;
@@ -26,6 +28,7 @@ import org.xml.sax.SAXException;
 import java.util.logging.Level;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.apache.http.entity.StringEntity;
@@ -85,7 +88,7 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
                 "{\"timestamp\":\"" + timestamp.getTime() + "\",\"projectRevision\":\"ffff1111\","
                 + "\"numberOfFailedFunctionalTests\":\"" + getNumberOfFailed() + "\","
                 + "\"numberOfFailedComparisons\":\"" + getDiffNames().size() + "\","
-                + "\"numberOfSuccessfullComparisons\":\"" + getSame() + "\","
+                + "\"numberOfSuccessfullComparisons\":\"" + getSame().size() + "\","
                 + "\"testSuite\":{\"name\":\"" + suiteName + "\"}}", ContentType.APPLICATION_JSON);
         postCreateSuiteRun.setEntity(suiteRunEntity);
         String testSuiteRunID = RestUtils.executePost(postCreateSuiteRun, httpclient,
@@ -99,6 +102,11 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
             uploadSamples(patternsNamesAndCorrespondingDiffs, timestampWithoutWhiteSpaces, testSuiteRunID);
             uploadDiffs(patternsNamesAndCorrespondingDiffs, timestampWithoutWhiteSpaces, testSuiteRunID);
         }
+        else {
+            List<String> samplesList = getSame();
+            diffsUtils.get().setDiffCreated(false);
+            uploadSamples(samplesList, timestampWithoutWhiteSpaces, testSuiteRunID);
+        }
     }
 
     private void uploadSamples(Map<String, String> patternsNamesAndCorrespondingDiffs, String timestamp, String testSuiteRunID) {
@@ -111,6 +119,48 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
         for (Map.Entry<String, String> entry : patternsNamesAndCorrespondingDiffs.entrySet()) {
             for (int i = 0; i < testNodes.getLength(); i++) {
                 if (testNodes.item(i).getAttributes().getNamedItem("name").getNodeValue().equals(entry.getKey())) {
+                    String patternSource = testNodes.item(i).getChildNodes().item(1).getAttributes()
+                            .getNamedItem("source").getNodeValue();
+                    //UPLOAD SAMPLE
+                    File sampleToUpload = new File(screenshotsDir + File.separator + patternSource);
+                    String url = grapheneVisualTestingConf.get().getJcrContextRootURL() + "/upload/" + suiteName + "/runs/"
+                            + timestamp + "/samples/" + patternSource;
+                    HttpPost postResultDescriptor = new HttpPost(url);
+                    FileEntity sampleEntity = new FileEntity(sampleToUpload);
+                    postResultDescriptor.setEntity(sampleEntity);
+                    RestUtils.executePost(postResultDescriptor, httpclient,
+                            String.format("Sample for %s uploaded!", suiteName),
+                            String.format("Error while uploading sample for test suite: %s", suiteName));
+
+                    //CREATE SAMPLE IN DATABASE
+                    HttpPost postCreateSample = new HttpPost(gVC.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/samples");
+                    postCreateSample.setHeader("Content-Type", "application/json");
+                    StringEntity toDatabaseSample = new StringEntity(
+                            "{\"name\":\"" + patternSource + "\",\"urlOfScreenshot\":\""
+                            + url.replace("/upload/", "/binary/") + "/jcr%3acontent/jcr%3adata"
+                            + "\",\"testSuiteRun\":{\"testSuiteRunID\":\"" + testSuiteRunID
+                            + "\"}}", ContentType.APPLICATION_JSON);
+                    postCreateSample.setEntity(toDatabaseSample);
+                    String sampleID = RestUtils.executePost(postCreateSample, httpclient,
+                            String.format("Sample in database for %s created!", suiteName),
+                            String.format("Error while Sample in database for test suite: %s", suiteName));
+                    sampleAndItsIDs.put(patternSource.replaceAll("/", "\\.")
+                            .replaceAll("\\." + screenshooterConf.get().getScreenshotType().toLowerCase(), ""), Long.valueOf(sampleID));
+                }
+            }
+        }
+    }
+    
+    private void uploadSamples(List<String> samplesList, String timestamp, String testSuiteRunID) {
+        final File screenshotsDir = screenshooterConf.get().getRootDir();
+        GrapheneVisualTestingConfiguration gVC = grapheneVisualTestingConf.get();
+        final String suiteName = gVC.getTestSuiteName();
+        CloseableHttpClient httpclient = RestUtils.getHTTPClient(gVC.getJcrContextRootURL(), gVC.getJcrUserName(), gVC.getJcrPassword());
+
+        NodeList testNodes = getDOMFromSuiteXML().getElementsByTagName("test");
+        for (String same : samplesList) {
+            for (int i = 0; i < testNodes.getLength(); i++) {
+                if (testNodes.item(i).getAttributes().getNamedItem("name").getNodeValue().equals(same)) {
                     String patternSource = testNodes.item(i).getChildNodes().item(1).getAttributes()
                             .getNamedItem("source").getNodeValue();
                     //UPLOAD SAMPLE
@@ -193,40 +243,38 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
 
     private Map<String, String> getDiffNames() {
         Map<String, String> result = new HashMap<>();
-        try {
-            NodeList testNodes = getDOMFromResultXMLazily().getElementsByTagName("test");
-            for (int i = 0; i < testNodes.getLength(); i++) {
-                Node patternTag = testNodes.item(i).getChildNodes().item(1);
-                String resultAttribute = patternTag.getAttributes().
-                        getNamedItem("result").getNodeValue();
-                if (ResultConclusion.valueOf(resultAttribute).equals(ResultConclusion.DIFFER)) {
-                    String outputAttrValue = patternTag.getAttributes().getNamedItem("output").getNodeValue();
-                    String nameAttrValue = patternTag.getAttributes().getNamedItem("name").getNodeValue();
-                    result.put(nameAttrValue, outputAttrValue);
-                }
-            }
-        } catch (NullPointerException e) {
 
+        NodeList testNodes = getDOMFromResultXMLazily().getElementsByTagName("test");
+        for (int i = 0; i < testNodes.getLength(); i++) {
+            Node patternTag = testNodes.item(i).getChildNodes().item(1);
+            String resultAttribute = patternTag.getAttributes().
+                    getNamedItem("result").getNodeValue();
+            if (ResultConclusion.valueOf(resultAttribute).equals(ResultConclusion.DIFFER)) {
+                String outputAttrValue = patternTag.getAttributes().getNamedItem("output").getNodeValue();
+                String nameAttrValue = patternTag.getAttributes().getNamedItem("name").getNodeValue();
+                result.put(nameAttrValue, outputAttrValue);
+            }
         }
+
         return result;
     }
 
-    private int getSame() {
-        int result = 0;
+    private List<String> getSame() {
+        List<String> result = new ArrayList<>();
         try {
             XPathFactory xPathFactory = XPathFactory.newInstance();
             XPath xPath = xPathFactory.newXPath();
             Document resultXml = getDOMFromResultXMLazily();
-            result = Integer.parseInt(xPath.compile("count(/visual-suite-result/test/pattern[@result=" + "'" + ResultConclusion.SAME.toString() + "'])").evaluate(resultXml));
-        } catch (NullPointerException e) {
-
+            NodeList sameTests = (NodeList)xPath.compile("/visual-suite-result/test/pattern[@result=" + "'" + ResultConclusion.SAME.toString() + "']").evaluate(resultXml,XPathConstants.NODESET);
+            for (int i=0; i < sameTests.getLength(); i++){
+                result.add(sameTests.item(i).getAttributes().getNamedItem("name").getNodeValue());
+            }
         } catch (XPathExpressionException ex) {
             Logger.getLogger(JCRSamplesAndDiffsHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
-    
-    
+
     private int getNumberOfFailed() {
         int result = 0;
         try {
@@ -234,14 +282,11 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
             XPath xPath = xPathFactory.newXPath();
             Document resultXml = getDOMFromResultXMLazily();
             result = Integer.parseInt(xPath.compile("count(/visual-suite-result/test/pattern[@result=" + "'" + ResultConclusion.ERROR.toString() + "'])").evaluate(resultXml));
-        } catch (NullPointerException e) {
-
         } catch (XPathExpressionException ex) {
             Logger.getLogger(JCRSamplesAndDiffsHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
     }
-    
 
     private Document getDOMFromResultXMLazily() {
         String resultFilePath = rusheyeConf.get().getWorkingDirectory()

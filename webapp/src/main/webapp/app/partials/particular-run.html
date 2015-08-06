@@ -3,34 +3,17 @@
 <h1>Job run</h1>
 
 <ul style="list-style-type: none;">
-  <li ng-repeat="comparisonResult in comparisonResults">
-    <div class="test-info">
-      <b>Test class:</b> {{comparisonResult.testClassName}}<br />
-      <b>Test name:</b> {{comparisonResult.testName}}<br />
-    </div>
-    <carousel>
-      <slide active="active">
-        <img src="{{comparisonResult.patternUrl}}" style="margin:auto;">
-        <div class="carousel-caption">
-          <h4>PATTERN</h4>
+    <li ng-repeat="comparisonResult in comparisonResults">
+        <div class="test-info">
+            <b>Test class:</b> {{comparisonResult.testClassName}}<br />
+            <b>Test name:</b> {{comparisonResult.testName}}<br />
         </div>
-      </slide>
-      <slide>
-        <img src="{{comparisonResult.sampleUrl}}" style="margin:auto;">
-        <div class="carousel-caption">
-          <h4>SAMPLE</h4>
+        <br>
+    <run-info run="comparisonResult"></run-info>
+    <br>
+        <div class="centre">
+            <a ng-click="rejectPattern(comparisonResult.diffID)" class="btn btn-small btn-danger">Reject pattern</a>
+            <a ng-click="rejectSample(comparisonResult.diffID)" class="btn btn-small btn-primary">Reject sample</a>
         </div>
-      </slide>
-      <slide>
-        <img src="{{comparisonResult.diffUrl}}" style="margin:auto;">
-        <div class="carousel-caption">
-          <h4>DIFF</h4>
-        </div>
-      </slide>
-    </carousel>
-    <div class="centre">
-      <a ng-click="rejectPattern(comparisonResult.diffID)" class="btn btn-small btn-danger">Reject pattern</a>
-      <a ng-click="rejectSample(comparisonResult.diffID)" class="btn btn-small btn-primary">Reject sample</a>
-    </div>
- </li>
+    </li>
 </ul>
