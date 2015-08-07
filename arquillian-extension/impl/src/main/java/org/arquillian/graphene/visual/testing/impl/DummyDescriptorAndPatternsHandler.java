@@ -10,6 +10,7 @@ import org.arquillian.recorder.reporter.ReporterConfiguration;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.rusheye.arquillian.configuration.RusheyeConfiguration;
+import org.jboss.rusheye.arquillian.event.StartCrawlMissingTestsEvent;
 
 /**
  *
@@ -63,5 +64,10 @@ public class DummyDescriptorAndPatternsHandler implements DescriptorAndPatternsH
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean saveDescriptorAndMissingPatterns(StartCrawlMissingTestsEvent event) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

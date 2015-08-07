@@ -1,5 +1,7 @@
 package org.arquillian.graphene.visual.testing.api;
 
+import org.jboss.rusheye.arquillian.event.StartCrawlMissingTestsEvent;
+
 /**
  *
  * @author jhuska
@@ -13,6 +15,8 @@ public interface DescriptorAndPatternsHandler {
      * @return 
      */
     boolean saveDescriptorAndPatterns();
+    
+    boolean saveDescriptorAndMissingPatterns(StartCrawlMissingTestsEvent event);
     
     /**
      * Retrieves descriptor and respective patterns, so the comparison process

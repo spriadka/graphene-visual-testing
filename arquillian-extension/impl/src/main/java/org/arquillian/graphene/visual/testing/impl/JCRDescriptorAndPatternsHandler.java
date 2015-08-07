@@ -1,6 +1,7 @@
 package org.arquillian.graphene.visual.testing.impl;
 
 import java.io.File;
+import java.util.List;
 import java.util.logging.Logger;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -13,8 +14,10 @@ import org.arquillian.graphene.visual.testing.api.DescriptorAndPatternsHandler;
 import org.arquillian.graphene.visual.testing.configuration.GrapheneVisualTestingConfiguration;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
+import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.rusheye.arquillian.configuration.RusheyeConfiguration;
 import org.jboss.rusheye.arquillian.event.FailedTestsCollection;
+import org.jboss.rusheye.arquillian.event.StartCrawlMissingTestsEvent;
 import org.jboss.rusheye.arquillian.event.VisuallyUnstableTestsCollection;
 import org.json.JSONObject;
 
@@ -47,7 +50,6 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
     public boolean saveDescriptorAndPatterns() {
         GrapheneVisualTestingConfiguration gVC = grapheneVisualTestingConf.get();
         CloseableHttpClient httpclient = RestUtils.getHTTPClient(gVC.getJcrContextRootURL(), gVC.getJcrUserName(), gVC.getJcrPassword());
-
         File patternsRootDir = screenshooterConf.get().getRootDir();
         File suiteDescriptor = new File(rusheyeConf.get().getWorkingDirectory().getAbsolutePath()
                 + File.separator
@@ -76,6 +78,42 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
         //UPLOADING PATTERNS
         return crawlAndUploadPatterns(patternsRootDir, patternsRootDir.getName(), httpclient);
     }
+    
+    
+    @Override
+    public boolean saveDescriptorAndMissingPatterns(StartCrawlMissingTestsEvent event){
+        System.out.println("GONNA UPLOAD DESCRIPTOR AND MISSING PATTERNS!!!!!!!!!!!!!!!!!1");
+        GrapheneVisualTestingConfiguration gVC = grapheneVisualTestingConf.get();
+        CloseableHttpClient httpclient = RestUtils.getHTTPClient(gVC.getJcrContextRootURL(), gVC.getJcrUserName(), gVC.getJcrPassword());
+        File patternsRootDir = screenshooterConf.get().getRootDir();
+        File suiteDescriptor = new File(rusheyeConf.get().getWorkingDirectory().getAbsolutePath()
+                + File.separator
+                + rusheyeConf.get().getSuiteDescriptor());
+        String suiteName = grapheneVisualTestingConf.get().getTestSuiteName();
+
+        //UPLOADING TEST SUITE DESCRIPTOR
+        HttpPost postSuiteDescriptor = new HttpPost(gVC.getJcrContextRootURL() + "/upload/" + suiteName + "/suite.xml");
+        FileEntity descriptorEntity = new FileEntity(suiteDescriptor, ContentType.APPLICATION_XML);
+        postSuiteDescriptor.setEntity(descriptorEntity);
+        RestUtils.executePost(postSuiteDescriptor, httpclient,
+                String.format("Suite descriptor for %s uploaded!", suiteName),
+                String.format("Error while uploading test suite descriptor for test suite: %s", suiteName));
+
+        //CREATE SUITE NAME IN DATABASE
+        HttpPost postCreateSuiteName = new HttpPost(gVC.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/suites");
+        postCreateSuiteName.setHeader("Content-Type", "application/json");
+        StringEntity suiteNameEntity = new StringEntity(
+                "{\"name\":\"" + suiteName + "\",\"numberOfFunctionalTests\":\"" + getNumberOfTests()
+                + "\",\"numberOfVisualComparisons\":\"" + getNumberOfComparisons() + "\"}", ContentType.APPLICATION_JSON);
+        postCreateSuiteName.setEntity(suiteNameEntity);
+        RestUtils.executePost(postCreateSuiteName, httpclient,
+                String.format("Suite name in database for %s created!", suiteName),
+                String.format("Error while creating suite name in database for test suite: %s", suiteName));
+
+        //UPLOADING PATTERNS
+        return crawlAndUploadMissingPatterns(patternsRootDir,patternsRootDir.getName(),httpclient,event.getMissingTests());
+        
+    }
 
     @Override
     public String retrieveDescriptorAndPatterns() {
@@ -101,8 +139,7 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
         } catch (Exception e) {
             LOGGER.info("SUITE NOT FOUND, GOING TO CREATE NEW");
 
-        }
-        finally {
+        } finally {
             return PATTERNS_DEFAULT_DIR;
         }
 
@@ -196,14 +233,6 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
                 String suiteName = grapheneVisualTestingConf.get().getTestSuiteName();
                 String absolutePath = dirOrFile.getAbsolutePath();
                 String patternRelativePath = absolutePath.split(rootOfPatterns + File.separator)[1];
-                String patternName = patternRelativePath.substring(0, patternRelativePath.lastIndexOf(File.separator))
-                        .replaceAll(File.separator, ".");
-
-                /*if (failedTestCollection.get().getTests().contains(patternName)
-                 || visuallyUnstableTestCollection.get().getTests().contains(patternName)) {
-                 //FAILED OF UNSTABLE TEST, skip uploading of pattern
-                 continue;
-                 }*/
                 String urlOfScreenshot = grapheneVisualTestingConf.get().getJcrContextRootURL() + "/upload/"
                         + suiteName + "/patterns/"
                         + patternRelativePath;
@@ -226,6 +255,7 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
                 RestUtils.executePost(postCreatePattern, httpClient,
                         String.format("Pattern in database for %s created!", suiteName),
                         String.format("Error while creating pattern in database for test suite: %s", suiteName));
+
             }
             //if partial result is false, finish early with false status
             if (!result) {
@@ -234,4 +264,56 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
         }
         return result;
     }
+
+    
+
+    private boolean crawlAndUploadMissingPatterns(File patternsDir, String rootOfPatterns, CloseableHttpClient httpclient, List<String> missingTests) {
+        boolean result = true;
+        for (File dirOrFile : patternsDir.listFiles()) {
+            if (dirOrFile.isDirectory()) {
+                result = crawlAndUploadMissingPatterns(dirOrFile, rootOfPatterns, httpclient, missingTests);
+            } else {
+                String suiteName = grapheneVisualTestingConf.get().getTestSuiteName();
+                String absolutePath = dirOrFile.getAbsolutePath();
+                String patternRelativePath = absolutePath.split(rootOfPatterns + File.separator)[1];
+                String patternNameWithoutSlash = patternRelativePath.replace("/", ".");
+                String patternName = patternNameWithoutSlash.substring(0, patternNameWithoutSlash.lastIndexOf("."));
+                System.out.println("MISSING PATTERN" + patternName);
+                if (missingTests.contains(patternName)) {
+
+                    String urlOfScreenshot = grapheneVisualTestingConf.get().getJcrContextRootURL() + "/upload/"
+                            + suiteName + "/patterns/"
+                            + patternRelativePath;
+                    HttpPost postPattern = new HttpPost(urlOfScreenshot);
+                    FileEntity screenshot = new FileEntity(dirOrFile);
+                    postPattern.setEntity(screenshot);
+                    result = !RestUtils.executePost(postPattern, httpclient,
+                            String.format("Pattern: %s uploaded to test suite: %s", dirOrFile.getName(), suiteName),
+                            String.format("ERROR: pattern %s was not uploaded to test suite %s", dirOrFile.getName(), suiteName)).isEmpty();
+
+                    //UPLOAD INFO ABOUT PATTERN TO DATABASE
+                    HttpPost postCreatePattern = new HttpPost(grapheneVisualTestingConf.get().getManagerContextRootURL()
+                            + "graphene-visual-testing-webapp/rest/patterns");
+                    postCreatePattern.setHeader("Content-Type", "application/json");
+                    String urlOfScreenshotContent = urlOfScreenshot.replace("/upload/", "/binary/") + "/jcr%3acontent/jcr%3adata";
+                    StringEntity patternEntity
+                            = new StringEntity("{\"name\":\"" + patternRelativePath + "\",\"urlOfScreenshot\":\""
+                                    + urlOfScreenshotContent + "\",\"testSuite\":{\"name\":\"" + suiteName + "\"}}", ContentType.APPLICATION_JSON);
+                    postCreatePattern.setEntity(patternEntity);
+                    RestUtils.executePost(postCreatePattern, httpclient,
+                            String.format("Pattern in database for %s created!", suiteName),
+                            String.format("Error while creating pattern in database for test suite: %s", suiteName));
+
+                }
+                //if partial result is false, finish early with false status
+                if (!result) {
+                    return result;
+                }
+
+            }
+
+        }
+        return result;
+    }
+
 }

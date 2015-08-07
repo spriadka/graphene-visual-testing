@@ -6,6 +6,7 @@ import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.arquillian.core.spi.ServiceLoader;
 import org.jboss.rusheye.arquillian.event.CrawlingDoneEvent;
+import org.jboss.rusheye.arquillian.event.StartCrawlMissingTestsEvent;
 
 /**
  *
@@ -19,6 +20,14 @@ public class CrawlingDoneObserver {
     public void saveDescriptorAndPatterns(@Observes CrawlingDoneEvent event) {
         DescriptorAndPatternsHandler handler = serviceLoader.get().onlyOne(DescriptorAndPatternsHandler.class);
         boolean success = handler.saveDescriptorAndPatterns();
+        if(success) {
+            System.out.println("Descriptor and Patterns saved!");
+        }
+    }
+    
+    public void saveDescriptorAndMissingPatterns(@Observes StartCrawlMissingTestsEvent event){
+        DescriptorAndPatternsHandler handler = serviceLoader.get().onlyOne(DescriptorAndPatternsHandler.class);
+        boolean success = handler.saveDescriptorAndMissingPatterns(event);
         if(success) {
             System.out.println("Descriptor and Patterns saved!");
         }

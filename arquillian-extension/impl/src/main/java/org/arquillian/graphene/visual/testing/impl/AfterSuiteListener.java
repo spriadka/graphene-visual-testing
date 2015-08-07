@@ -14,7 +14,6 @@ import org.jboss.rusheye.arquillian.event.StartCrawlingEvent;
 import java.util.logging.Logger;
 import org.jboss.rusheye.arquillian.event.FailedTestsCollection;
 import org.jboss.rusheye.arquillian.event.InsertDescriptorAndPatternsHandlerEvent;
-import org.jboss.rusheye.arquillian.event.RetrieveDescriptorAndPatternsHandlerEvent;
 import org.jboss.rusheye.arquillian.event.VisuallyUnstableTestsCollection;
 
 public class AfterSuiteListener {
@@ -30,9 +29,6 @@ public class AfterSuiteListener {
 
     @Inject
     private Event<StartCrawlingEvent> crawlEvent;
-
-    @Inject
-    private Event<RetrieveDescriptorAndPatternsHandlerEvent> retrieveDescriptorAndPatternsHandlerEvent;
 
     @Inject
     private Instance<ServiceLoader> serviceLoader;
