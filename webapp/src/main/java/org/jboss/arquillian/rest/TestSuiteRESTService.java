@@ -43,6 +43,7 @@ public class TestSuiteRESTService {
     @Path("/{testSuiteID:[0-9][0-9]*}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteTestSuite(@PathParam("testSuiteID") long id) {
+        LOGGER.info("I AM GOING TO DELETE TEST SUITE");
         TestSuite testSuiteToRemove = testSuiteManager.findById(id);
         jcrBean.removeTestSuite(testSuiteToRemove.getName());
         testSuiteManager.deleteTestSuite(testSuiteManager.findById(id));

@@ -50,6 +50,7 @@ public class SamplesRESTService {
         toCreate.setName(sample.getName());
         toCreate.setTestSuiteRun(testSuiteRun);
         toCreate.setUrlOfScreenshot(sample.getUrlOfScreenshot());
+        toCreate.setLastModificationDate(sample.getLastModificationDate());
         return sampleManager.createTestSuiteRun(toCreate).getSampleID();
     }
     
@@ -62,7 +63,7 @@ public class SamplesRESTService {
         LOGGER.info("Diff deleted from database");
         deleteSampleFromDatabase(diff);
         LOGGER.info("Sample deleted from database");
-        deleteTestSuiteRun(diff);
+        //deleteTestSuiteRun(diff);
         return Response.ok().build();
     }
     

@@ -2,6 +2,7 @@ package org.jboss.arquillian.model.testSuite;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.CascadeType;
@@ -32,6 +33,9 @@ public class Pattern {
 
     @Column(name = "URL_SCREENSHOT", unique = true, length = Diff.STRING_COLUMN_LENGTH)
     private String urlOfScreenshot;
+    
+    @Column(name = "LAST_MODIFICATION_DATE",length = Diff.STRING_COLUMN_LENGTH)
+    private String lastModificationDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "TEST_SUITE_ID")
@@ -85,10 +89,10 @@ public class Pattern {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 23 * hash + Objects.hashCode(this.name);
-        hash = 23 * hash + Objects.hashCode(this.urlOfScreenshot);
-        hash = 23 * hash + Objects.hashCode(this.testSuite);
-        hash = 23 * hash + Objects.hashCode(this.diffs);
+        hash = 23 * hash + Objects.hashCode(this.getName());
+        hash = 23 * hash + Objects.hashCode(this.getUrlOfScreenshot());
+        hash = 23 * hash + Objects.hashCode(this.getTestSuite());
+        hash = 23 * hash + Objects.hashCode(this.getDiffs());
         return hash;
     }
 
@@ -114,5 +118,19 @@ public class Pattern {
             return false;
         }
         return true;
+    }
+
+    /**
+     * @return the lastModificationDate
+     */
+    public String getLastModificationDate() {
+        return lastModificationDate;
+    }
+
+    /**
+     * @param lastModificationDate the lastModificationDate to set
+     */
+    public void setLastModificationDate(String lastModificationDate) {
+        this.lastModificationDate = lastModificationDate;
     }
 }

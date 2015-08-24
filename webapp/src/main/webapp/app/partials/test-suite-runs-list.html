@@ -4,29 +4,30 @@
         <tr>
             <th style="min-width: 80px;">Run Timestamp</th>
             <th style="min-width: 80px;">Project revision</th>
-            <th style="min-width: 80px"></th>
+            <th style="min-width: 80px;"></th>
+            <th style="min-width: 80px;"></th>
             <th style="width:20px;"> </th>
         </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="run in particularSuite.runs">
+        <tr ng-repeat="run in particularSuite.runs track by run.testSuiteRunID">
             <td><a href="#/suites/{{particularSuite.testSuiteID}}/runs/{{run.testSuiteRunID}}">
                     {{timestampToDate(run.timestamp)}}</a>
             </td>
-            <td>not-implemented-yet</td>
+            <td></td>
+            <!-- <td>
+                <a ng-if="needsToBeUpdated(run)" class="btn btn-small btn-success" ng-click="acceptAllNewSamplesAsNewPatterns(run.testSuiteRunID)">Accept all samples as new patterns</a>
+            </td>
             <td>
-                <div class="progress progress-striped" style="margin: 10px 20px 10px 0px; border-radius: 25px;" ng-controller="SuiteListCtrl">
-                    <div ng-if="isRun(run)">
+                <div class="progress progress-striped" style="margin: 10px 20px 10px 0px; border-radius: 25px;">
+                    <div>
                         <div class="progress-bar progress-bar-success" style="width: {{getSuccessfullPercentage(run)}}%" role="progressbar">SAME {{run.numberOfSuccessfullComparisons}}</div>
                         <div class="progress-bar progress-bar-danger" style="width: {{getFailedPercentage(run)}}%" role="progressbar">DIFFERS {{run.numberOfFailedComparisons}}</div>
                         <div class="progress-bar progress-bar-error" style="width: {{getFailedTestsPercentage(run)}}%"  role="progressbar">FAILED {{run.numberOfFailedFunctionalTests}}</div>                   
                     </div>
-                    <div ng-if="!isRun(run)">
-                        <div class="progress-bar progress-bar-warning" style="width: 100%" role="progressbar">COMPARISONS NOT AVAILABLE</div>
-                    </div>
                 </div>
-            </td>
-            <td><a ng-click="deleteSuiteRun(run.testSuiteRunID)" class="btn btn-small btn-danger">delete</a></td>
+            </td> 
+            <td><a ng-click="deleteSuiteRun(run.testSuiteRunID)" class="btn btn-small btn-danger">delete</a></td> -->
         </tr>
     </tbody>
 </table>

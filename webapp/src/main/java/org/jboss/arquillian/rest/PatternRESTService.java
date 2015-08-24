@@ -1,5 +1,6 @@
 package org.jboss.arquillian.rest;
 
+import org.jboss.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -16,6 +17,7 @@ import org.jboss.arquillian.managers.PatternManager;
 import org.jboss.arquillian.managers.TestSuiteManager;
 import org.jboss.arquillian.model.testSuite.Diff;
 import org.jboss.arquillian.model.testSuite.Pattern;
+import org.jboss.arquillian.model.testSuite.Sample;
 import org.jboss.arquillian.model.testSuite.TestSuite;
 
 /**
@@ -40,6 +42,8 @@ public class PatternRESTService {
     
     @Inject
     private JCRBean jcrBean;
+    
+    private final Logger LOGGER = Logger.getLogger(PatternRESTService.class);
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -50,6 +54,7 @@ public class PatternRESTService {
         toCreate.setName(pattern.getName());
         toCreate.setTestSuite(testSuite);
         toCreate.setUrlOfScreenshot(pattern.getUrlOfScreenshot());
+        toCreate.setLastModificationDate(pattern.getLastModificationDate());
         toCreate = patternManager.createPattern(toCreate);
         return toCreate;
     }
@@ -64,4 +69,26 @@ public class PatternRESTService {
         samplesRESTService.rejectSample(diffID);
         return Response.ok().build();
     }
+    
+    @PUT
+    @Path("/update/{diffID:[0-9][0-9]*}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response acceptSampleAsNewPattern(@PathParam("diffID") long diffID){
+        LOGGER.info("clicked");
+        Diff diff = diffManager.getDiff(diffID);
+        acceptSampleAsNewPattern(diff);
+        return Response.ok().build();
+        
+    }
+    
+    private void acceptSampleAsNewPattern(Diff diff){
+        Pattern pattern = diff.getPattern();
+        LOGGER.info("pattern retrieved");
+        LOGGER.info(pattern.getName());
+        Sample sample = diff.getSample();
+        jcrBean.changePattern(pattern, sample);
+        LOGGER.info("accepted new sample as pattern");
+        
+    }
+    
 }

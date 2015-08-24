@@ -5,21 +5,28 @@
  */
 
 
-var visualTestingDirectives = angular.module('visualTestingDirectives',[]);
+var visualTestingDirectives = angular.module('visualTestingDirectives', []);
 
-visualTestingDirectives.directive('runInfo',function(){
+visualTestingDirectives.directive('runInfo', function () {
+
+
+
     return {
         restrict: 'E',
         scope: {
             run: '='
         },
-        templateUrl: function(scope){
-            if (angular.isDefined(scope.diffUrl)){
+        templateUrl: function (scope) {
+            if (scope.diffUrl) {
                 return 'app/partials/directives/runInfoDiff.html';
             }
             else {
+
                 return 'app/partials/directives/runInfoSuccessful.html';
+
             }
-        } 
+        }
+
     };
-});
+}
+);

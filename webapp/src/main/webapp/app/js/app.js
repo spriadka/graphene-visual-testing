@@ -8,7 +8,6 @@ var visualTestingApp = angular.module('visualTestingApp', [
   'ngRoute',
   'visualTestingControllers',
   'visualTestingServices',
-  'visualTestingDirectives',
   'ui.bootstrap'
 ]);
 

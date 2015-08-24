@@ -39,6 +39,7 @@ public class TestSuiteRun implements Serializable {
     private int numberOfFailedComparisons;
     
     private int numberOfSuccessfullComparisons;
+    
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "TEST_SUITE_ID")

@@ -1,6 +1,7 @@
 package org.jboss.arquillian.model.testSuite;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import java.util.Date;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,6 +28,9 @@ public class Sample {
     
     @Column(name = "URL_SCREENSHOT", unique=true, length = Diff.STRING_COLUMN_LENGTH)
     private String urlOfScreenshot;
+    
+    @Column(name = "LAST_MODIFICATION_DATE",length = Diff.STRING_COLUMN_LENGTH)
+    private String lastModificationDate;
     
     @ManyToOne
     @JoinColumn(name = "TEST_SUITE_RUN_ID")
@@ -68,9 +72,9 @@ public class Sample {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this.name);
-        hash = 97 * hash + Objects.hashCode(this.urlOfScreenshot);
-        hash = 97 * hash + Objects.hashCode(this.testSuiteRun);
+        hash = 97 * hash + Objects.hashCode(this.getName());
+        hash = 97 * hash + Objects.hashCode(this.getUrlOfScreenshot());
+        hash = 97 * hash + Objects.hashCode(this.getTestSuiteRun());
         return hash;
     }
 
@@ -93,5 +97,19 @@ public class Sample {
             return false;
         }
         return true;
+    }
+
+    /**
+     * @return the lastModificationDate
+     */
+    public String getLastModificationDate() {
+        return lastModificationDate;
+    }
+
+    /**
+     * @param lastModificationDate the lastModificationDate to set
+     */
+    public void setLastModificationDate(String lastModificationDate) {
+        this.lastModificationDate = lastModificationDate;
     }
 }

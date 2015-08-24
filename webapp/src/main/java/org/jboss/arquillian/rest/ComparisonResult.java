@@ -1,6 +1,7 @@
 package org.jboss.arquillian.rest;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
@@ -12,9 +13,13 @@ public class ComparisonResult implements Serializable {
     
     private Long patternID;
     
+    private Date patternModificationDate;
+    
     private String sampleUrl;
     
     private Long sampleID;
+    
+    private Date sampleModificationDate;
     
     private String diffUrl;
     
@@ -27,12 +32,14 @@ public class ComparisonResult implements Serializable {
     public ComparisonResult() {
     }
 
-    public ComparisonResult(String patternUrl, Long patternID, String sampleUrl, Long sampleID, 
+    public ComparisonResult(String patternUrl, Long patternID,Date patternModificationDate, String sampleUrl, Long sampleID,Date sampleModificationDate ,
             String diffUrl, Long diffID, String testClassName, String testName) {
         this.patternUrl = patternUrl;
         this.patternID = patternID;
+        this.patternModificationDate = patternModificationDate;
         this.sampleUrl = sampleUrl;
         this.sampleID = sampleID;
+        this.sampleModificationDate = sampleModificationDate;
         this.diffUrl = diffUrl;
         this.diffID = diffID;
         this.testClassName = testClassName;
@@ -101,5 +108,33 @@ public class ComparisonResult implements Serializable {
 
     public void setTestName(String testName) {
         this.testName = testName;
+    }
+
+    /**
+     * @return the patternModificationDate
+     */
+    public Date getPatternModificationDate() {
+        return patternModificationDate;
+    }
+
+    /**
+     * @param patternModificationDate the patternModificationDate to set
+     */
+    public void setPatternModificationDate(Date patternModificationDate) {
+        this.patternModificationDate = patternModificationDate;
+    }
+
+    /**
+     * @return the sampleModificationDate
+     */
+    public Date getSampleModificationDate() {
+        return sampleModificationDate;
+    }
+
+    /**
+     * @param sampleModificationDate the sampleModificationDate to set
+     */
+    public void setSampleModificationDate(Date sampleModificationDate) {
+        this.sampleModificationDate = sampleModificationDate;
     }
 }

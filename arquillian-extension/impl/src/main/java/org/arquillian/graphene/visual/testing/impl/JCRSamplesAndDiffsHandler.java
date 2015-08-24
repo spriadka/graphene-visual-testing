@@ -102,11 +102,11 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
             uploadSamples(patternsNamesAndCorrespondingDiffs, timestampWithoutWhiteSpaces, testSuiteRunID);
             uploadDiffs(patternsNamesAndCorrespondingDiffs, timestampWithoutWhiteSpaces, testSuiteRunID);
         }
-        else {
-            List<String> samplesList = getSame();
-            diffsUtils.get().setDiffCreated(false);
-            uploadSamples(samplesList, timestampWithoutWhiteSpaces, testSuiteRunID);
-        }
+
+        List<String> samplesList = getSame();
+        diffsUtils.get().setDiffCreated(false);
+        uploadSamples(patternsNamesAndCorrespondingDiffs, samplesList, timestampWithoutWhiteSpaces, testSuiteRunID);
+
     }
 
     private void uploadSamples(Map<String, String> patternsNamesAndCorrespondingDiffs, String timestamp, String testSuiteRunID) {
@@ -139,7 +139,7 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
                             "{\"name\":\"" + patternSource + "\",\"urlOfScreenshot\":\""
                             + url.replace("/upload/", "/binary/") + "/jcr%3acontent/jcr%3adata"
                             + "\",\"testSuiteRun\":{\"testSuiteRunID\":\"" + testSuiteRunID
-                            + "\"}}", ContentType.APPLICATION_JSON);
+                            + "\"},\"lastModificationDate\":\"" + timestamp + "\"}", ContentType.APPLICATION_JSON);
                     postCreateSample.setEntity(toDatabaseSample);
                     String sampleID = RestUtils.executePost(postCreateSample, httpclient,
                             String.format("Sample in database for %s created!", suiteName),
@@ -150,8 +150,8 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
             }
         }
     }
-    
-    private void uploadSamples(List<String> samplesList, String timestamp, String testSuiteRunID) {
+
+    private void uploadSamples(Map<String, String> patternsAndDiffs, List<String> samplesList, String timestamp, String testSuiteRunID) {
         final File screenshotsDir = screenshooterConf.get().getRootDir();
         GrapheneVisualTestingConfiguration gVC = grapheneVisualTestingConf.get();
         final String suiteName = gVC.getTestSuiteName();
@@ -160,7 +160,7 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
         NodeList testNodes = getDOMFromSuiteXML().getElementsByTagName("test");
         for (String same : samplesList) {
             for (int i = 0; i < testNodes.getLength(); i++) {
-                if (testNodes.item(i).getAttributes().getNamedItem("name").getNodeValue().equals(same)) {
+                if (testNodes.item(i).getAttributes().getNamedItem("name").getNodeValue().equals(same) && !patternsAndDiffs.containsKey(same)) {
                     String patternSource = testNodes.item(i).getChildNodes().item(1).getAttributes()
                             .getNamedItem("source").getNodeValue();
                     //UPLOAD SAMPLE
@@ -181,7 +181,7 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
                             "{\"name\":\"" + patternSource + "\",\"urlOfScreenshot\":\""
                             + url.replace("/upload/", "/binary/") + "/jcr%3acontent/jcr%3adata"
                             + "\",\"testSuiteRun\":{\"testSuiteRunID\":\"" + testSuiteRunID
-                            + "\"}}", ContentType.APPLICATION_JSON);
+                            + "\"},\"lastModificationDate\":\"" + timestamp + "\"}", ContentType.APPLICATION_JSON);
                     postCreateSample.setEntity(toDatabaseSample);
                     String sampleID = RestUtils.executePost(postCreateSample, httpclient,
                             String.format("Sample in database for %s created!", suiteName),
@@ -265,8 +265,8 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
             XPathFactory xPathFactory = XPathFactory.newInstance();
             XPath xPath = xPathFactory.newXPath();
             Document resultXml = getDOMFromResultXMLazily();
-            NodeList sameTests = (NodeList)xPath.compile("/visual-suite-result/test/pattern[@result=" + "'" + ResultConclusion.SAME.toString() + "']").evaluate(resultXml,XPathConstants.NODESET);
-            for (int i=0; i < sameTests.getLength(); i++){
+            NodeList sameTests = (NodeList) xPath.compile("/visual-suite-result/test/pattern[@result=" + "'" + ResultConclusion.SAME.toString() + "']").evaluate(resultXml, XPathConstants.NODESET);
+            for (int i = 0; i < sameTests.getLength(); i++) {
                 result.add(sameTests.item(i).getAttributes().getNamedItem("name").getNodeValue());
             }
         } catch (XPathExpressionException ex) {

@@ -1,5 +1,6 @@
 package org.jboss.arquillian.rest;
 
+import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -18,6 +19,7 @@ import org.jboss.arquillian.managers.TestSuiteRunManager;
 import org.jboss.arquillian.model.testSuite.Diff;
 import org.jboss.arquillian.model.testSuite.Sample;
 import org.jboss.arquillian.model.testSuite.TestSuiteRun;
+import org.jboss.logging.Logger;
 
 /**
  *
@@ -42,6 +44,8 @@ public class DiffRESTService {
     @Inject
     private JCRBean jcrBean;
     
+    private final Logger LOGGER = Logger.getLogger(DiffRESTService.class);
+    
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -57,4 +61,6 @@ public class DiffRESTService {
                 assocSample.getTestSuiteRun().getTestSuite().getTestSuiteID()));
         return diffManager.createDiff(toCreate).getDiffID();
     }
+    
+    
 }
