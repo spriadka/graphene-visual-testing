@@ -106,7 +106,7 @@ public class TestSuiteRunRESTService {
         if (diffManager.areThereDiffs(id)) {
             for (Diff diff : diffs) {
                 alreadyUploadedSamples.add(diff.getSample().getSampleID());
-                result.add(new ComparisonResult(diff.getPattern().getUrlOfScreenshot(), diff.getPattern().getPatternID(), new Date(Long.parseLong(diff.getPattern().getLastModificationDate())), diff.getSample().getUrlOfScreenshot(),diff.getSample().getSampleID(), new Date(Long.parseLong(diff.getSample().getLastModificationDate())), diff.getUrlOfScreenshot(), diff.getDiffID(), getTestClassName(diff), getTestName(diff)));
+                result.add(new ComparisonResult(diff.getPattern().getUrlOfScreenshot(), diff.getPattern().getPatternID(), diff.getPattern().getLastModificationDate(), diff.getSample().getUrlOfScreenshot(),diff.getSample().getSampleID(), diff.getSample().getLastModificationDate(), diff.getUrlOfScreenshot(), diff.getDiffID(), getTestClassName(diff), getTestName(diff)));
             }
         }
 
@@ -114,7 +114,7 @@ public class TestSuiteRunRESTService {
         for (Sample sample : samples) {
             if (!alreadyUploadedSamples.contains(sample.getSampleID())) {
                 Pattern pattern = patternManager.getPattern(sample.getName(), sample.getTestSuiteRun().getTestSuite().getTestSuiteID());
-                result.add(new ComparisonResult(pattern.getUrlOfScreenshot(), pattern.getPatternID(), new Date(Long.parseLong(pattern.getLastModificationDate())), sample.getUrlOfScreenshot(), sample.getSampleID(), new Date(Long.parseLong(sample.getLastModificationDate())), null, id,getTestClassName(sample), getTestName(sample)));
+                result.add(new ComparisonResult(pattern.getUrlOfScreenshot(), pattern.getPatternID(),pattern.getLastModificationDate(), sample.getUrlOfScreenshot(), sample.getSampleID(),sample.getLastModificationDate(), null, id,getTestClassName(sample), getTestName(sample)));
             }
         }
         return result;

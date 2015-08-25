@@ -13,13 +13,13 @@ public class ComparisonResult implements Serializable {
     
     private Long patternID;
     
-    private Date patternModificationDate;
+    private String patternModificationDate;
     
     private String sampleUrl;
     
     private Long sampleID;
     
-    private Date sampleModificationDate;
+    private String sampleModificationDate;
     
     private String diffUrl;
     
@@ -32,7 +32,7 @@ public class ComparisonResult implements Serializable {
     public ComparisonResult() {
     }
 
-    public ComparisonResult(String patternUrl, Long patternID,Date patternModificationDate, String sampleUrl, Long sampleID,Date sampleModificationDate ,
+    public ComparisonResult(String patternUrl, Long patternID,String patternModificationDate, String sampleUrl, Long sampleID,String sampleModificationDate ,
             String diffUrl, Long diffID, String testClassName, String testName) {
         this.patternUrl = patternUrl;
         this.patternID = patternID;
@@ -113,28 +113,28 @@ public class ComparisonResult implements Serializable {
     /**
      * @return the patternModificationDate
      */
-    public Date getPatternModificationDate() {
+    public String getPatternModificationDate() {
         return patternModificationDate;
     }
 
     /**
      * @param patternModificationDate the patternModificationDate to set
      */
-    public void setPatternModificationDate(Date patternModificationDate) {
+    public void setPatternModificationDate(String patternModificationDate) {
         this.patternModificationDate = patternModificationDate;
     }
 
     /**
      * @return the sampleModificationDate
      */
-    public Date getSampleModificationDate() {
+    public String getSampleModificationDate() {
         return sampleModificationDate;
     }
 
     /**
      * @param sampleModificationDate the sampleModificationDate to set
      */
-    public void setSampleModificationDate(Date sampleModificationDate) {
+    public void setSampleModificationDate(String sampleModificationDate) {
         this.sampleModificationDate = sampleModificationDate;
     }
 }

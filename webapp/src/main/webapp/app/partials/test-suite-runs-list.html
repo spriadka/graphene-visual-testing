@@ -10,24 +10,24 @@
         </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="run in particularSuite.runs track by run.testSuiteRunID">
+        <tr ng-repeat="run in particularSuite.runs ">
             <td><a href="#/suites/{{particularSuite.testSuiteID}}/runs/{{run.testSuiteRunID}}">
                     {{timestampToDate(run.timestamp)}}</a>
             </td>
             <td></td>
-            <!-- <td>
-                <a ng-if="needsToBeUpdated(run)" class="btn btn-small btn-success" ng-click="acceptAllNewSamplesAsNewPatterns(run.testSuiteRunID)">Accept all samples as new patterns</a>
+            <td>
+                <a ng-if="run.needsToBeUpdated" class="btn btn-small btn-success" ng-click="acceptAllNewSamplesAsNewPatterns(run.testSuiteRunID)">Accept all samples as new patterns</a>
             </td>
             <td>
                 <div class="progress progress-striped" style="margin: 10px 20px 10px 0px; border-radius: 25px;">
                     <div>
-                        <div class="progress-bar progress-bar-success" style="width: {{getSuccessfullPercentage(run)}}%" role="progressbar">SAME {{run.numberOfSuccessfullComparisons}}</div>
-                        <div class="progress-bar progress-bar-danger" style="width: {{getFailedPercentage(run)}}%" role="progressbar">DIFFERS {{run.numberOfFailedComparisons}}</div>
-                        <div class="progress-bar progress-bar-error" style="width: {{getFailedTestsPercentage(run)}}%"  role="progressbar">FAILED {{run.numberOfFailedFunctionalTests}}</div>                   
+                        <div class="progress-bar progress-bar-success" style="width: {{run.successfulPercentage}}%" role="progressbar">SAME {{run.numberOfSuccessfullComparisons}}</div>
+                        <div class="progress-bar progress-bar-danger" style="width: {{run.failedPercentage}}%" role="progressbar">DIFFERS {{run.numberOfFailedComparisons}}</div>
+                        <div class="progress-bar progress-bar-error" style="width: {{run.failedTestPercentage}}%"  role="progressbar">FAILED {{run.numberOfFailedFunctionalTests}}</div>                   
                     </div>
                 </div>
             </td> 
-            <td><a ng-click="deleteSuiteRun(run.testSuiteRunID)" class="btn btn-small btn-danger">delete</a></td> -->
+            <td><a ng-click="deleteSuiteRun(run.testSuiteRunID)" class="btn btn-small btn-danger">delete</a></td>
         </tr>
     </tbody>
 </table>

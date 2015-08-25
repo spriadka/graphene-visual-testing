@@ -9,10 +9,11 @@ var visualTestingControllers = angular.module('visualTestingControllers', []);
 visualTestingControllers.controller('SuiteListCtrl', ['$scope', '$route', '$log',
     'Suites', 'ParticularSuite', 'DeleteParticularSuite',
     function ($scope, $route, $log, Suites, ParticularSuite, DeleteParticularSuite) {
-        $scope.lastRun = function(suite){
-          return suite.runs[suite.runs.length - 1];
+        $scope.lastRun = function (suite) {
+            return suite.runs[suite.runs.length - 1];
         };
         $scope.suites = Suites.query();
+        $log.info($scope.suites);
         $scope.count = 0;
         $scope.deleteSuite = function (testSuiteID) {
             var promise =
@@ -26,24 +27,8 @@ visualTestingControllers.controller('SuiteListCtrl', ['$scope', '$route', '$log'
                         $log.error('failure delete suite', errorPayload);
                     });
         };
-        $scope.isRun = function (run) {
-            window.alert("LOADED IS RUN" + $scope.count);
-            $log.info($scope.$$phase);
-            $scope.count++;
-            if (run === null || angular.isUndefined(run)) {
-                return false;
-            }
-            var success = run.numberOfSuccessfullComparisons;
-            var failed = run.numberOfFailedComparisons;
-            var failedTests = run.numberOfFailedFunctionalTests;
-            var sum = success + failed + failedTests;
-            if (sum === 0) {
-                return false;
-            }
-            return true;
-        };
-        $scope.getSuccessfullPercentage = getSuccessfulPercentage;
         $scope.getFailedPercentage = getFailedPercentage;
+        $scope.getSuccessfullPercentage = getSuccessfulPercentage;
         $scope.getFailedTestsPercentage = getFailedTestsPercentage;
     }]);
 
@@ -51,6 +36,55 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
     '$route', '$log', 'ParticularSuite', 'DeleteParticularSuiteRun', 'ParticularRun', 'AcceptSampleAsNewPattern', '$q',
     function ($scope, $routeParams, $route, $log, ParticularSuite, DeleteParticularSuiteRun, ParticularRun, AcceptSampleAsNewPattern, $q) {
         $scope.particularSuite = ParticularSuite.query({testSuiteID: $routeParams.testSuiteID});
+
+        $scope.needsToBeUpdatedOneRun = function (comparisonResult) {
+            var patternModificationDate = parseInt(comparisonResult.patternModificationDate);
+            var sampleModificationDate = parseInt(comparisonResult.sampleModificationDate);
+            if (patternModificationDate > sampleModificationDate){
+                return true;
+            }
+            return false;
+        };
+        $scope.needsToBeUpdated = function (run) {
+            var result = false;
+            var promised = ParticularRun.query({runId: run.testSuiteRunID}).$promise;
+            promised.then(function (value) {
+                var jsonComparisonResults = angular.toJson(value);
+                var comparisonResults = JSON.parse(jsonComparisonResults);
+                for (var i = 0; i < comparisonResults.length; i++) {
+                    var comparisonResult = comparisonResults[i];
+                    $log.info(comparisonResult);
+                    result = result || $scope.needsToBeUpdatedOneRun(comparisonResult);
+                }
+                
+            });
+            return result;
+        };
+        $scope.addRemainingInfoToRuns = function () {
+            var promised = $scope.particularSuite.$promise;
+            promised.then(function (value) {
+                var jsonRuns = angular.toJson(value);
+                var allRuns = JSON.parse(jsonRuns).runs;
+                $log.info(promised);
+                $log.info(allRuns);
+                for (var i = 0; i < allRuns.length; i++) {
+                    $log.info("proccessing run: " + i);
+                    var currentRun = allRuns[i];
+                    currentRun.successfulPercentage = getSuccessfulPercentage(currentRun);
+                    currentRun.failedPercentage = getFailedPercentage(currentRun);
+                    currentRun.failedTestPercentage = getFailedTestsPercentage(currentRun);
+                    currentRun.needsToBeUpdated = $scope.needsToBeUpdated(currentRun);
+                    $log.info(currentRun);
+                }
+                $log.info(allRuns);
+                $scope.particularSuite.runs = allRuns;
+                $log.info(promised);
+                $log.info($scope.particularSuite);
+            }
+            );
+        };
+        $scope.addRemainingInfoToRuns();
+
         $scope.timestampToDate = timestampToDate;
         $scope.count = 0;
         $scope.deleteSuiteRun = function (testSuiteRunID) {
@@ -67,23 +101,6 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                         $log.error('failure delete suite run', errorPayload);
                     });
         };
-
-        $scope.needsToBeUpdated = function (run) {
-            var result = false;
-            $log.info($scope.$$phase);
-            
-//            promised.then(function(value){
-//                var jsonComparisonResults = angular.toJson(value);
-//                var comparisonResults = JSON.parse(jsonComparisonResults);
-//                for (var i=0; i < comparisonResults.length; i++){
-//                    var comparisonResult = comparisonResults[i];
-//                    $log.info(comparisonResult);
-//                    result = result || needsToBeUpdatedOneRun(comparisonResult);
-//                }
-//            });
-            return result;
-        };
-
         $scope.getFailedPercentage = getFailedPercentage;
         $scope.getSuccessfullPercentage = getSuccessfulPercentage;
         $scope.getFailedTestsPercentage = getFailedTestsPercentage;
