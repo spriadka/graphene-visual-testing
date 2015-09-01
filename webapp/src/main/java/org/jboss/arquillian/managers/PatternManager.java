@@ -26,6 +26,10 @@ public class PatternManager {
         return pattern;
     }
     
+    public void updatePattern(Pattern pattern){
+        em.merge(pattern);
+    }
+    
     public Pattern getPattern(String nameOfPattern, Long testSuiteID) {
         Query query = 
                 em.createQuery("SELECT e FROM PATTERN e WHERE e.name = :name AND e.testSuite.testSuiteID = :testSuiteID");

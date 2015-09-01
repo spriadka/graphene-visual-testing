@@ -7,6 +7,7 @@ var PARTIALS = 'app/partials';
 var visualTestingApp = angular.module('visualTestingApp', [
   'ngRoute',
   'visualTestingControllers',
+  'visualTestingDirectives',
   'visualTestingServices',
   'ui.bootstrap'
 ]);

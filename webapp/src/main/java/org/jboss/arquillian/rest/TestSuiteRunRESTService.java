@@ -114,7 +114,7 @@ public class TestSuiteRunRESTService {
         for (Sample sample : samples) {
             if (!alreadyUploadedSamples.contains(sample.getSampleID())) {
                 Pattern pattern = patternManager.getPattern(sample.getName(), sample.getTestSuiteRun().getTestSuite().getTestSuiteID());
-                result.add(new ComparisonResult(pattern.getUrlOfScreenshot(), pattern.getPatternID(),pattern.getLastModificationDate(), sample.getUrlOfScreenshot(), sample.getSampleID(),sample.getLastModificationDate(), null, id,getTestClassName(sample), getTestName(sample)));
+                result.add(new ComparisonResult(pattern.getUrlOfScreenshot(), pattern.getPatternID(),pattern.getLastModificationDate(), sample.getUrlOfScreenshot(), sample.getSampleID(),sample.getLastModificationDate(), null,null,getTestClassName(sample), getTestName(sample)));
             }
         }
         return result;

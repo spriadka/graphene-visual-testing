@@ -6,17 +6,35 @@
             <th style="min-width: 80px;">Project revision</th>
             <th style="min-width: 80px;"></th>
             <th style="min-width: 80px;"></th>
+            <th style="min-width: 80px;"></th>
             <th style="width:20px;"> </th>
         </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="run in particularSuite.runs ">
+        <tr ng-repeat="run in particularSuite.runs|orderBy:'testSuiteRunID':true">
             <td><a href="#/suites/{{particularSuite.testSuiteID}}/runs/{{run.testSuiteRunID}}">
                     {{timestampToDate(run.timestamp)}}</a>
             </td>
             <td></td>
             <td>
-                <a ng-if="run.needsToBeUpdated" class="btn btn-small btn-success" ng-click="acceptAllNewSamplesAsNewPatterns(run.testSuiteRunID)">Accept all samples as new patterns</a>
+                <!--<div ng-if="!run.needsToBeUpdated" class="alert alert-success" style="margin: auto; border-radius: 25px;">
+                    <span class="glyphicon glyphicon-ok-circle"></span>
+                    ALL PATTERNS ARE UP TO DATE
+                </div>
+                <button ng-if="run.needsToBeUpdated || run.extraTests > 0" class="alert alert-danger" style="margin: auto; border-radius: 25px;"
+                        popover="<p>AHOJ</p>" popover-title="Following patterns are outdated">
+                    <span class="glyphicon glyphicon-exclamation-sign"></span>
+                    <span ng-if="run.needsToBeUpdated" class="badge">{{run.errorContent.length}}</span>
+                    {{run.needsToBeUpdated ? ((run.errorContent.length > 1) ? 'PATTERNS OUT OF DATE' : 'PATTERN OUT OF DATE'):''}}
+                    <span ng-if="run.extraTests > 0" class="badge">{{run.extraTests}}</span>
+                    {{(run.extraTests > 0) ? ((run.extraTests > 1) ? 'NEW PATTERNS' : 'NEW PATTERN'):''}}
+                    
+                </button> -->
+                <div alert-info info="run" style="margin: auto; border-radius: 25px;">
+                </div>
+            </td>
+            <td>
+                <!-- <a ng-if="run.needsToBeUpdated" class="btn btn-small btn-success" ng-click="acceptAllNewSamplesAsNewPatterns(run.testSuiteRunID)">Accept all samples as new patterns</a> -->
             </td>
             <td>
                 <div class="progress progress-striped" style="margin: 10px 20px 10px 0px; border-radius: 25px;">

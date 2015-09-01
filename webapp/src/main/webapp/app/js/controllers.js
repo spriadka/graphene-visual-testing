@@ -36,59 +36,62 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
     '$route', '$log', 'ParticularSuite', 'DeleteParticularSuiteRun', 'ParticularRun', 'AcceptSampleAsNewPattern', '$q',
     function ($scope, $routeParams, $route, $log, ParticularSuite, DeleteParticularSuiteRun, ParticularRun, AcceptSampleAsNewPattern, $q) {
         $scope.particularSuite = ParticularSuite.query({testSuiteID: $routeParams.testSuiteID});
-
-        $scope.needsToBeUpdatedOneRun = function (comparisonResult) {
+        var needsToBeUpdatedOneRun = function (comparisonResult) {
             var patternModificationDate = parseInt(comparisonResult.patternModificationDate);
             var sampleModificationDate = parseInt(comparisonResult.sampleModificationDate);
-            if (patternModificationDate > sampleModificationDate){
+            if (patternModificationDate > sampleModificationDate) {
                 return true;
             }
             return false;
         };
         $scope.needsToBeUpdated = function (run) {
-            var result = false;
+            $log.info("RUNNING NEEDS TO BE UPDATED");
             var promised = ParticularRun.query({runId: run.testSuiteRunID}).$promise;
-            promised.then(function (value) {
-                var jsonComparisonResults = angular.toJson(value);
-                var comparisonResults = JSON.parse(jsonComparisonResults);
+            promised.then(function (comparisonResults) {
+                var resultPromised = false;
                 for (var i = 0; i < comparisonResults.length; i++) {
+                    $log.info("UPDATED PROMISE");
                     var comparisonResult = comparisonResults[i];
-                    $log.info(comparisonResult);
-                    result = result || $scope.needsToBeUpdatedOneRun(comparisonResult);
+                    var partialResult = needsToBeUpdatedOneRun(comparisonResult);
+                    if (partialResult) {
+                        run.errorContent = (typeof run.errorContent !== 'undefined' && run.errorContent instanceof Array) ? run.errorContent : [];
+                        var errorData = {};
+                        errorData.name = comparisonResult.testName;
+                        errorData.patternDate = comparisonResult.patternModificationDate;
+                        errorData.sampleDate = comparisonResult.sampleModificationDate;
+                        run.errorContent.push(errorData);
+                    }
+                    resultPromised = resultPromised || partialResult;
                 }
-                
+                run.needsToBeUpdated = resultPromised;
             });
-            return result;
         };
+
         $scope.addRemainingInfoToRuns = function () {
             var promised = $scope.particularSuite.$promise;
             promised.then(function (value) {
-                var jsonRuns = angular.toJson(value);
-                var allRuns = JSON.parse(jsonRuns).runs;
-                $log.info(promised);
-                $log.info(allRuns);
+                var allRuns = value.runs;
                 for (var i = 0; i < allRuns.length; i++) {
-                    $log.info("proccessing run: " + i);
+                    $log.info("PROCESSING RUN: " + i);
                     var currentRun = allRuns[i];
+                    var currentNumberOfTests = getSumOfTests(currentRun);
+                    var previousNumberOfTests = getSumOfTests(allRuns[i - 1]);
+                    if (currentNumberOfTests > previousNumberOfTests && (i > 0)) {
+                        currentRun.extraTests = currentNumberOfTests - previousNumberOfTests;
+                    }
                     currentRun.successfulPercentage = getSuccessfulPercentage(currentRun);
                     currentRun.failedPercentage = getFailedPercentage(currentRun);
                     currentRun.failedTestPercentage = getFailedTestsPercentage(currentRun);
-                    currentRun.needsToBeUpdated = $scope.needsToBeUpdated(currentRun);
-                    $log.info(currentRun);
+                    $scope.needsToBeUpdated(currentRun);
                 }
-                $log.info(allRuns);
                 $scope.particularSuite.runs = allRuns;
-                $log.info(promised);
-                $log.info($scope.particularSuite);
-            }
-            );
+                return allRuns;
+            });
         };
         $scope.addRemainingInfoToRuns();
-
         $scope.timestampToDate = timestampToDate;
         $scope.count = 0;
         $scope.deleteSuiteRun = function (testSuiteRunID) {
-            window.alert("loaded run: " + $scope.count);
             var promise =
                     DeleteParticularSuiteRun.deleteParticularSuiteRun(testSuiteRunID);
             promise.then(
@@ -118,16 +121,12 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                     }
                 }
             });
-
-            /*var clickedElement = event.target;
-             var idOfClickedElement = '#' + clickedElement.id;
-             $log.info(idOfClickedElement);
-             jQuery(idOfClickedElement).addClass('disabled');
-             $log.info(clickedElement);*/
-            //$route.reload();
         };
 
-    }]);
+    }
+
+
+]);
 
 visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParams', '$log',
     '$route', '$location', 'ParticularRun', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern',
@@ -145,7 +144,6 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
                 $log.error('failure when deleting pattern', errorPayload);
             });
         };
-
         $scope.rejectSample = function (diffID) {
             var promise =
                     RejectSample.rejectSample(diffID);
@@ -196,6 +194,19 @@ var back = function () {
     window.history.back();
 };
 
+var getSumOfTests = function (run) {
+    if (!isRun(run)) {
+        return 0;
+    }
+    else {
+        var success = run.numberOfSuccessfullComparisons;
+        var failed = run.numberOfFailedComparisons;
+        var failedTests = run.numberOfFailedFunctionalTests;
+        var sum = success + failed + failedTests;
+        return sum;
+    }
+};
+
 var getSuccessfulPercentage = function (run) {
     var success = run.numberOfSuccessfullComparisons;
     var failed = run.numberOfFailedComparisons;
@@ -237,10 +248,8 @@ var isRun = function (run) {
 var isDiff = function (result) {
     if (result.diffUrl !== null) {
         return true;
-    }
-    else {
+    } else {
         return false;
     }
 };
-
 

@@ -59,6 +59,10 @@ public class PatternRESTService {
         return toCreate;
     }
     
+    private void updatePattern(Pattern toUpdate){
+        patternManager.updatePattern(toUpdate);
+    }
+    
     @PUT
     @Path("/reject/{diffID:[0-9][0-9]*}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -87,6 +91,8 @@ public class PatternRESTService {
         LOGGER.info(pattern.getName());
         Sample sample = diff.getSample();
         jcrBean.changePattern(pattern, sample);
+        pattern.setLastModificationDate(sample.getLastModificationDate());
+        updatePattern(pattern);
         LOGGER.info("accepted new sample as pattern");
         
     }
