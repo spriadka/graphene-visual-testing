@@ -104,9 +104,6 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                         $log.error('failure delete suite run', errorPayload);
                     });
         };
-        $scope.getFailedPercentage = getFailedPercentage;
-        $scope.getSuccessfullPercentage = getSuccessfulPercentage;
-        $scope.getFailedTestsPercentage = getFailedTestsPercentage;
         $scope.isDiff = isDiff;
         $scope.acceptAllNewSamplesAsNewPatterns = function (testSuiteRunID) {
             var promised = ParticularRun.query({runId: testSuiteRunID}).$promise;
@@ -132,9 +129,24 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
     '$route', '$location', 'ParticularRun', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern',
     function ($scope, $routeParams, $log, $route, $location, ParticularRun,
             RejectSample, AcceptSampleAsNewPattern, RejectPattern) {
-
+        
+        $log.info("Controller called");
         $scope.comparisonResults = ParticularRun.query({runId: $routeParams.runId});
         $scope.back = back;
+
+        $scope.updateRuns = function () {
+            $log.info("UPDATERUNS");
+            var promisedComparisonResults = $scope.comparisonResults.$promise;
+            promisedComparisonResults.then(function (value) {
+                for (var i = 0; i < value.length; i++) {
+                    var comparisonResult = value[i];
+                    comparisonResult.isDiff = isDiff(comparisonResult);
+                }
+                $log.info(value);
+                $log.info($scope.comparisonResults);
+            });
+        };
+        $scope.updateRuns();
         $scope.rejectPattern = function (diffID) {
             var promise = RejectPattern.rejectPattern(diffID);
             promise.then(function (payload) {
@@ -172,7 +184,6 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
             });
         };
 
-        $scope.isDiff = isDiff;
     }]);
 
 /* Help methods */
@@ -208,27 +219,15 @@ var getSumOfTests = function (run) {
 };
 
 var getSuccessfulPercentage = function (run) {
-    var success = run.numberOfSuccessfullComparisons;
-    var failed = run.numberOfFailedComparisons;
-    var failedTests = run.numberOfFailedFunctionalTests;
-    var sum = success + failed + failedTests;
-    return 100 * (success / sum);
+    return 100 * (run.numberOfSuccessfullComparisons / getSumOfTests(run));
 };
 
 var getFailedPercentage = function (run) {
-    var success = run.numberOfSuccessfullComparisons;
-    var failed = run.numberOfFailedComparisons;
-    var failedTests = run.numberOfFailedFunctionalTests;
-    var sum = success + failed + failedTests;
-    return 100 * (failed / sum);
+    return 100 * (run.numberOfFailedComparisons / getSumOfTests(run));
 };
 
 var getFailedTestsPercentage = function (run) {
-    var success = run.numberOfSuccessfullComparisons;
-    var failed = run.numberOfFailedComparisons;
-    var failedTests = run.numberOfFailedFunctionalTests;
-    var sum = success + failed + failedTests;
-    return 100 * (failedTests / sum);
+    return 100 * (run.numberOfFailedFunctionalTests / getSumOfTests(run));
 };
 
 var isRun = function (run) {
@@ -248,8 +247,7 @@ var isRun = function (run) {
 var isDiff = function (result) {
     if (result.diffUrl !== null) {
         return true;
-    } else {
-        return false;
     }
+    return false;
 };
 

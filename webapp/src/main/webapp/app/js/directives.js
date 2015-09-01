@@ -67,15 +67,26 @@ visualTestingDirectives.directive('alertInfo', function ($compile) {
  );
  */
 visualTestingDirectives.directive('jcrop', ['$injector', function () {
+        
+        var showCoordinates = function(selection){
+          var result = {};
+          result.x = selection.x;
+          result.y = selection.y;
+          result.x2 = selection.x2;
+          result.y2 = selection.y2;
+          result.width = selection.w;
+          result.height = selection.h;
+          console.log(result);
+        };
+        
         return {
             restrict: 'A',
             link: function (scope, elem, attr) {
                 $(elem).Jcrop({
                     bgColor: 'black',
-                    multi: true
-                },function(){
-                    var crop = this;
-                    console.log(crop);
+                    multi: true,
+                    onSelect: showCoordinates,
+                    onChange: showCoordinates
                 });
                 
             }

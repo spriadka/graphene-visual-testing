@@ -26,7 +26,11 @@ visualTestingApp.config(['$routeProvider',
       when('/suites/:testSuiteID/runs/:runId', {
         templateUrl: PARTIALS + '/particular-run.html',
         controller: 'ParticularRunCtrl'
-      }).
+      })
+      .when('/phpinfo',{
+          templateUrl: 'app/info.php'
+      })
+      .
       otherwise({
         redirectTo: '/suites'
       });
