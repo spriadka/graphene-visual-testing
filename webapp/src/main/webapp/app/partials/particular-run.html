@@ -8,6 +8,7 @@
             <b>Test class:</b> {{comparisonResult.testClassName}}<br />
             <b>Test name:</b> {{comparisonResult.testName}}<br />
         </div>
+        <!--
         <div ng-if="comparisonResult.isDiff">
             <carousel>
                 <slide active="active">
@@ -40,6 +41,7 @@
         <div ng-if="!comparisonResult.isDiff">
             <img ng-src="app/img/tick.png">       
         </div> 
-        
+        -->
+        <div run-info result="comparisonResult"></div>
     </li>
 </ul>

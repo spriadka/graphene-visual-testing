@@ -4,28 +4,29 @@ To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
-<carousel>
-      <slide active="active">
-        <img src="{{run.patternUrl}}" style="margin:auto;">
-        <div class="carousel-caption">
-          <h4>PATTERN</h4>
-        </div>
-      </slide>
-      <slide>
-        <img src="{{run.sampleUrl}}" style="margin:auto;">
-        <div class="carousel-caption">
-          <h4>SAMPLE</h4>
-        </div>
-      </slide>
-      <slide>
-        <img src="{{run.diffUrl}}" style="margin:auto;">
-        <div class="carousel-caption">
-          <h4>DIFF</h4>
-        </div>
-      </slide>
+    <carousel>
+        <slide active="active">
+            <img src="{{result.patternUrl}}" style="margin:auto;">
+            <div class="carousel-caption">
+                <h4>PATTERN</h4>
+            </div>
+        </slide>
+        <slide>
+            <img src="{{result.sampleUrl}}" style="margin:auto;" jcrop>
+            <div class="carousel-caption">
+                <h4>SAMPLE</h4>
+            </div>
+        </slide>
+        <slide>
+            <img src="{{result.diffUrl}}" style="margin:auto;">
+            <div class="carousel-caption">
+                <h4>DIFF</h4>
+            </div>
+        </slide>
     </carousel>
-    <div class="centre">
-      <a ng-click="rejectPattern(run.diffID)" class="btn btn-small btn-danger">Reject pattern</a>
-      <a ng-click="rejectSample(run.diffID)" class="btn btn-small btn-primary">Reject sample</a>
-      <a ng-click="acceptSampleAsNewPattern(comparisonResult.diffID)" class="btn btn-small btn-success">Accept sample as new pattern</a>
-    </div>
+    <br>
+    <span class="centre">
+        <a ng-click="rejectPattern(result.diffID)" class="btn btn-small btn-danger">Reject pattern</a>
+        <a ng-click="rejectSample(result.diffID)" class="btn btn-small btn-primary">Reject sample</a>
+        <a ng-click="acceptSampleAsNewPattern(result.diffID)" class="btn btn-small btn-success">Accept sample as new pattern</a>
+    </span>

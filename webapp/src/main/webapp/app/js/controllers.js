@@ -36,7 +36,8 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
     '$route', '$log', 'ParticularSuite', 'DeleteParticularSuiteRun', 'ParticularRun', 'AcceptSampleAsNewPattern', '$q',
     function ($scope, $routeParams, $route, $log, ParticularSuite, DeleteParticularSuiteRun, ParticularRun, AcceptSampleAsNewPattern, $q) {
         $scope.particularSuite = ParticularSuite.query({testSuiteID: $routeParams.testSuiteID});
-        var needsToBeUpdatedOneRun = function (comparisonResult) {
+        $scope.runs;
+        var needsToBeUpdatedOneComparisonResult = function (comparisonResult) {
             var patternModificationDate = parseInt(comparisonResult.patternModificationDate);
             var sampleModificationDate = parseInt(comparisonResult.sampleModificationDate);
             if (patternModificationDate > sampleModificationDate) {
@@ -44,7 +45,7 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
             }
             return false;
         };
-        $scope.needsToBeUpdated = function (run) {
+        var updateNeedsToBeUpdatedOneRun = function (run) {
             $log.info("RUNNING NEEDS TO BE UPDATED");
             var promised = ParticularRun.query({runId: run.testSuiteRunID}).$promise;
             promised.then(function (comparisonResults) {
@@ -52,7 +53,7 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                 for (var i = 0; i < comparisonResults.length; i++) {
                     $log.info("UPDATED PROMISE");
                     var comparisonResult = comparisonResults[i];
-                    var partialResult = needsToBeUpdatedOneRun(comparisonResult);
+                    var partialResult = needsToBeUpdatedOneComparisonResult(comparisonResult);
                     if (partialResult) {
                         run.errorContent = (typeof run.errorContent !== 'undefined' && run.errorContent instanceof Array) ? run.errorContent : [];
                         var errorData = {};
@@ -64,7 +65,14 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                     resultPromised = resultPromised || partialResult;
                 }
                 run.needsToBeUpdated = resultPromised;
+
             });
+        };
+
+        var updatePercentageOneRun = function (run) {
+            run.successfulPercentage = getSuccessfulPercentage(run);
+            run.failedPercentage = getFailedPercentage(run);
+            run.failedTestPercentage = getFailedTestsPercentage(run);
         };
 
         $scope.addRemainingInfoToRuns = function () {
@@ -79,13 +87,15 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                     if (currentNumberOfTests > previousNumberOfTests && (i > 0)) {
                         currentRun.extraTests = currentNumberOfTests - previousNumberOfTests;
                     }
-                    currentRun.successfulPercentage = getSuccessfulPercentage(currentRun);
-                    currentRun.failedPercentage = getFailedPercentage(currentRun);
-                    currentRun.failedTestPercentage = getFailedTestsPercentage(currentRun);
-                    $scope.needsToBeUpdated(currentRun);
+                    updatePercentageOneRun(currentRun);
+                    updateNeedsToBeUpdatedOneRun(currentRun);
                 }
-                $scope.particularSuite.runs = allRuns;
-                return allRuns;
+                return value;
+            }).then(function(value){
+                $log.info(value);
+                $scope.runs = value.runs;
+                $log.info("RUNS IN SCOPE");
+                
             });
         };
         $scope.addRemainingInfoToRuns();
@@ -107,9 +117,7 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
         $scope.isDiff = isDiff;
         $scope.acceptAllNewSamplesAsNewPatterns = function (testSuiteRunID) {
             var promised = ParticularRun.query({runId: testSuiteRunID}).$promise;
-            promised.then(function (value) {
-                var jsonStringvalue = angular.toJson(value);
-                var comparisonResults = JSON.parse(jsonStringvalue);
+            promised.then(function (comparisonResults) {
                 for (var i = 0; i < comparisonResults.length; i++) {
                     var result = comparisonResults[i];
                     $log.info(result);
@@ -129,12 +137,12 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
     '$route', '$location', 'ParticularRun', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern',
     function ($scope, $routeParams, $log, $route, $location, ParticularRun,
             RejectSample, AcceptSampleAsNewPattern, RejectPattern) {
-        
+
         $log.info("Controller called");
         $scope.comparisonResults = ParticularRun.query({runId: $routeParams.runId});
         $scope.back = back;
 
-        $scope.updateRuns = function () {
+        $scope.updateComparisonResults = function () {
             $log.info("UPDATERUNS");
             var promisedComparisonResults = $scope.comparisonResults.$promise;
             promisedComparisonResults.then(function (value) {
@@ -146,7 +154,7 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
                 $log.info($scope.comparisonResults);
             });
         };
-        $scope.updateRuns();
+        $scope.updateComparisonResults();
         $scope.rejectPattern = function (diffID) {
             var promise = RejectPattern.rejectPattern(diffID);
             promise.then(function (payload) {
