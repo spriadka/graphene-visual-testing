@@ -147,7 +147,12 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
             var masks = $(parentDiv).find('.jcrop-selection').get(0);
             var img = $(parentDiv).find('img[jcrop]').get(0);
             var base64Image = $scope.getCroppedImageFromMask(masks,img);
-            $log.info(base64Image);
+            var mask = {};
+            mask.sourceData = base64Image;
+            mask.testSuiteID = parseInt($routeParams.testSuiteID);
+            $log.info(JSON.stringify(mask));
+            $log.info(mask);
+            
         };
         
         $scope.getCroppedImageFromMask = function(mask,img){

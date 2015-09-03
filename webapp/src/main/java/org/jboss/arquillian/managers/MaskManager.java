@@ -39,7 +39,10 @@ public class MaskManager {
     public List<Mask> getMasksForSuite(long testSuiteId){
         Query query = em.createQuery("SELECT m FROM MASK m WHERE m.testSuite.testSuiteID = :testSuiteID");
         return query.setParameter("testSuiteID", testSuiteId).getResultList();
-        
+    }
+    
+    public void updateMask(Mask mask){
+        em.merge(mask);
     }
     
 }

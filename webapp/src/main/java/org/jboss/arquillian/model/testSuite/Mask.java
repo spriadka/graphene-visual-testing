@@ -5,7 +5,10 @@
  */
 package org.jboss.arquillian.model.testSuite;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import java.util.Map;
 import java.util.Objects;
+import javax.inject.Inject;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,6 +17,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import org.jboss.arquillian.managers.TestSuiteManager;
 
 /**
  *
@@ -32,6 +36,14 @@ public class Mask {
     private TestSuite testSuite;
     
     private String sourceUrl;
+    
+    @Inject
+    private TestSuiteManager testSuiteManager;
+    
+    @JsonCreator
+    public Mask(Map<String,Object> json){
+        this.testSuite = testSuiteManager.findById((long)json.get("testSuiteID"));
+    }
 
     /**
      * @return the maskID
