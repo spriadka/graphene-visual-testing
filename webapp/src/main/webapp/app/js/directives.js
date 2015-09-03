@@ -38,6 +38,7 @@ visualTestingDirectives.directive('alertInfo', function ($compile) {
 
 visualTestingDirectives.directive('runInfo',function ($compile) {
     var linker = function(scope,elem,attr){
+        console.log(scope);
         var isDiff = scope.result.isDiff;
         var urlOfTemplate;
         if (isDiff){
@@ -67,25 +68,12 @@ visualTestingDirectives.directive('runInfo',function ($compile) {
 
 visualTestingDirectives.directive('jcrop', ['$injector', function () {
 
-        var showCoordinates = function (selection) {
-            var result = {};
-            result.x = selection.x;
-            result.y = selection.y;
-            result.x2 = selection.x2;
-            result.y2 = selection.y2;
-            result.width = selection.w;
-            result.height = selection.h;
-            console.log(result);
-        };
-
         return {
             restrict: 'A',
             link: function (scope, elem, attr) {
                 $(elem).Jcrop({
                     bgColor: 'black',
-                    multi: true,
-                    onSelect: showCoordinates,
-                    onChange: showCoordinates
+                    multi: false
                 });
 
             }

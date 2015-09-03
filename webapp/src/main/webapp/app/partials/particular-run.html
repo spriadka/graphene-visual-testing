@@ -8,40 +8,6 @@
             <b>Test class:</b> {{comparisonResult.testClassName}}<br />
             <b>Test name:</b> {{comparisonResult.testName}}<br />
         </div>
-        <!--
-        <div ng-if="comparisonResult.isDiff">
-            <carousel>
-                <slide active="active">
-                    <img src="{{comparisonResult.patternUrl}}" style="margin:auto;">
-                    <div class="carousel-caption">
-                        <h4>PATTERN</h4>
-                    </div>
-                </slide>
-                <slide>
-                    <img src="{{comparisonResult.sampleUrl}}" style="margin:auto;" jcrop>
-                    <div class="carousel-caption">
-                        <h4>SAMPLE</h4>
-                    </div>
-                </slide>
-                <slide>
-                    <img src="{{comparisonResult.diffUrl}}" style="margin:auto;">
-                    <div class="carousel-caption">
-                        <h4>DIFF</h4>
-                    </div>
-                </slide>
-            </carousel>
-            <br>
-            <span class="centre">
-                <a ng-click="rejectPattern(comparisonResult.diffID)" class="btn btn-small btn-danger">Reject pattern</a>
-                <a ng-click="rejectSample(comparisonResult.diffID)" class="btn btn-small btn-primary">Reject sample</a>
-                <a ng-click="acceptSampleAsNewPattern(comparisonResult.diffID)" class="btn btn-small btn-success">Accept sample as new pattern</a>
-            </span>
-        </div>
-        
-        <div ng-if="!comparisonResult.isDiff">
-            <img ng-src="app/img/tick.png">       
-        </div> 
-        -->
         <div run-info result="comparisonResult"></div>
     </li>
 </ul>

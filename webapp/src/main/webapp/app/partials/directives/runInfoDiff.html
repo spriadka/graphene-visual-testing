@@ -12,7 +12,7 @@ and open the template in the editor.
             </div>
         </slide>
         <slide>
-            <img src="{{result.sampleUrl}}" style="margin:auto;" jcrop>
+            <img id="{{result.sampleID}}" src="{{result.sampleUrl}}" style="margin:auto;" jcrop>
             <div class="carousel-caption">
                 <h4>SAMPLE</h4>
             </div>
@@ -26,7 +26,8 @@ and open the template in the editor.
     </carousel>
     <br>
     <span class="centre">
-        <a ng-click="rejectPattern(result.diffID)" class="btn btn-small btn-danger">Reject pattern</a>
-        <a ng-click="rejectSample(result.diffID)" class="btn btn-small btn-primary">Reject sample</a>
-        <a ng-click="acceptSampleAsNewPattern(result.diffID)" class="btn btn-small btn-success">Accept sample as new pattern</a>
+        <a ng-click="$parent.rejectPattern(result.diffID)" class="btn btn-small btn-danger">Reject pattern</a>
+        <a ng-click="$parent.rejectSample(result.diffID)" class="btn btn-small btn-primary">Reject sample</a>
+        <a ng-click="$parent.acceptSampleAsNewPattern(result.diffID)" class="btn btn-small btn-success">Accept sample as new pattern</a>
+        <a ng-click="$parent.acceptNewAlphaMask($event)" class="btn btn-small btn-success">Accept new alpha mask</a>
     </span>

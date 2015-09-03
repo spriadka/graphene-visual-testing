@@ -47,8 +47,9 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
         };
         var updateNeedsToBeUpdatedOneRun = function (run) {
             $log.info("RUNNING NEEDS TO BE UPDATED");
+            var result;
             var promised = ParticularRun.query({runId: run.testSuiteRunID}).$promise;
-            promised.then(function (comparisonResults) {
+            promised.then(function(comparisonResults){
                 var resultPromised = false;
                 for (var i = 0; i < comparisonResults.length; i++) {
                     $log.info("UPDATED PROMISE");
@@ -65,7 +66,6 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                     resultPromised = resultPromised || partialResult;
                 }
                 run.needsToBeUpdated = resultPromised;
-
             });
         };
 
@@ -141,7 +141,33 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
         $log.info("Controller called");
         $scope.comparisonResults = ParticularRun.query({runId: $routeParams.runId});
         $scope.back = back;
-
+        $scope.acceptNewAlphaMask = function(event){
+            var clicked = event.target;
+            var parentDiv = $(clicked).parents().get(1);
+            var masks = $(parentDiv).find('.jcrop-selection').get(0);
+            var img = $(parentDiv).find('img[jcrop]').get(0);
+            var base64Image = $scope.getCroppedImageFromMask(masks,img);
+            $log.info(base64Image);
+        };
+        
+        $scope.getCroppedImageFromMask = function(mask,img){
+            var startX = $(mask).css("left");
+            startX = startX.substring(0,startX.length - 2);
+            var startY = $(mask).css("top");
+            startY = startY.substring(0,startY.length - 2);
+            var width = $(mask).css("width");
+            width = width.substring(0,width.length - 2);
+            var height = $(mask).css("height");
+            height = height.substring(0,height.length - 2);
+            var canvas = document.createElement('canvas');
+            canvas.setAttribute('width',width);
+            canvas.setAttribute('height',height);
+            var context = canvas.getContext("2d");
+            context.drawImage(img,parseInt(startX),parseInt(startY),parseInt(width),parseInt(height),0,0,parseInt(width),parseInt(height));
+            var result = canvas.toDataURL();
+            return result;
+        };
+        
         $scope.updateComparisonResults = function () {
             $log.info("UPDATERUNS");
             var promisedComparisonResults = $scope.comparisonResults.$promise;
