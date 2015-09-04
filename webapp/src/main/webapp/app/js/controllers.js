@@ -1,4 +1,4 @@
-/* global angular, Promise */
+/* global angular, Promise, Integer */
 
 'use strict';
 
@@ -49,7 +49,7 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
             $log.info("RUNNING NEEDS TO BE UPDATED");
             var result;
             var promised = ParticularRun.query({runId: run.testSuiteRunID}).$promise;
-            promised.then(function(comparisonResults){
+            promised.then(function (comparisonResults) {
                 var resultPromised = false;
                 for (var i = 0; i < comparisonResults.length; i++) {
                     $log.info("UPDATED PROMISE");
@@ -91,11 +91,11 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                     updateNeedsToBeUpdatedOneRun(currentRun);
                 }
                 return value;
-            }).then(function(value){
+            }).then(function (value) {
                 $log.info(value);
                 $scope.runs = value.runs;
                 $log.info("RUNS IN SCOPE");
-                
+
             });
         };
         $scope.addRemainingInfoToRuns();
@@ -141,38 +141,49 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
         $log.info("Controller called");
         $scope.comparisonResults = ParticularRun.query({runId: $routeParams.runId});
         $scope.back = back;
-        $scope.acceptNewAlphaMask = function(event){
+        $scope.acceptNewAlphaMask = function (event) {
             var clicked = event.target;
             var parentDiv = $(clicked).parents().get(1);
+            var canvas = $(parentDiv).find('canvas').get(0);
             var masks = $(parentDiv).find('.jcrop-selection').get(0);
-            var img = $(parentDiv).find('img[jcrop]').get(0);
-            var base64Image = $scope.getCroppedImageFromMask(masks,img);
-            var mask = {};
-            mask.sourceData = base64Image;
-            mask.testSuiteID = parseInt($routeParams.testSuiteID);
-            $log.info(JSON.stringify(mask));
-            $log.info(mask);
-            
+            $log.info(masks);
+            if (typeof masks !== 'undefined') {
+                var img = $(parentDiv).find('img[jcrop]').get(0);
+                var maskObj = {};
+                maskObj.sampleId = parseInt(img.id,10);
+                maskObj.testSuiteID = parseInt($routeParams.testSuiteID,10);
+                $scope.setCroppedImageAndAlignmentFromMask(masks, img, maskObj,canvas);
+                $log.info(JSON.stringify(maskObj));
+                $log.info(maskObj);
+            }
+
         };
-        
-        $scope.getCroppedImageFromMask = function(mask,img){
-            var startX = $(mask).css("left");
-            startX = startX.substring(0,startX.length - 2);
-            var startY = $(mask).css("top");
-            startY = startY.substring(0,startY.length - 2);
-            var width = $(mask).css("width");
-            width = width.substring(0,width.length - 2);
-            var height = $(mask).css("height");
-            height = height.substring(0,height.length - 2);
+
+        $scope.setCroppedImageAndAlignmentFromMask = function (maskElem, img, maskObj, origImage) {
+            var startX = $(maskElem).css("left");
+            startX = parseInt(startX.substring(0, startX.length - 2));
+            var startY = $(maskElem).css("top");
+            startY = parseInt(startY.substring(0, startY.length - 2));
+            var width = $(maskElem).css("width");
+            width = parseInt(width.substring(0, width.length - 2));
+            var height = $(maskElem).css("height");
+            height = parseInt(height.substring(0, height.length - 2));
             var canvas = document.createElement('canvas');
-            canvas.setAttribute('width',width);
-            canvas.setAttribute('height',height);
+            canvas.setAttribute('width', width.toString());
+            canvas.setAttribute('height', height.toString());
             var context = canvas.getContext("2d");
-            context.drawImage(img,parseInt(startX),parseInt(startY),parseInt(width),parseInt(height),0,0,parseInt(width),parseInt(height));
+            context.drawImage(img, startX, startY, width, height, 0, 0, width, height);
             var result = canvas.toDataURL();
+            maskObj.sourceData = result;
+            var origWidth = parseInt(origImage.width);
+            var origHeight = parseInt(origImage.height);
+            if (startX === 0){
+                maskObj.horizontalAlignment = 'left';
+            }
+            
             return result;
         };
-        
+
         $scope.updateComparisonResults = function () {
             $log.info("UPDATERUNS");
             var promisedComparisonResults = $scope.comparisonResults.$promise;
