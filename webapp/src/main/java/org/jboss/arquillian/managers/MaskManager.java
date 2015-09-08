@@ -21,9 +21,17 @@ import org.jboss.arquillian.model.testSuite.Mask;
 public class MaskManager {
     
     @Inject
+    private SampleManager sampleManager;
+    
+    @Inject 
+    private TestSuiteManager testSuiteManager;
+    
+    @Inject
     private EntityManager em;
     
     public Mask createMask(Mask mask){
+        mask.setSample(sampleManager.findById(mask.getSampleId()));
+        mask.setTestSuite(testSuiteManager.findById(mask.getTestSuiteId()));
         em.persist(mask);
         return mask;
     }
@@ -43,6 +51,11 @@ public class MaskManager {
     
     public void updateMask(Mask mask){
         em.merge(mask);
+    }
+    
+    public List<Mask> getMasksForSample(long sampleId){
+        Query query = em.createQuery("SELECT m FROM MASK m WHERE m.sample.sampleID = :sampleId");
+        return query.setParameter("sampleId", sampleId).getResultList();
     }
     
     

@@ -134,9 +134,9 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
 ]);
 
 visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParams', '$log',
-    '$route', '$location', 'ParticularRun', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern',
+    '$route', '$location', 'ParticularRun', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern', 'AcceptNewMask',
     function ($scope, $routeParams, $log, $route, $location, ParticularRun,
-            RejectSample, AcceptSampleAsNewPattern, RejectPattern) {
+            RejectSample, AcceptSampleAsNewPattern, RejectPattern, AcceptNewMask) {
 
         $log.info("Controller called");
         $scope.comparisonResults = ParticularRun.query({runId: $routeParams.runId});
@@ -150,11 +150,10 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
             if (typeof masks !== 'undefined') {
                 var img = $(parentDiv).find('img[jcrop]').get(0);
                 var maskObj = {};
-                maskObj.sampleId = parseInt(img.id,10);
-                maskObj.testSuiteID = parseInt($routeParams.testSuiteID,10);
-                $scope.setCroppedImageAndAlignmentFromMask(masks, img, maskObj,canvas);
-                $log.info(JSON.stringify(maskObj));
-                $log.info(maskObj);
+                maskObj.sampleID = parseInt(img.id, 10);
+                maskObj.testSuiteID = parseInt($routeParams.testSuiteID, 10);
+                $scope.setCroppedImageAndAlignmentFromMask(masks, img, maskObj, canvas);
+                AcceptNewMask.acceptNewMask(JSON.stringify(maskObj));
             }
 
         };
@@ -175,13 +174,8 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
             context.drawImage(img, startX, startY, width, height, 0, 0, width, height);
             var result = canvas.toDataURL();
             maskObj.sourceData = result;
-            var origWidth = parseInt(origImage.width);
-            var origHeight = parseInt(origImage.height);
-            if (startX === 0){
-                maskObj.horizontalAlignment = 'left';
-            }
-            
-            return result;
+            maskObj.horizontalAlignment = null;
+            maskObj.verticalAlignment = null;
         };
 
         $scope.updateComparisonResults = function () {

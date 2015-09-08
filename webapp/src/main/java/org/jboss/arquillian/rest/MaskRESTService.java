@@ -38,6 +38,7 @@ public class MaskRESTService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Mask createMask(Mask mask){
+        LOGGER.info("called post request");
         Mask result = maskManager.createMask(mask);
         jcrBean.getMaskUrlFromData(result);
         maskManager.updateMask(result);

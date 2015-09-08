@@ -1,13 +1,17 @@
 package org.jboss.arquillian.bean;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.List;
+import java.math.BigDecimal;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
+import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.New;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.jcr.Binary;
@@ -16,15 +20,16 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
-import javax.jcr.ValueFactory;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.nodetype.NodeType;
 import javax.jcr.version.VersionException;
-import org.apache.commons.codec.binary.Base64;
-import org.jboss.arquillian.model.testSuite.Diff;
 import org.jboss.arquillian.model.testSuite.Mask;
 import org.jboss.arquillian.model.testSuite.Pattern;
 import org.jboss.arquillian.model.testSuite.Sample;
+import org.jboss.arquillian.util.ImageCreator;
+import org.arquillian.graphene.visual.testing.configuration.GrapheneVisualTestingConfiguration;
+
 
 @Named("jcrBean")
 @ApplicationScoped
@@ -37,6 +42,10 @@ public class JCRBean implements Serializable {
 
     @Inject
     private BasicAuthSessionStore sessionStore;
+    
+    @Inject
+    @New
+    private Instance<GrapheneVisualTestingConfiguration> gVC;
 
     public Session getSession() throws RepositoryException {
         return repository.login(new SimpleCredentials(sessionStore.getLogin(),
@@ -113,26 +122,33 @@ public class JCRBean implements Serializable {
         }
 
     }
-    
-    public void getMaskUrlFromData(Mask mask){
+
+    public void getMaskUrlFromData(Mask mask) {
         Session session;
         try {
             session = getSession();
             String testSuiteName = mask.getTestSuite().getName();
             String masks = "masks";
-            String[] names = mask.getName().split("/");
+            String[] names = mask.getSample().getName().split("/");
             String testClass = names[0];
             String testName = names[1];
-            String beforeOrAfter = names[2].substring(0,names[2].indexOf("."));
+            String beforeOrAfter = names[2].substring(0, names[2].indexOf("."));
             Node suiteNode = session.getRootNode().getNode(testSuiteName);
-            addNodeAndProceed(suiteNode, masks);
-            addNodeAndProceed(suiteNode, testClass);
-            addNodeAndProceed(suiteNode, testName);
-            addNodeAndProceed(suiteNode, beforeOrAfter);
-            addNodeAndProceed(suiteNode, mask.getMaskID().toString());
-            addNodeAndProceed(suiteNode, Property.JCR_CONTENT);
-            suiteNode.setProperty(Property.JCR_DATA, session.getValueFactory().createBinary(new ByteArrayInputStream(Base64.decodeBase64(mask.getSourceData()))));
-            mask.setSourceUrl(suiteNode.getProperty(Property.JCR_DATA).getPath());
+            //suiteNode.addNode(suiteNode.getPath() + "/" + masks + "/" + testClass + "/" + testName + "/" + beforeOrAfter + "/" + mask.getMaskID() + "/" + Property.JCR_CONTENT);
+            Node masksNode = addNodeAndProceed(suiteNode, masks);
+            LOGGER.info(masksNode.getPath());
+            Node testClassNode = addNodeAndProceed(masksNode, testClass);
+            LOGGER.info(testClassNode.getPath());
+            Node testNameNode = addNodeAndProceed(testClassNode, testName);
+            LOGGER.info(testNameNode.getPath());
+            Node beforeOrAfterNode = addNodeAndProceed(testNameNode, beforeOrAfter);
+            LOGGER.info(beforeOrAfterNode.getPath());
+            Node idNode = addNodeAndProceed(beforeOrAfterNode, mask.getMaskID().toString());
+            LOGGER.info(idNode.getPath());
+            Node contentNode = addNodeAndProceed(idNode, Property.JCR_CONTENT);
+            contentNode.setProperty(Property.JCR_DATA, session.getValueFactory().createBinary(new FileInputStream(ImageCreator.createImageFromBase64String(mask.getSourceData(), mask.getMaskID().toString()))));
+            session.save();
+            mask.setSourceUrl(gVC.get().getJcrContextRootURL() + "/binary" + contentNode.getProperty(Property.JCR_DATA).getPath());
         } catch (VersionException ex) {
             Logger.getLogger(JCRBean.class.getName()).log(Level.SEVERE, null, ex);
         } catch (LockException ex) {
@@ -141,22 +157,31 @@ public class JCRBean implements Serializable {
             Logger.getLogger(JCRBean.class.getName()).log(Level.SEVERE, null, ex);
         } catch (RepositoryException ex) {
             Logger.getLogger(JCRBean.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    private void addNodeAndProceed(Node node,String nodeName){
-        try {
-            if (!node.hasNode(nodeName)){
-                node.addNode(nodeName);
-                node.getNode(nodeName);
-            }
-            else {
-                node.getNode(nodeName);
-            }
-        } catch (RepositoryException ex) {
+        } catch (FileNotFoundException ex) {
             Logger.getLogger(JCRBean.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    
+    private Node addNodeAndProceed(Node node, String nodeName) {
+
+        String ntFileOrFolder = (nodeName.matches("[0-9][0-9]*")) ? NodeType.NT_FILE : NodeType.NT_FOLDER;
+        String resource = NodeType.NT_RESOURCE;
+        try {
+
+            if (!node.hasNode(nodeName)) {
+                if (!nodeName.equals(Property.JCR_CONTENT)) {
+                    return node.addNode(nodeName, ntFileOrFolder);
+                } else {
+                    return node.addNode(nodeName, resource);
+                }
+
+            }
+            return node.getNode(nodeName);
+
+        } catch (RepositoryException ex) {
+            Logger.getLogger(JCRBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
 }

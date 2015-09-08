@@ -66,3 +66,12 @@ visualTestingServices.factory('AcceptSampleAsNewPattern', function ($http) {
         }
     }
 });
+
+visualTestingServices.factory('AcceptNewMask',function($http){
+    return {
+        acceptNewMask: function(jsonMask){
+            console.log(jsonMask);
+            return $http.post('rest/masks',jsonMask);
+        }
+    }
+})

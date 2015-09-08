@@ -7,9 +7,12 @@ package org.jboss.arquillian.model.testSuite;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,9 +22,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import org.jboss.arquillian.managers.SampleManager;
 import org.jboss.arquillian.managers.TestSuiteManager;
+import org.jboss.logging.Logger;
 import org.jboss.rusheye.suite.HorizontalAlign;
 import org.jboss.rusheye.suite.VerticalAlign;
 
@@ -44,46 +49,49 @@ public class Mask {
     @Column(name = "SOURCE_URL",unique = true, length = Diff.STRING_COLUMN_LENGTH)
     private String sourceUrl;
     
-    @JsonIgnore(true)
+    @JsonIgnore
     @Transient
     private String sourceData;
     
-    @Inject
-    @JsonIgnore(true)
+    @JsonIgnore
     @Transient
-    private TestSuiteManager testSuiteManager;
+    private long testSuiteId;
     
-    @Inject
-    @JsonIgnore(true)
+    @JsonIgnore
     @Transient
-    private SampleManager sampleManager;
+    private long sampleId;
     
     @Column(name = "HORIZONTAL_ALIGNMENT")
-    private HorizontalAlign horizotalAlignment;
+    private HorizontalAlign horizotalAlignment = null;
     
     @Column(name = "VERTICAL_ALIGNMENT")
-    private VerticalAlign verticalAlignment;
+    private VerticalAlign verticalAlignment = null;
     
-    @Column(name = "NAME",length = Diff.STRING_COLUMN_LENGTH)
-    private String name;
+    @JoinColumn(name = "SAMPLE_ID")
+    @ManyToOne
+    private Sample sample;
+    
+    @JsonIgnore
+    @Transient
+    private Logger LOGGER = Logger.getLogger(Mask.class);
     
     @JsonCreator
-    public Mask(@JsonProperty("sampleId") long sampleId, @JsonProperty("testSuiteID") long testSuiteID, @JsonProperty("sourceData") String sourceData, @JsonProperty(value = "horizontalAlignment",required = false) String horizontalAlignment, @JsonProperty(value = "verticalAlignment",required = false) String verticalAlignment){
-        this.name = sampleManager.findById(sampleId).getName();
-        this.testSuite = testSuiteManager.findById(testSuiteID);
-        this.sourceData = sourceData;
-        this.horizotalAlignment = HorizontalAlign.fromValue(horizontalAlignment);
-        this.verticalAlignment = VerticalAlign.fromValue(verticalAlignment);
+    public Mask(Map<String,Object> props){
+        this.sampleId = (long)(int)props.get("sampleID");
+        this.testSuiteId = (long)(int)props.get("testSuiteID");
+        this.sourceData = (String)props.get("sourceData");
+        LOGGER.info("DATA PASSING COMPLETE");
     }
-
     
+    public Mask(){
+        
+    }
 
     @Override
     public int hashCode() {
         int hash = 3;
         hash = 61 * hash + Objects.hashCode(this.getTestSuite());
         hash = 61 * hash + Objects.hashCode(this.getSourceUrl());
-        hash = 61 * hash + Objects.hashCode(this.getName());
         return hash;
     }
     
@@ -102,13 +110,16 @@ public class Mask {
         if (!Objects.equals(this.sourceUrl, mask.sourceUrl)){
             return false;
         }
-        if (!Objects.equals(this.name, mask.name)){
+        if (!Objects.equals(this.horizotalAlignment, mask.horizotalAlignment)){
+            return false;
+        }
+         if (!Objects.equals(this.verticalAlignment, mask.verticalAlignment)){
             return false;
         }
         return true;
         
     }
-
+   
     /**
      * @return the maskID
      */
@@ -131,27 +142,6 @@ public class Mask {
     }
 
     /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @return the sourceData
-     */
-    public String getSourceData() {
-        return sourceData;
-    }
-
-    /**
-     * @param testSuite the testSuite to set
-     */
-    public void setTestSuite(TestSuite testSuite) {
-        this.testSuite = testSuite;
-    }
-
-    /**
      * @param sourceUrl the sourceUrl to set
      */
     public void setSourceUrl(String sourceUrl) {
@@ -166,31 +156,54 @@ public class Mask {
     }
 
     /**
-     * @param horizotalAlignment the horizotalAlignment to set
-     */
-    public void setHorizotalAlignment(HorizontalAlign horizotalAlignment) {
-        this.horizotalAlignment = horizotalAlignment;
-    }
-
-    /**
      * @return the verticalAlignment
      */
     public VerticalAlign getVerticalAlignment() {
         return verticalAlignment;
     }
-
+    
     /**
-     * @param verticalAlignment the verticalAlignment to set
+     * @return the sample
      */
-    public void setVerticalAlignment(VerticalAlign verticalAlignment) {
-        this.verticalAlignment = verticalAlignment;
+    public Sample getSample() {
+        return sample;
     }
 
     /**
-     * @param name the name to set
+     * @return the sourceData
      */
-    public void setName(String name) {
-        this.name = name;
+    @JsonProperty
+    public String getSourceData() {
+        return sourceData;
     }
+
+    /**
+     * @param testSuite the testSuite to set
+     */
+    public void setTestSuite(TestSuite testSuite) {
+        this.testSuite = testSuite;
+    }
+
+    /**
+     * @return the testSuiteId
+     */
+    public long getTestSuiteId() {
+        return testSuiteId;
+    }
+
+    /**
+     * @return the sampleId
+     */
+    public long getSampleId() {
+        return sampleId;
+    }
+
+    /**
+     * @param sample the sample to set
+     */
+    public void setSample(Sample sample) {
+        this.sample = sample;
+    }
+    
     
 }
