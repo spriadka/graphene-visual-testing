@@ -32,4 +32,6 @@ public class CrawlingDoneObserver {
             System.out.println("Descriptor and Patterns saved!");
         }
     }
+    
+    
 }

@@ -1,15 +1,17 @@
 package org.jboss.arquillian.bean;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.jboss.logging.Logger;
 import javax.annotation.Resource;
-import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
@@ -24,18 +26,21 @@ import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.version.VersionException;
+import org.apache.commons.io.FileUtils;
+import org.arquillian.graphene.visual.testing.api.event.CrawlMaskDoneEvent;
+import org.arquillian.graphene.visual.testing.api.event.CrawlMaskToJCREvent;
 import org.jboss.arquillian.model.testSuite.Mask;
 import org.jboss.arquillian.model.testSuite.Pattern;
 import org.jboss.arquillian.model.testSuite.Sample;
-import org.jboss.arquillian.util.ImageCreator;
 import org.arquillian.graphene.visual.testing.configuration.GrapheneVisualTestingConfiguration;
+import org.jboss.arquillian.util.Base64;
 
 
 @Named("jcrBean")
 @ApplicationScoped
 public class JCRBean implements Serializable {
 
-    private static final Logger LOGGER = Logger.getLogger(JCRBean.class.getSimpleName());
+    private static final Logger LOGGER = Logger.getLogger(JCRBean.class);
 
     @Resource(mappedName = "java:/jcr/graphene-visual-testing")
     private javax.jcr.Repository repository;
@@ -46,6 +51,9 @@ public class JCRBean implements Serializable {
     @Inject
     @New
     private Instance<GrapheneVisualTestingConfiguration> gVC;
+    
+    @org.jboss.arquillian.core.api.annotation.Inject
+    private Event<CrawlMaskDoneEvent> event;
 
     public Session getSession() throws RepositoryException {
         return repository.login(new SimpleCredentials(sessionStore.getLogin(),
@@ -59,7 +67,7 @@ public class JCRBean implements Serializable {
             session.getRootNode().getNode(testSuiteName).remove();
             session.save();
         } catch (RepositoryException ex) {
-            Logger.getLogger(JCRBean.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(ex);
         }
     }
 
@@ -74,7 +82,7 @@ public class JCRBean implements Serializable {
             testSuiteRunNode.remove();
             session.save();
         } catch (RepositoryException ex) {
-            Logger.getLogger(JCRBean.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(ex);
         }
     }
 
@@ -98,7 +106,7 @@ public class JCRBean implements Serializable {
             session.move(sample.getPath(), patternPath);
             session.save();
         } catch (RepositoryException ex) {
-            Logger.getLogger(JCRBean.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(ex);
         }
     }
 
@@ -118,7 +126,7 @@ public class JCRBean implements Serializable {
             session.save();
 
         } catch (RepositoryException ex) {
-            Logger.getLogger(JCRBean.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(ex);
         }
 
     }
@@ -134,31 +142,22 @@ public class JCRBean implements Serializable {
             String testName = names[1];
             String beforeOrAfter = names[2].substring(0, names[2].indexOf("."));
             Node suiteNode = session.getRootNode().getNode(testSuiteName);
-            //suiteNode.addNode(suiteNode.getPath() + "/" + masks + "/" + testClass + "/" + testName + "/" + beforeOrAfter + "/" + mask.getMaskID() + "/" + Property.JCR_CONTENT);
             Node masksNode = addNodeAndProceed(suiteNode, masks);
-            LOGGER.info(masksNode.getPath());
             Node testClassNode = addNodeAndProceed(masksNode, testClass);
-            LOGGER.info(testClassNode.getPath());
             Node testNameNode = addNodeAndProceed(testClassNode, testName);
-            LOGGER.info(testNameNode.getPath());
             Node beforeOrAfterNode = addNodeAndProceed(testNameNode, beforeOrAfter);
-            LOGGER.info(beforeOrAfterNode.getPath());
             Node idNode = addNodeAndProceed(beforeOrAfterNode, mask.getMaskID().toString());
-            LOGGER.info(idNode.getPath());
             Node contentNode = addNodeAndProceed(idNode, Property.JCR_CONTENT);
-            contentNode.setProperty(Property.JCR_DATA, session.getValueFactory().createBinary(new FileInputStream(ImageCreator.createImageFromBase64String(mask.getSourceData(), mask.getMaskID().toString()))));
+            String imageType = mask.getSourceData().split(";")[0].split(":")[1];
+            contentNode.setProperty(Property.JCR_MIMETYPE, imageType);
+            byte[] imageData = Base64.decodeFast(mask.getSourceData().split(";")[1].split(",")[1]);
+            contentNode.setProperty(Property.JCR_DATA, session.getValueFactory().createBinary(new ByteArrayInputStream(imageData)));
             session.save();
             mask.setSourceUrl(gVC.get().getJcrContextRootURL() + "/binary" + contentNode.getProperty(Property.JCR_DATA).getPath());
-        } catch (VersionException ex) {
-            Logger.getLogger(JCRBean.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (LockException ex) {
-            Logger.getLogger(JCRBean.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ConstraintViolationException ex) {
-            Logger.getLogger(JCRBean.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (VersionException | LockException | ConstraintViolationException ex) {
+            LOGGER.error(ex);
         } catch (RepositoryException ex) {
-            Logger.getLogger(JCRBean.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(JCRBean.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(ex);
         }
     }
 
@@ -179,9 +178,41 @@ public class JCRBean implements Serializable {
             return node.getNode(nodeName);
 
         } catch (RepositoryException ex) {
-            Logger.getLogger(JCRBean.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(ex);
         }
         return null;
+    }
+    
+    public File getDescriptorForMask(Mask mask){
+        Session session;
+        String suiteXml = "suite.xml";
+        try{
+            session = getSession();
+            Node descriptorNode = session.getRootNode().getNode(mask.getTestSuite().getName()).getNode(suiteXml).getNode(Property.JCR_CONTENT);
+            File toReturn = new File("suite.xml");
+            InputStream dataToWrite = descriptorNode.getProperty(Property.JCR_DATA).getBinary().getStream();
+            FileUtils.copyInputStreamToFile(dataToWrite, toReturn);
+            return toReturn;
+        }
+        catch (RepositoryException | IOException e){
+            LOGGER.error(e);
+        }
+        return null;      
+    }
+    
+    public void writeSuiteXml(@Observes CrawlMaskToJCREvent crawlMasksTestsDoneEvent){
+        Session session;
+        try{
+            session = getSession();
+            Node descriptorNode = session.getRootNode().getNode(crawlMasksTestsDoneEvent.getSuiteName()).getNode("suite.xml").getNode(Property.JCR_CONTENT);
+            Binary toWrite = session.getValueFactory().createBinary(new FileInputStream(crawlMasksTestsDoneEvent.getSuiteDescriptor()));
+            descriptorNode.setProperty(Property.JCR_DATA, toWrite);
+            event.fire(new CrawlMaskDoneEvent());
+        }
+        catch (RepositoryException | FileNotFoundException ex){
+            LOGGER.error(ex);        
+        }
+        
     }
 
 }

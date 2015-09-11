@@ -67,6 +67,7 @@
             <version>20140107</version>
         </dependency>
         
+        
         <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>
@@ -79,6 +80,12 @@
             <artifactId>mockito-core</artifactId>
             <version>1.10.8</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>3.2.0.Beta1</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
 

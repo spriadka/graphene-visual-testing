@@ -30,8 +30,6 @@ public class MaskManager {
     private EntityManager em;
     
     public Mask createMask(Mask mask){
-        mask.setSample(sampleManager.findById(mask.getSampleId()));
-        mask.setTestSuite(testSuiteManager.findById(mask.getTestSuiteId()));
         em.persist(mask);
         return mask;
     }

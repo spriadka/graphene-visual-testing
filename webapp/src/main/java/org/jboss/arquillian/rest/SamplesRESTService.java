@@ -1,8 +1,10 @@
 package org.jboss.arquillian.rest;
 
+import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -12,9 +14,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jboss.arquillian.bean.JCRBean;
 import org.jboss.arquillian.managers.DiffManager;
+import org.jboss.arquillian.managers.MaskManager;
 import org.jboss.arquillian.managers.SampleManager;
 import org.jboss.arquillian.managers.TestSuiteRunManager;
 import org.jboss.arquillian.model.testSuite.Diff;
+import org.jboss.arquillian.model.testSuite.Mask;
 import org.jboss.arquillian.model.testSuite.Sample;
 import org.jboss.arquillian.model.testSuite.TestSuiteRun;
 import org.jboss.logging.Logger;
@@ -35,6 +39,9 @@ public class SamplesRESTService {
     
     @Inject
     private DiffManager diffManager;
+    
+    @Inject
+    private MaskManager maskManager;
     
     @Inject
     private JCRBean jcrBean;
@@ -67,6 +74,13 @@ public class SamplesRESTService {
         return Response.ok().build();
     }
     
+    @GET
+    @Path("/{sampleID:[0-9][0-9]*}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Sample getSample(@PathParam("sampleID") long sampleID){
+        return sampleManager.findById(sampleID);
+    }
+    
     private void deleteTestSuiteRun(Diff diff) {
         if (!diffManager.areThereDiffs(diff.getTestSuiteRun().getTestSuiteRunID())) {
             jcrBean.removeTestSuiteRun(
@@ -86,5 +100,12 @@ public class SamplesRESTService {
     
     private void deleteSampleFromDatabase(Diff diff) {
         sampleManager.deleteSample(diff.getSample());
+    }
+    
+    private void deleteMasksForSample(Diff diff){
+        List<Mask> masks = maskManager.getMasksForSample(diff.getSample().getSampleID());
+        for (Mask mask : masks){
+            maskManager.deleteMask(mask);
+        }
     }
 }

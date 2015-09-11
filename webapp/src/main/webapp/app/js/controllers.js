@@ -33,74 +33,11 @@ visualTestingControllers.controller('SuiteListCtrl', ['$scope', '$route', '$log'
     }]);
 
 visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routeParams',
-    '$route', '$log', 'ParticularSuite', 'DeleteParticularSuiteRun', 'ParticularRun', 'AcceptSampleAsNewPattern', '$q',
-    function ($scope, $routeParams, $route, $log, ParticularSuite, DeleteParticularSuiteRun, ParticularRun, AcceptSampleAsNewPattern, $q) {
-        $scope.particularSuite = ParticularSuite.query({testSuiteID: $routeParams.testSuiteID});
-        $scope.runs;
-        var needsToBeUpdatedOneComparisonResult = function (comparisonResult) {
-            var patternModificationDate = parseInt(comparisonResult.patternModificationDate);
-            var sampleModificationDate = parseInt(comparisonResult.sampleModificationDate);
-            if (patternModificationDate > sampleModificationDate) {
-                return true;
-            }
-            return false;
-        };
-        var updateNeedsToBeUpdatedOneRun = function (run) {
-            $log.info("RUNNING NEEDS TO BE UPDATED");
-            var result;
-            var promised = ParticularRun.query({runId: run.testSuiteRunID}).$promise;
-            promised.then(function (comparisonResults) {
-                var resultPromised = false;
-                for (var i = 0; i < comparisonResults.length; i++) {
-                    $log.info("UPDATED PROMISE");
-                    var comparisonResult = comparisonResults[i];
-                    var partialResult = needsToBeUpdatedOneComparisonResult(comparisonResult);
-                    if (partialResult) {
-                        run.errorContent = (typeof run.errorContent !== 'undefined' && run.errorContent instanceof Array) ? run.errorContent : [];
-                        var errorData = {};
-                        errorData.name = comparisonResult.testName;
-                        errorData.patternDate = comparisonResult.patternModificationDate;
-                        errorData.sampleDate = comparisonResult.sampleModificationDate;
-                        run.errorContent.push(errorData);
-                    }
-                    resultPromised = resultPromised || partialResult;
-                }
-                run.needsToBeUpdated = resultPromised;
-            });
-        };
-
-        var updatePercentageOneRun = function (run) {
-            run.successfulPercentage = getSuccessfulPercentage(run);
-            run.failedPercentage = getFailedPercentage(run);
-            run.failedTestPercentage = getFailedTestsPercentage(run);
-        };
-
-        $scope.addRemainingInfoToRuns = function () {
-            var promised = $scope.particularSuite.$promise;
-            promised.then(function (value) {
-                var allRuns = value.runs;
-                for (var i = 0; i < allRuns.length; i++) {
-                    $log.info("PROCESSING RUN: " + i);
-                    var currentRun = allRuns[i];
-                    var currentNumberOfTests = getSumOfTests(currentRun);
-                    var previousNumberOfTests = getSumOfTests(allRuns[i - 1]);
-                    if (currentNumberOfTests > previousNumberOfTests && (i > 0)) {
-                        currentRun.extraTests = currentNumberOfTests - previousNumberOfTests;
-                    }
-                    updatePercentageOneRun(currentRun);
-                    updateNeedsToBeUpdatedOneRun(currentRun);
-                }
-                return value;
-            }).then(function (value) {
-                $log.info(value);
-                $scope.runs = value.runs;
-                $log.info("RUNS IN SCOPE");
-
-            });
-        };
-        $scope.addRemainingInfoToRuns();
+    '$route', '$log', 'DeleteParticularSuiteRun', 'ParticularRun', 'AcceptSampleAsNewPattern','promisedSuite',
+    function ($scope, $routeParams, $route, $log,DeleteParticularSuiteRun, ParticularRun, AcceptSampleAsNewPattern,promisedSuite) {
+        $scope.testSuiteID = promisedSuite.testSuiteID;
+        $scope.runs = promisedSuite.runs;
         $scope.timestampToDate = timestampToDate;
-        $scope.count = 0;
         $scope.deleteSuiteRun = function (testSuiteRunID) {
             var promise =
                     DeleteParticularSuiteRun.deleteParticularSuiteRun(testSuiteRunID);
@@ -134,9 +71,9 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
 ]);
 
 visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParams', '$log',
-    '$route', '$location', 'ParticularRun', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern', 'AcceptNewMask',
+    '$route', '$location', 'ParticularRun', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern', 'AcceptNewMask', 'ParticularSample', 'ParticularSuite',
     function ($scope, $routeParams, $log, $route, $location, ParticularRun,
-            RejectSample, AcceptSampleAsNewPattern, RejectPattern, AcceptNewMask) {
+            RejectSample, AcceptSampleAsNewPattern, RejectPattern, AcceptNewMask, ParticularSample, ParticularSuite) {
 
         $log.info("Controller called");
         $scope.comparisonResults = ParticularRun.query({runId: $routeParams.runId});
@@ -148,12 +85,28 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
             var masks = $(parentDiv).find('.jcrop-selection').get(0);
             $log.info(masks);
             if (typeof masks !== 'undefined') {
+                var promiseStart = Promise.resolve();
+                var promiseEnd = Promise.resolve();
                 var img = $(parentDiv).find('img[jcrop]').get(0);
                 var maskObj = {};
-                maskObj.sampleID = parseInt(img.id, 10);
-                maskObj.testSuiteID = parseInt($routeParams.testSuiteID, 10);
-                $scope.setCroppedImageAndAlignmentFromMask(masks, img, maskObj, canvas);
-                AcceptNewMask.acceptNewMask(JSON.stringify(maskObj));
+                var promisedSample = ParticularSample.query({sampleID: img.id}).$promise;
+                var promisedTestSuite = ParticularSuite.query({testSuiteID: $routeParams.testSuiteID}).$promise;
+                //$scope.setCroppedImageAndAlignmentFromMask(masks, img, maskObj, canvas);
+                promiseStart.then(function (value) {
+                    $scope.setCroppedImageAndAlignmentFromMask(masks, img, maskObj, canvas);
+                    return promisedTestSuite;
+                }).
+                        then(function (value) {
+                            maskObj.testSuite = value;
+                            return promisedSample;
+                        }).
+                        then(function (value) {
+                            maskObj.sample = value;
+                            return promiseEnd;
+                        })
+                        .then(function (value) {
+                            AcceptNewMask.acceptNewMask(JSON.stringify(maskObj));
+                        });
             }
 
         };
@@ -176,6 +129,10 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
             maskObj.sourceData = result;
             maskObj.horizontalAlignment = null;
             maskObj.verticalAlignment = null;
+            maskObj.top = startY;
+            maskObj.left = startY;
+            maskObj.width = width;
+            maskObj.height = height;
         };
 
         $scope.updateComparisonResults = function () {

@@ -21,7 +21,12 @@ visualTestingApp.config(['$routeProvider',
       }).
       when('/suites/:testSuiteID', {
         templateUrl: PARTIALS + '/test-suite-runs-list.html',
-        controller: 'ParticularSuiteCtrl'
+        controller: 'ParticularSuiteCtrl',
+        resolve: {
+            promisedSuite: function(ResolveRuns){
+                return ResolveRuns.getRuns();
+            }
+        }
       }).
       when('/suites/:testSuiteID/runs/:runId', {
         templateUrl: PARTIALS + '/particular-run.html',

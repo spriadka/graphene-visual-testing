@@ -14,9 +14,10 @@ visualTestingDirectives.directive('alertInfo', function ($compile) {
     console.log("Directive was called");
     var linker = function (scope, elem, attr) {
         var run = scope.info;
-        if (typeof run.needsToBeUpdated === 'undefined') {
+        console.log(run.needsToBeUpdated);
+        if (run.needsToBeUpdated) {
             var spanElem = "<span class=\"glyphicon glyphicon-ok-circle\"></span>";
-            var message = "ALL PATTERNS UP TO DATE";
+            var message = "PATTERNS OUT OF DATE";
             $(elem).addClass("alert alert-danger").html(spanElem + message).show();
             $compile(elem.contents())(scope);
         }

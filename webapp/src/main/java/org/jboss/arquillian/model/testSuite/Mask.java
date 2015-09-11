@@ -7,13 +7,10 @@ package org.jboss.arquillian.model.testSuite;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -22,10 +19,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Transient;
-import org.jboss.arquillian.managers.SampleManager;
-import org.jboss.arquillian.managers.TestSuiteManager;
 import org.jboss.logging.Logger;
 import org.jboss.rusheye.suite.HorizontalAlign;
 import org.jboss.rusheye.suite.VerticalAlign;
@@ -53,14 +47,6 @@ public class Mask {
     @Transient
     private String sourceData;
     
-    @JsonIgnore
-    @Transient
-    private long testSuiteId;
-    
-    @JsonIgnore
-    @Transient
-    private long sampleId;
-    
     @Column(name = "HORIZONTAL_ALIGNMENT")
     private HorizontalAlign horizotalAlignment = null;
     
@@ -73,13 +59,37 @@ public class Mask {
     
     @JsonIgnore
     @Transient
+    private ObjectMapper objectMapper = new ObjectMapper();
+    
+    @JsonIgnore
+    @Transient
     private Logger LOGGER = Logger.getLogger(Mask.class);
+    
+    @JsonIgnore
+    @Transient
+    private int width;
+    
+    @JsonIgnore
+    @Transient
+    private int height;
+    
+    @JsonIgnore
+    @Transient
+    private int top;
+    
+    @JsonIgnore
+    @Transient
+    private int left;
     
     @JsonCreator
     public Mask(Map<String,Object> props){
-        this.sampleId = (long)(int)props.get("sampleID");
-        this.testSuiteId = (long)(int)props.get("testSuiteID");
+        this.sample = objectMapper.convertValue(props.get("sample"), Sample.class);
+        this.testSuite = objectMapper.convertValue(props.get("testSuite"), TestSuite.class);
         this.sourceData = (String)props.get("sourceData");
+        this.top = (int)props.get("top");
+        this.left = (int)props.get("left");
+        this.width = (int)props.get("width");
+        this.height = (int)props.get("height");
         LOGGER.info("DATA PASSING COMPLETE");
     }
     
@@ -184,20 +194,7 @@ public class Mask {
         this.testSuite = testSuite;
     }
 
-    /**
-     * @return the testSuiteId
-     */
-    public long getTestSuiteId() {
-        return testSuiteId;
-    }
-
-    /**
-     * @return the sampleId
-     */
-    public long getSampleId() {
-        return sampleId;
-    }
-
+    
     /**
      * @param sample the sample to set
      */

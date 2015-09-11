@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<visual-suite xmlns="http://www.jboss.org/rusheye/visual-suite" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.jboss.org/rusheye/visual-suite http://www.jboss.org/schema/arquillian/rusheye/visual-suite.xsd">  
+  <global-configuration> 
+    <listener type="org.jboss.rusheye.parser.listener.CompareListener"> 
+      <result-collector>org.jboss.rusheye.result.collector.ResultCollectorImpl</result-collector>  
+      <result-storage>org.jboss.rusheye.result.storage.FileStorage</result-storage>  
+      <result-writer>org.jboss.rusheye.result.writer.FileResultWriter</result-writer>  
+      <result-statistics>org.jboss.rusheye.result.statistics.OverallStatistics</result-statistics> 
+    </listener>  
+    <pattern-retriever type="org.jboss.rusheye.retriever.pattern.PatternFileRetriever"/>  
+    <mask-retriever type="org.jboss.rusheye.retriever.mask.MaskFileRetriever"/>  
+    <sample-retriever type="org.jboss.rusheye.retriever.sample.FileSampleRetriever"/>  
+    <perception/> 
+  </global-configuration>  
+  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall.after"> 
+    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall.after" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall/after.png"/> 
+  </test>  
+  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall.before"> 
+    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall.before" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall/before.png"/> 
+  </test>  
+  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall4.after"> 
+    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall4.after" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall4/after.png"/> 
+  </test>  
+  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall4.before"> 
+    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall4.before" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall4/before.png"/> 
+  </test>  
+  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall3.after"> 
+    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall3.after" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall3/after.png"/> 
+  </test>  
+  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall3.before"> 
+    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall3.before" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall3/before.png"/> 
+  </test>  
+  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall2.after"> 
+    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall2.after" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall2/after.png"/> 
+  </test>  
+  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall2.before"> 
+    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall2.before" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall2/before.png"/> 
+  </test>  
+  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall5.after"> 
+    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall5.after" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall5/after.png"/> 
+  </test>  
+  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall5.before"> 
+    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall5.before" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall5/before.png"/> 
+  </test>  
+  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall6.after">
+    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall6.after" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall6/after.png"/>
+  </test>
+  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall6.before">
+    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall6.before" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall6/before.png"/>
+  </test>
+</visual-suite>

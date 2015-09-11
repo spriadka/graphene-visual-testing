@@ -1,6 +1,7 @@
 package org.jboss.arquillian.model.testSuite;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,6 +16,7 @@ import javax.persistence.ManyToOne;
  * @author jhuska
  */
 @Entity(name = "SAMPLE")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Sample {
     
     @Id

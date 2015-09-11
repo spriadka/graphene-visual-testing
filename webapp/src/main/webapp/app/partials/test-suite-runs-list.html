@@ -11,8 +11,8 @@
         </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="run in particularSuite.runs|orderBy:'testSuiteRunID':true">
-            <td><a href="#/suites/{{particularSuite.testSuiteID}}/runs/{{run.testSuiteRunID}}">
+        <tr ng-repeat="run in runs|orderBy:'testSuiteRunID':true">
+            <td><a href="#/suites/{{testSuiteID}}/runs/{{run.testSuiteRunID}}">
                     {{timestampToDate(run.timestamp)}}</a>
             </td>
             <td></td>

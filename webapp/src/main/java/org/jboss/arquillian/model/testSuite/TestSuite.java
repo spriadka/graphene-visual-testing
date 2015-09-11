@@ -1,5 +1,6 @@
 package org.jboss.arquillian.model.testSuite;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.io.Serializable;
 import java.util.List;
@@ -18,6 +19,7 @@ import javax.persistence.OneToMany;
  * @author jhuska
  */
 @Entity(name = "TEST_SUITE")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TestSuite implements Serializable {
 
     @Id
