@@ -39,7 +39,6 @@ visualTestingDirectives.directive('alertInfo', function ($compile) {
 
 visualTestingDirectives.directive('runInfo',function ($compile) {
     var linker = function(scope,elem,attr){
-        console.log(scope);
         var isDiff = scope.result.isDiff;
         var urlOfTemplate;
         if (isDiff){
@@ -67,19 +66,50 @@ visualTestingDirectives.directive('runInfo',function ($compile) {
 }
 );
 
-visualTestingDirectives.directive('jcrop', ['$injector', function () {
+visualTestingDirectives.directive('slick',function(){
+   return {
+       restrict: 'A',
+       link: function(scope,elem,attr){
+           $(elem).slick();
+       }
+   } 
+});
+
+visualTestingDirectives.directive('jcrop', function () {
 
         return {
             restrict: 'A',
+            scope: true,
             link: function (scope, elem, attr) {
+                var comparisonResult = scope.$parent.result;
                 $(elem).Jcrop({
                     bgColor: 'black',
-                    multi: false
+                    multi: true,
+                    setSelect: [0,0,0,0]
+                },function(){
+                    comparisonResult.jcrop_api = this;
+                    if (comparisonResult.masks.length == 0){
+                        var selection = comparisonResult.jcrop_api.newSelection();
+                        console.log(selection);
+                        //selection.id = elem.id;
+                    }
+                    else {
+                        for (var i=0; i < comparisonResult.masks.length; i++){
+                            var mask = comparisonResult.masks[i];
+                            var selection = comparisonResult.jcrop_api.newSelection();
+                            selection.update($.Jcrop.wrapFromXywh([mask.left,mask.top,mask.width,mask.height]));
+                            $(selection.element).attr("maskID",mask.maskID);
+                            //console.log(i);
+                            selection.id = mask.maskID;
+                            //comparisonResult.jcrop_api.ui.multi.push(selection);
+                        }
+                        console.log(comparisonResult);
+                    }
                 });
 
             }
         };
-    }]);
+    });
 
 
 

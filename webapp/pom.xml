@@ -60,6 +60,11 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
+                <groupId>org.jboss.arquillian.container</groupId>
+                <artifactId>arquillian-weld-ee-embedded-1.1</artifactId>
+                <version>1.0.0.Final-SNAPSHOT</version>
+            </dependency>
+            <dependency>
                 <groupId>org.modeshape.bom</groupId>
                 <artifactId>modeshape-bom-jbossas</artifactId>
                 <version>4.0.0.Final</version>
@@ -70,6 +75,8 @@
     </dependencyManagement>
 
     <dependencies>
+        
+       
 
         <!-- Import the CDI API, we use provided scope as the API is included in 
         JBoss AS 7 -->
@@ -126,7 +133,6 @@
             <artifactId>hibernate-jpa-2.0-api</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <!-- JSR-303 (Bean Validation) Implementation -->
         <!-- Provides portable constraints such as @Email -->
         <!-- Hibernate Validator is shipped in JBoss AS 7 -->
@@ -175,6 +181,8 @@
             <artifactId>joda-time</artifactId>
             <version>${joda.time.version}</version>
         </dependency>
+        
+         
 
         <!-- Test dependencies -->
         <dependency>
@@ -251,7 +259,7 @@
                     <!-- Java EE 6 doesn't require web.xml, Maven needs to catch up! -->
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <archive>
-                         <manifestFile>src/main/webapp/META-INF/MANIFEST.MF</manifestFile>
+                        <manifestFile>src/main/webapp/META-INF/MANIFEST.MF</manifestFile>
                     </archive>
                 </configuration>
             </plugin> 

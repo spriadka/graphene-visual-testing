@@ -71,18 +71,18 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
 ]);
 
 visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParams', '$log',
-    '$route', '$location', 'ParticularRun', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern', 'AcceptNewMask', 'ParticularSample', 'ParticularSuite',
+    '$route', '$location', 'ParticularRun', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern', 'AcceptNewMask', 'ParticularSample', 'ParticularSuite','DeleteSelectedMask','ParticularMask','UpdateSelectedMask',
     function ($scope, $routeParams, $log, $route, $location, ParticularRun,
-            RejectSample, AcceptSampleAsNewPattern, RejectPattern, AcceptNewMask, ParticularSample, ParticularSuite) {
+            RejectSample, AcceptSampleAsNewPattern, RejectPattern, AcceptNewMask, ParticularSample, ParticularSuite,DeleteSelectedMask,ParticularMask,UpdateSelectedMask) {
 
-        $log.info("Controller called");
         $scope.comparisonResults = ParticularRun.query({runId: $routeParams.runId});
         $scope.back = back;
         $scope.acceptNewAlphaMask = function (event) {
             var clicked = event.target;
             var parentDiv = $(clicked).parents().get(1);
             var canvas = $(parentDiv).find('canvas').get(0);
-            var masks = $(parentDiv).find('.jcrop-selection').get(0);
+            var masks = $(parentDiv).find('.jcrop-selection.jcrop-current').get(0);
+            $log.info(parentDiv);
             $log.info(masks);
             if (typeof masks !== 'undefined') {
                 var promiseStart = Promise.resolve();
@@ -91,9 +91,8 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
                 var maskObj = {};
                 var promisedSample = ParticularSample.query({sampleID: img.id}).$promise;
                 var promisedTestSuite = ParticularSuite.query({testSuiteID: $routeParams.testSuiteID}).$promise;
-                //$scope.setCroppedImageAndAlignmentFromMask(masks, img, maskObj, canvas);
                 promiseStart.then(function (value) {
-                    $scope.setCroppedImageAndAlignmentFromMask(masks, img, maskObj, canvas);
+                    $scope.setCroppedImageAndAlignmentFromMask(masks, img, maskObj);
                     return promisedTestSuite;
                 }).
                         then(function (value) {
@@ -111,7 +110,7 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
 
         };
 
-        $scope.setCroppedImageAndAlignmentFromMask = function (maskElem, img, maskObj, origImage) {
+        $scope.setCroppedImageAndAlignmentFromMask = function (maskElem, img, maskObj) {
             var startX = $(maskElem).css("left");
             startX = parseInt(startX.substring(0, startX.length - 2));
             var startY = $(maskElem).css("top");
@@ -146,6 +145,20 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
                 $log.info(value);
                 $log.info($scope.comparisonResults);
             });
+        };
+        $scope.updateSelectedMask = function(event){
+            var clicked = event.target;
+            var parentDiv = $(clicked).parents().get(1);
+            var img = $(parentDiv).find('img[jcrop]').get(0);
+            var selectedMaskElement = $(parentDiv).find('.jcrop-selection.jcrop-current').get(0);
+            var selectedMaskId = parseInt($(selectedMaskElement).attr("maskid"));
+            var promisedSelectedMask = ParticularMask.query({maskID: selectedMaskId}).$promise;
+            promisedSelectedMask.then(function(originalMask){
+                var maskObj = originalMask;
+                $scope.setCroppedImageAndAlignmentFromMask(selectedMaskElement,img,maskObj);
+                UpdateSelectedMask.updateSelectedMask(maskObj);
+            });
+            
         };
         $scope.updateComparisonResults();
         $scope.rejectPattern = function (diffID) {
@@ -183,6 +196,16 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
             }, function (errorPayload) {
                 $log.error('failure when replacing pattern', errorPayload);
             });
+        };
+        
+        $scope.destroyCurrentMask = function(event){
+            var clicked = event.target;
+            var parentDiv = $(clicked).parents().get(1);
+            var selectedMask = $(parentDiv).find('.jcrop-selection.jcrop-current').get(0);
+            var selectedMaskId = parseInt($(selectedMask).attr("maskid"));
+            $log.info(selectedMaskId);
+            $log.info(typeof selectedMaskId);
+            DeleteSelectedMask.deleteSelectedMask(selectedMaskId);
         };
 
     }]);

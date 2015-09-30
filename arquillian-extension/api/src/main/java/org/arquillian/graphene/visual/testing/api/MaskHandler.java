@@ -7,6 +7,7 @@ package org.arquillian.graphene.visual.testing.api;
 
 import org.jboss.arquillian.core.api.annotation.Observes;
 import org.arquillian.graphene.visual.testing.api.event.CrawlMaskToSuiteEvent;
+import org.arquillian.graphene.visual.testing.api.event.DeleteMaskFromSuiteEvent;
 
 
 /**
@@ -15,5 +16,5 @@ import org.arquillian.graphene.visual.testing.api.event.CrawlMaskToSuiteEvent;
  */
 public interface MaskHandler {
     void uploadMasks(CrawlMaskToSuiteEvent crawlMaskEvent);
-    void deleteMasks();
+    void deleteMasks(DeleteMaskFromSuiteEvent deleteMaskEvent);
 }

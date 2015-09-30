@@ -1,7 +1,6 @@
 package org.jboss.arquillian.rest;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
@@ -17,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jboss.arquillian.bean.JCRBean;
 import org.jboss.arquillian.managers.DiffManager;
+import org.jboss.arquillian.managers.MaskManager;
 import org.jboss.arquillian.managers.PatternManager;
 import org.jboss.arquillian.managers.SampleManager;
 import org.jboss.arquillian.managers.TestSuiteManager;
@@ -25,6 +25,8 @@ import org.jboss.arquillian.model.testSuite.Diff;
 import org.jboss.arquillian.model.testSuite.Pattern;
 import org.jboss.arquillian.model.testSuite.Sample;
 import org.jboss.arquillian.model.testSuite.TestSuiteRun;
+import org.jboss.arquillian.rest.builder.DiffComparisonResultBuilder;
+import org.jboss.arquillian.rest.builder.SampleComparisonResultBuilder;
 
 /**
  *
@@ -48,6 +50,9 @@ public class TestSuiteRunRESTService {
 
     @Inject
     private PatternManager patternManager;
+    
+    @Inject
+    private MaskManager maskManager;
 
     @Inject
     private JCRBean jcrBean;
@@ -104,35 +109,19 @@ public class TestSuiteRunRESTService {
         List<Diff> diffs = diffManager.getDiffsForRun(id);
         List<Long> alreadyUploadedSamples = new ArrayList<>();
         if (diffManager.areThereDiffs(id)) {
-            for (Diff diff : diffs) {
-                alreadyUploadedSamples.add(diff.getSample().getSampleID());
-                result.add(new ComparisonResult(diff.getPattern().getUrlOfScreenshot(), diff.getPattern().getPatternID(), diff.getPattern().getLastModificationDate(), diff.getSample().getUrlOfScreenshot(),diff.getSample().getSampleID(), diff.getSample().getLastModificationDate(), diff.getUrlOfScreenshot(), diff.getDiffID(), getTestClassName(diff), getTestName(diff)));
+            for (Diff diff : diffs){
+                result.add(new DiffComparisonResultBuilder().manager(maskManager).diff(diff).build());
             }
         }
-
         List<Sample> samples = sampleManager.getSamples(id);
         for (Sample sample : samples) {
+            Pattern pattern = patternManager.getPattern(sample.getName(), sample.getTestSuiteRun().getTestSuite().getTestSuiteID());
             if (!alreadyUploadedSamples.contains(sample.getSampleID())) {
-                Pattern pattern = patternManager.getPattern(sample.getName(), sample.getTestSuiteRun().getTestSuite().getTestSuiteID());
-                result.add(new ComparisonResult(pattern.getUrlOfScreenshot(), pattern.getPatternID(),pattern.getLastModificationDate(), sample.getUrlOfScreenshot(), sample.getSampleID(),sample.getLastModificationDate(), null,null,getTestClassName(sample), getTestName(sample)));
+                result.add(new SampleComparisonResultBuilder().sample(sample).pattern(pattern).build());
             }
         }
         return result;
     }
 
-    private String getTestClassName(Diff diff) {
-        return diff.getSample().getName().split("/")[0];
-    }
-
-    private String getTestClassName(Sample sample) {
-        return sample.getName().split("/")[0];
-    }
-
-    private String getTestName(Diff diff) {
-        return diff.getSample().getName().split("/")[1];
-    }
-
-    private String getTestName(Sample sample) {
-        return sample.getName().split("/")[1];
-    }
+    
 }

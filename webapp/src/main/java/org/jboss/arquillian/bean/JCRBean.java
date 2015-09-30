@@ -52,8 +52,9 @@ public class JCRBean implements Serializable {
     @New
     private Instance<GrapheneVisualTestingConfiguration> gVC;
     
-    @org.jboss.arquillian.core.api.annotation.Inject
+    @Inject
     private Event<CrawlMaskDoneEvent> event;
+    
 
     public Session getSession() throws RepositoryException {
         return repository.login(new SimpleCredentials(sessionStore.getLogin(),
@@ -109,7 +110,27 @@ public class JCRBean implements Serializable {
             LOGGER.error(ex);
         }
     }
-
+    
+    public void updateMaskSource(Mask mask){
+        Session session;
+        try {
+            session = getSession();
+            String testSuiteName = mask.getTestSuite().getName();
+            String masks = "masks";
+            String[] names = mask.getSample().getName().split("/");
+            String testClass = names[0];
+            String testName = names[1];
+            String beforeOrAfter = names[2].substring(0, names[2].indexOf("."));
+            Node maskNode = session.getRootNode().getNode(testSuiteName).getNode(masks).getNode(testClass).getNode(testName).getNode(beforeOrAfter).getNode(mask.getMaskID().toString()).getNode(Property.JCR_CONTENT);
+            byte[] newData = Base64.decodeFast(mask.getSourceData());
+            maskNode.setProperty(Property.JCR_DATA, session.getValueFactory().createBinary(new ByteArrayInputStream(newData)));
+            session.save();
+        }
+        catch (Exception e){
+            
+        }
+    }
+    
     public void changePattern(Pattern pattern, Sample sample) {
 
         Session session;
@@ -201,12 +222,14 @@ public class JCRBean implements Serializable {
     }
     
     public void writeSuiteXml(@Observes CrawlMaskToJCREvent crawlMasksTestsDoneEvent){
+        LOGGER.info("JCR observed");
         Session session;
         try{
             session = getSession();
             Node descriptorNode = session.getRootNode().getNode(crawlMasksTestsDoneEvent.getSuiteName()).getNode("suite.xml").getNode(Property.JCR_CONTENT);
             Binary toWrite = session.getValueFactory().createBinary(new FileInputStream(crawlMasksTestsDoneEvent.getSuiteDescriptor()));
             descriptorNode.setProperty(Property.JCR_DATA, toWrite);
+            session.save();
             event.fire(new CrawlMaskDoneEvent());
         }
         catch (RepositoryException | FileNotFoundException ex){

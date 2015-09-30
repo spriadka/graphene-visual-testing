@@ -20,6 +20,10 @@ visualTestingServices.factory('ParticularSuite', ['$resource',
         });
     }]);
 
+visualTestingServices.factory('ParticularMask',['$resource',function($resource){
+        return $resource('rest/masks/:maskID',{maskID: '@maskID'},{query: {method: 'GET', isArray: false}});
+}]);
+
 visualTestingServices.factory('ParticularRun', ['$resource', '$log',
     function ($resource, $log) {
         return $resource('rest/runs/comparison-result/:runId', {runId: '@runId'}, {
@@ -72,8 +76,23 @@ visualTestingServices.factory('AcceptSampleAsNewPattern', function ($http) {
 visualTestingServices.factory('AcceptNewMask', function ($http) {
     return {
         acceptNewMask: function (jsonMask) {
-            console.log(jsonMask);
             return $http.post('rest/masks', jsonMask);
+        }
+    }
+});
+
+visualTestingServices.factory('DeleteSelectedMask',function($http){
+    return {
+        deleteSelectedMask: function(selectedMaskId){
+            return $http.delete('rest/masks/' + selectedMaskId);
+        }
+    }
+});
+
+visualTestingServices.factory('UpdateSelectedMask',function($http){
+    return {
+        updateSelectedMask: function(selectedMask){
+            return $http.put('rest/masks/update/' + selectedMask);
         }
     }
 });

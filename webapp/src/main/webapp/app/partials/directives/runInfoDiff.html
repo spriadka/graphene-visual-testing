@@ -6,19 +6,25 @@ and open the template in the editor.
 -->
     <carousel>
         <slide active="active">
+            <div>
             <img src="{{result.patternUrl}}" style="margin:auto;">
+            </div>
             <div class="carousel-caption">
                 <h4>PATTERN</h4>
             </div>
         </slide>
         <slide>
+            <div>
             <img id="{{result.sampleID}}" src="{{result.sampleUrl}}" style="margin:auto;" jcrop>
-            <div class="carousel-caption">
+            </div>
+            <div class="carousel-caption" style="position: absolute">
                 <h4>SAMPLE</h4>
             </div>
         </slide>
         <slide>
+            <div>
             <img src="{{result.diffUrl}}" style="margin:auto;">
+            </div>
             <div class="carousel-caption">
                 <h4>DIFF</h4>
             </div>
@@ -30,4 +36,6 @@ and open the template in the editor.
         <a ng-click="$parent.rejectSample(result.diffID)" class="btn btn-small btn-primary">Reject sample</a>
         <a ng-click="$parent.acceptSampleAsNewPattern(result.diffID)" class="btn btn-small btn-success">Accept sample as new pattern</a>
         <a ng-click="$parent.acceptNewAlphaMask($event)" class="btn btn-small btn-success">Accept new alpha mask</a>
+        <a ng-click="$parent.destroyCurrentMask($event)" class="btn btn-small btn-danger">Destroy selected mask</a>
+        <a ng-click="$parent.updateSelectedMask($event)" class="btn btn-small btn-danger">Update selected mask</a>
     </span>

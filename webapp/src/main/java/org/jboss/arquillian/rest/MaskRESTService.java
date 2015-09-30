@@ -7,12 +7,16 @@ package org.jboss.arquillian.rest;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Resource;
+import javax.enterprise.context.RequestScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.New;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -24,20 +28,26 @@ import org.jboss.arquillian.managers.MaskManager;
 import org.jboss.arquillian.model.testSuite.Mask;
 import org.jboss.logging.Logger;
 import org.arquillian.graphene.visual.testing.api.event.CrawlMaskToSuiteEvent;
-import org.jboss.arquillian.core.api.Event;
+import org.arquillian.graphene.visual.testing.api.event.DeleteMaskFromSuiteEvent;
+import org.arquillian.graphene.visual.testing.impl.JCRMaskHandler;
 
 /**
  *
  * @author spriadka
  */
 @Path("/masks")
+@RequestScoped
 public class MaskRESTService {
 
     @Inject
     private MaskManager maskManager;
     
-    @Resource(lookup = "java:org.jboss.arquillian.core.api.Event")
+    @Inject
     private Event<CrawlMaskToSuiteEvent> crawlMaskEvent;
+    
+    @Inject
+    @New
+    private Instance<JCRMaskHandler> maskHandler;
 
     @Inject
     private JCRBean jcrBean;
@@ -48,20 +58,47 @@ public class MaskRESTService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public void createMask(Mask mask) {
-        LOGGER.info("called post request");
         Mask result = maskManager.createMask(mask);
         addMaskToDatabase(result);
         LOGGER.info("Mask(s) in database created");
-        //addMaskToSuite(mask);        
+        addMaskToSuite(mask);
+    }
+    
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{maskID: [0-9][0-9]*}")
+    public Mask getMask(@PathParam("maskID")long maskId){
+        return maskManager.getMask(maskId);
     }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{maskID: [0-9][0-9]*}")
-    public Response deleteMask(@PathParam("maskID") long maskId) {
+    public Response deleteMask(@PathParam("maskID")long maskId) {
         Mask toRemove = maskManager.getMask(maskId);
-        maskManager.deleteMask(toRemove);
+        deleteMaskFromDatabase(toRemove);
+        deleteMaskFromJCR(toRemove);
         return Response.ok().build();
+    }
+    
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/update/{mask}")
+    public Response updateMask(@PathParam("mask")Mask mask){
+        maskManager.updateMask(mask);
+        jcrBean.updateMaskSource(mask);
+        return Response.ok().build();
+    }
+    
+    private void deleteMaskFromJCR(Mask mask){
+        MaskFromREST maskFromREST = new MaskFromREST();
+        maskFromREST.setId(mask.getMaskID());
+        maskHandler.get().deleteMasks(new DeleteMaskFromSuiteEvent(maskFromREST.getId(), jcrBean.getDescriptorForMask(mask)));
+    }
+    
+    private void deleteMaskFromDatabase(Mask mask){
+        maskManager.deleteMask(mask);
     }
 
     private void addMaskToDatabase(Mask mask) {
@@ -78,9 +115,9 @@ public class MaskRESTService {
         maskFromREST.setHorizontalAlign(mask.getHorizotalAlignment());
         maskFromREST.setVerticalAlign(mask.getVerticalAlignment());
         masksToBeCrawled.add(maskFromREST);
-        CrawlMaskToSuiteEvent tobeFired = new CrawlMaskToSuiteEvent(masksToBeCrawled, jcrBean.getDescriptorForMask(mask));
         System.out.println("--------------------------");
-        crawlMaskEvent.fire(new CrawlMaskToSuiteEvent(masksToBeCrawled, jcrBean.getDescriptorForMask(mask)));
+        maskHandler.get().uploadMasks(new CrawlMaskToSuiteEvent(masksToBeCrawled, jcrBean.getDescriptorForMask(mask)));
+        //crawlMaskEvent.fire(new CrawlMaskToSuiteEvent(masksToBeCrawled, jcrBean.getDescriptorForMask(mask)));
         
     }
 
