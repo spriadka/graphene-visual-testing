@@ -92,7 +92,7 @@ visualTestingServices.factory('DeleteSelectedMask',function($http){
 visualTestingServices.factory('UpdateSelectedMask',function($http){
     return {
         updateSelectedMask: function(selectedMask){
-            return $http.put('rest/masks/update/' + selectedMask);
+            return $http.put('rest/masks/',selectedMask);
         }
     }
 });

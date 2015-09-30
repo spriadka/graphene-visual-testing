@@ -94,22 +94,6 @@ public class Mask {
 
     }
 
-    public Mask(String jsonString) {
-        try {
-            Map<String, Object> props = objectMapper.readValue(jsonString, Map.class);
-            this.maskID = (long)props.get("maskID");
-            this.sample = objectMapper.convertValue(props.get("sample"), Sample.class);
-            this.testSuite = objectMapper.convertValue(props.get("testSuite"), TestSuite.class);
-            this.sourceData = (String) props.get("sourceData");
-            this.top = (int) props.get("top");
-            this.left = (int) props.get("left");
-            this.width = (int) props.get("width");
-            this.height = (int) props.get("height");
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(Mask.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     @Override
     public int hashCode() {
         int hash = 3;

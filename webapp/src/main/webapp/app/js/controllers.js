@@ -155,8 +155,10 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
             var promisedSelectedMask = ParticularMask.query({maskID: selectedMaskId}).$promise;
             promisedSelectedMask.then(function(originalMask){
                 var maskObj = originalMask;
+                $log.info(maskObj);
                 $scope.setCroppedImageAndAlignmentFromMask(selectedMaskElement,img,maskObj);
-                UpdateSelectedMask.updateSelectedMask(maskObj);
+                $log.info(maskObj);
+                UpdateSelectedMask.updateSelectedMask(JSON.stringify(maskObj));
             });
             
         };

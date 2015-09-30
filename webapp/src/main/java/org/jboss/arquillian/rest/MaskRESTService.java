@@ -83,9 +83,9 @@ public class MaskRESTService {
     }
     
     @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/update/{mask}")
-    public Response updateMask(@PathParam("mask")Mask mask){
+    public Response updateMask(Mask mask){
         maskManager.updateMask(mask);
         jcrBean.updateMaskSource(mask);
         return Response.ok().build();
