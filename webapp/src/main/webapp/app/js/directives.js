@@ -85,23 +85,15 @@ visualTestingDirectives.directive('jcrop', function () {
                 $(elem).Jcrop({
                     bgColor: 'black',
                     multi: true,
-                    setSelect: [0,0,0,0]
                 },function(){
                     comparisonResult.jcrop_api = this;
-                    if (comparisonResult.masks.length == 0){
-                        var selection = comparisonResult.jcrop_api.newSelection();
-                        console.log(selection);
-                        //selection.id = elem.id;
-                    }
-                    else {
+                    if (comparisonResult.masks.length !== 0){
                         for (var i=0; i < comparisonResult.masks.length; i++){
                             var mask = comparisonResult.masks[i];
                             var selection = comparisonResult.jcrop_api.newSelection();
                             selection.update($.Jcrop.wrapFromXywh([mask.left,mask.top,mask.width,mask.height]));
                             $(selection.element).attr("maskID",mask.maskID);
-                            //console.log(i);
                             selection.id = mask.maskID;
-                            //comparisonResult.jcrop_api.ui.multi.push(selection);
                         }
                         console.log(comparisonResult);
                     }

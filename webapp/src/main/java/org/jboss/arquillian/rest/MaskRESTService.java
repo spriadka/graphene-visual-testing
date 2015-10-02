@@ -23,6 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.arquillian.graphene.visual.testing.api.MaskFromREST;
+import org.arquillian.graphene.visual.testing.api.builder.MaskFromRESTBuilder;
 import org.jboss.arquillian.bean.JCRBean;
 import org.jboss.arquillian.managers.MaskManager;
 import org.jboss.arquillian.model.testSuite.Mask;
@@ -30,6 +31,7 @@ import org.jboss.logging.Logger;
 import org.arquillian.graphene.visual.testing.api.event.CrawlMaskToSuiteEvent;
 import org.arquillian.graphene.visual.testing.api.event.DeleteMaskFromSuiteEvent;
 import org.arquillian.graphene.visual.testing.impl.JCRMaskHandler;
+import org.jboss.rusheye.suite.MaskType;
 
 /**
  *
@@ -92,9 +94,15 @@ public class MaskRESTService {
     }
     
     private void deleteMaskFromJCR(Mask mask){
-        MaskFromREST maskFromREST = new MaskFromREST();
-        maskFromREST.setId(mask.getMaskID());
-        maskHandler.get().deleteMasks(new DeleteMaskFromSuiteEvent(maskFromREST.getId(), jcrBean.getDescriptorForMask(mask)));
+        String name = mask.getTestSuite().getName() + ":" + mask.getSample().getName();
+        MaskFromREST maskFromREST = new MaskFromRESTBuilder().id(mask.getMaskID())
+                .name(name)
+                .sourceUrl(mask.getSourceUrl())
+                .horizontalAlign(mask.getHorizotalAlignment())
+                .verticalAlign(mask.getVerticalAlignment())
+                .maskType(MaskType.SELECTIVE_ALPHA)
+                .build();
+        maskHandler.get().deleteMasks(new DeleteMaskFromSuiteEvent(maskFromREST, jcrBean.getDescriptorForMask(mask)));
     }
     
     private void deleteMaskFromDatabase(Mask mask){
@@ -108,12 +116,15 @@ public class MaskRESTService {
     
     private void addMaskToSuite(Mask mask){
         List<MaskFromREST> masksToBeCrawled = new ArrayList<>();
-        MaskFromREST maskFromREST = new MaskFromREST();
-        maskFromREST.setId(mask.getMaskID());
-        maskFromREST.setName(mask.getTestSuite().getName() + ":" + mask.getSample().getName());
-        maskFromREST.setSourceUrl(mask.getSourceUrl());
-        maskFromREST.setHorizontalAlign(mask.getHorizotalAlignment());
-        maskFromREST.setVerticalAlign(mask.getVerticalAlignment());
+        String name = mask.getTestSuite().getName() + ":" + mask.getSample().getName();
+        MaskFromREST maskFromREST = new MaskFromRESTBuilder()
+                .id(mask.getMaskID())
+                .name(name)
+                .verticalAlign(mask.getVerticalAlignment())
+                .horizontalAlign(mask.getHorizotalAlignment())
+                .maskType(MaskType.SELECTIVE_ALPHA)
+                .sourceUrl(mask.getSourceUrl())
+                .build();
         masksToBeCrawled.add(maskFromREST);
         System.out.println("--------------------------");
         maskHandler.get().uploadMasks(new CrawlMaskToSuiteEvent(masksToBeCrawled, jcrBean.getDescriptorForMask(mask)));

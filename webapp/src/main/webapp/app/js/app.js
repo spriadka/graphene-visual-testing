@@ -32,8 +32,7 @@ visualTestingApp.config(['$routeProvider',
       when('/suites/:testSuiteID/runs/:runId', {
         templateUrl: PARTIALS + '/particular-run.html',
         controller: 'ParticularRunCtrl'
-      })
-      .
+      }).
       otherwise({
         redirectTo: '/suites'
       });

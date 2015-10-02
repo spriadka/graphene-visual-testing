@@ -5,6 +5,7 @@
  */
 package org.arquillian.graphene.visual.testing.api;
 
+import org.arquillian.graphene.visual.testing.api.builder.MaskFromRESTBuilder;
 import org.jboss.rusheye.suite.HorizontalAlign;
 import org.jboss.rusheye.suite.MaskType;
 import org.jboss.rusheye.suite.VerticalAlign;
@@ -21,6 +22,15 @@ public class MaskFromREST {
     private HorizontalAlign horizontalAlign;
     private MaskType maskType = MaskType.SELECTIVE_ALPHA;
     private String name;
+    
+    public MaskFromREST(MaskFromRESTBuilder builder){
+        this.id = builder.getId();
+        this.sourceUrl = builder.getSourceUrl();
+        this.name = builder.getName();
+        this.horizontalAlign = builder.getHorizontalAlign();
+        this.verticalAlign = builder.getVerticalAlign();
+        this.maskType = builder.getMaskType();
+    }
 
     /**
      * @return the id
@@ -105,8 +115,5 @@ public class MaskFromREST {
     public void setName(String name) {
         this.name = name;
     }
-    
-    
-    
-    
+   
 }

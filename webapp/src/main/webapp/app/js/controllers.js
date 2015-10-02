@@ -12,6 +12,7 @@ visualTestingControllers.controller('SuiteListCtrl', ['$scope', '$route', '$log'
         $scope.lastRun = function (suite) {
             return suite.runs[suite.runs.length - 1];
         };
+
         $scope.suites = Suites.query();
         $log.info($scope.suites);
         $scope.count = 0;
@@ -74,9 +75,10 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
     '$route', '$location', 'ParticularRun', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern', 'AcceptNewMask', 'ParticularSample', 'ParticularSuite','DeleteSelectedMask','ParticularMask','UpdateSelectedMask',
     function ($scope, $routeParams, $log, $route, $location, ParticularRun,
             RejectSample, AcceptSampleAsNewPattern, RejectPattern, AcceptNewMask, ParticularSample, ParticularSuite,DeleteSelectedMask,ParticularMask,UpdateSelectedMask) {
-
+                
         $scope.comparisonResults = ParticularRun.query({runId: $routeParams.runId});
         $scope.back = back;
+        $scope.path = $location.path();
         $scope.acceptNewAlphaMask = function (event) {
             var clicked = event.target;
             var parentDiv = $(clicked).parents().get(1);
@@ -129,7 +131,7 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
             maskObj.horizontalAlignment = null;
             maskObj.verticalAlignment = null;
             maskObj.top = startY;
-            maskObj.left = startY;
+            maskObj.left = startX;
             maskObj.width = width;
             maskObj.height = height;
         };

@@ -1,13 +1,24 @@
-<a href="#/suites">Back to test suite list</a> <br />
-<a ng-click="back()">Back to test suite runs list</a>
-<h1>Job run</h1>
+<!--<a href="#/suites">Back to test suite list</a> <br />
+<a ng-click="back()">Back to test suite runs list</a> -->
 
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#/suites">GrapheneVisualTesting</a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="{{path}}">Home</a></li>
+                <li><a ng-click="back()">Back</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<br>
+<br>
 <ul style="list-style-type: none;">
     <li ng-repeat="comparisonResult in comparisonResults">
-        <div class="test-info">
-            <b>Test class:</b> {{comparisonResult.testClassName}}<br />
-            <b>Test name:</b> {{comparisonResult.testName}}<br />
-        </div>
         <div run-info result="comparisonResult"></div>
     </li>
 </ul>

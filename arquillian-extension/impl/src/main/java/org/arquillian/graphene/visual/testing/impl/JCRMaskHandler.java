@@ -28,6 +28,7 @@ import javax.inject.Inject;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import org.arquillian.graphene.visual.testing.api.event.DeleteMaskFromSuiteEvent;
+import org.dom4j.Node;
 
 /**
  *
@@ -42,12 +43,13 @@ public class JCRMaskHandler implements MaskHandler{
     @Override
     public void deleteMasks(@Observes DeleteMaskFromSuiteEvent deleteMaskEvent) {
         File descriptor = deleteMaskEvent.getSuiteDescriptor();
-        Long maskID = deleteMaskEvent.getMaskID();
+        Long maskID = deleteMaskEvent.getMask().getId();
         try{
             Document suiteXml = new SAXReader().read(descriptor);
             deleteMaskFromConfiguration(maskID, suiteXml);
             deleteMaskFromTest(maskID, suiteXml);
-            writeDocumentToFile(null, suiteXml);
+            String suiteName = deleteMaskEvent.getMask().getName().split(":")[0];
+            writeDocumentToFile(suiteName, suiteXml);
         }
         catch (Exception e){
             
@@ -84,16 +86,16 @@ public class JCRMaskHandler implements MaskHandler{
     
     private void deleteMaskFromConfiguration(Long maskID, Document doc){
         Namespace ns = Namespace.get(RushEye.NAMESPACE_VISUAL_SUITE);
-        String xPath = "/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"visual-suite\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"global-configuration\"/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"mask\" and @id=\"" + maskID + "]]";
-        Element maskElement = (Element)doc.selectSingleNode(xPath);
-        doc.remove(maskElement);
+        String xPath = "/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"visual-suite\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"global-configuration\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"mask\" and @id=\"" + maskID + "\"]";
+        Node maskElement = doc.selectSingleNode(xPath);
+        maskElement.detach();
     }
     
     private void deleteMaskFromTest(Long maskID, Document doc){
         Namespace ns = Namespace.get(RushEye.NAMESPACE_VISUAL_SUITE);
-        String xPath = "/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"visual-suite\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"test\"/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"mask\" and @id=\"" + maskID + "]]";
-        Element maskElement = (Element)doc.selectSingleNode(xPath);
-        doc.remove(maskElement);
+        String xPath = "/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"visual-suite\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"test\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"mask\" and @id=\"" + maskID + "\"]";
+        Node maskElement = doc.selectSingleNode(xPath);
+        maskElement.detach();
     }
     
     private void addMasksToTest(List<MaskFromREST> masks, Document doc){

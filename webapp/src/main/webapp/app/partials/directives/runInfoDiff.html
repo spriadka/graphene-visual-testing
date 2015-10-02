@@ -4,38 +4,78 @@ To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
-    <carousel>
-        <slide active="active">
-            <div>
+<!--
+<carousel>
+    <slide active="active">
+        <div>
             <img src="{{result.patternUrl}}" style="margin:auto;">
-            </div>
-            <div class="carousel-caption">
-                <h4>PATTERN</h4>
-            </div>
-        </slide>
-        <slide>
-            <div>
+        </div>
+        <div class="carousel-caption">
+            <h4>PATTERN</h4>
+        </div>
+    </slide>
+    <slide>
+        <div>
             <img id="{{result.sampleID}}" src="{{result.sampleUrl}}" style="margin:auto;" jcrop>
-            </div>
-            <div class="carousel-caption" style="position: absolute">
-                <h4>SAMPLE</h4>
-            </div>
-        </slide>
-        <slide>
-            <div>
+        </div>
+        <div class="carousel-caption" style="position: absolute">
+            <h4>SAMPLE</h4>
+        </div>
+    </slide>
+    <slide>
+        <div>
             <img src="{{result.diffUrl}}" style="margin:auto;">
-            </div>
-            <div class="carousel-caption">
-                <h4>DIFF</h4>
-            </div>
-        </slide>
-    </carousel>
-    <br>
-    <span class="centre">
-        <a ng-click="$parent.rejectPattern(result.diffID)" class="btn btn-small btn-danger">Reject pattern</a>
-        <a ng-click="$parent.rejectSample(result.diffID)" class="btn btn-small btn-primary">Reject sample</a>
-        <a ng-click="$parent.acceptSampleAsNewPattern(result.diffID)" class="btn btn-small btn-success">Accept sample as new pattern</a>
-        <a ng-click="$parent.acceptNewAlphaMask($event)" class="btn btn-small btn-success">Accept new alpha mask</a>
-        <a ng-click="$parent.destroyCurrentMask($event)" class="btn btn-small btn-danger">Destroy selected mask</a>
-        <a ng-click="$parent.updateSelectedMask($event)" class="btn btn-small btn-danger">Update selected mask</a>
-    </span>
+        </div>
+        <div class="carousel-caption">
+            <h4>DIFF</h4>
+        </div>
+    </slide>
+</carousel>
+<br>
+-->
+<!--
+NAVBAR
+##################
+-->
+<div class="container">
+    <h3>Test class: {{result.testClassName}}</h3>
+    <h3>Test name: {{result.testName}}</h3>
+    <ul class="nav nav-tabs nav-justified">
+        <li class="active"><a data-toggle="tab" href="{{$parent.path}}#pattern{{result.diffID}}">Pattern</a></li>
+        <li><a data-toggle="tab" href="{{$parent.path}}#sample{{result.diffID}}">Sample</a></li>
+        <li><a data-toggle="tab" href="{{$parent.path}}#diff{{result.diffID}}">Diff</a></li>
+        <li><p>{{$location.absUrl()}}</p></li>
+    </ul>
+    <div class="tab-content">
+        
+        <div id="pattern{{result.diffID}}" class="tab-pane fade in active">
+            <img src="{{result.patternUrl}}" style="margin:auto;">
+            <hr>
+            <span class="center">
+                <a ng-click="$parent.rejectPattern(result.diffID)" class="btn btn-small btn-danger">Reject pattern</a>
+            </span>
+        </div>
+        <div id="sample{{result.diffID}}" class="tab-pane fade">
+            <img id="{{result.sampleID}}" src="{{result.sampleUrl}}" style="margin:auto;" jcrop>
+            <hr>
+            <span class="center">
+                <a ng-click="$parent.rejectSample(result.diffID)" class="btn btn-small btn-primary">Reject sample</a>
+                <a ng-click="$parent.acceptSampleAsNewPattern(result.diffID)" class="btn btn-small btn-success">Accept sample as new pattern</a>
+                <a ng-click="$parent.acceptNewAlphaMask($event)" class="btn btn-small btn-success">Accept new alpha mask</a>
+                <a ng-click="$parent.destroyCurrentMask($event)" class="btn btn-small btn-danger">Destroy selected mask</a>
+                <a ng-click="$parent.updateSelectedMask($event)" class="btn btn-small btn-danger">Update selected mask</a>
+            </span>
+        </div>
+        <div id="diff{{result.diffID}}" class="tab-pane fade">
+            <img src="{{result.diffUrl}}" style="margin:auto;">
+        </div>
+    </div>
+</div> 
+<br>
+<!--<span class="centre">
+    <a ng-click="$parent.rejectSample(result.diffID)" class="btn btn-small btn-primary">Reject sample</a>
+    <a ng-click="$parent.acceptSampleAsNewPattern(result.diffID)" class="btn btn-small btn-success">Accept sample as new pattern</a>
+    <a ng-click="$parent.acceptNewAlphaMask($event)" class="btn btn-small btn-success">Accept new alpha mask</a>
+    <a ng-click="$parent.destroyCurrentMask($event)" class="btn btn-small btn-danger">Destroy selected mask</a>
+    <a ng-click="$parent.updateSelectedMask($event)" class="btn btn-small btn-danger">Update selected mask</a>
+</span> -->

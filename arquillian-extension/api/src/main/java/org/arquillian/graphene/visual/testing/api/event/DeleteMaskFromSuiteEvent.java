@@ -6,6 +6,7 @@
 package org.arquillian.graphene.visual.testing.api.event;
 
 import java.io.File;
+import org.arquillian.graphene.visual.testing.api.MaskFromREST;
 
 /**
  *
@@ -13,25 +14,25 @@ import java.io.File;
  */
 public class DeleteMaskFromSuiteEvent {
     
-    private Long maskID;
+    private MaskFromREST mask;
     private File suiteDescriptor;
     
-    public DeleteMaskFromSuiteEvent(Long maskID, File suiteDescriptor){
-        this.maskID = maskID;
+    public DeleteMaskFromSuiteEvent(MaskFromREST mask, File suiteDescriptor){
+        this.mask = mask;
         this.suiteDescriptor = suiteDescriptor;
     }
     /**
      * @return the maskID
      */
-    public Long getMaskID() {
-        return maskID;
+    public MaskFromREST getMask() {
+        return mask;
     }
 
     /**
      * @param maskID the maskID to set
      */
-    public void setMaskID(Long maskID) {
-        this.maskID = maskID;
+    public void setMask(MaskFromREST mask) {
+        this.mask = mask;
     }
 
     /**
