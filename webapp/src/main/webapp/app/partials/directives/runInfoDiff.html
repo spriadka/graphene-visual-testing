@@ -37,28 +37,28 @@ and open the template in the editor.
 NAVBAR
 ##################
 -->
-<div class="container">
+<div class="container" style="border: 1px #e4e4e4 solid; padding: 20px; border-radius: 4px; box-shadow: 0 0 6px #ccc;">
     <h3>Test class: {{result.testClassName}}</h3>
     <h3>Test name: {{result.testName}}</h3>
+    <hr>
     <ul class="nav nav-tabs nav-justified">
         <li class="active"><a data-toggle="tab" href="{{$parent.path}}#pattern{{result.diffID}}">Pattern</a></li>
         <li><a data-toggle="tab" href="{{$parent.path}}#sample{{result.diffID}}">Sample</a></li>
         <li><a data-toggle="tab" href="{{$parent.path}}#diff{{result.diffID}}">Diff</a></li>
-        <li><p>{{$location.absUrl()}}</p></li>
     </ul>
     <div class="tab-content">
         
         <div id="pattern{{result.diffID}}" class="tab-pane fade in active">
             <img src="{{result.patternUrl}}" style="margin:auto;">
             <hr>
-            <span class="center">
+            <span style="text-align: center; display: block;">
                 <a ng-click="$parent.rejectPattern(result.diffID)" class="btn btn-small btn-danger">Reject pattern</a>
             </span>
         </div>
         <div id="sample{{result.diffID}}" class="tab-pane fade">
-            <img id="{{result.sampleID}}" src="{{result.sampleUrl}}" style="margin:auto;" jcrop>
+            <img sampleid="{{result.sampleID}}" src="{{result.sampleUrl}}" style="margin:auto; width: 100%; height: 100%; display: block" jcrop>
             <hr>
-            <span class="center">
+            <span style="text-align: center; display: block">
                 <a ng-click="$parent.rejectSample(result.diffID)" class="btn btn-small btn-primary">Reject sample</a>
                 <a ng-click="$parent.acceptSampleAsNewPattern(result.diffID)" class="btn btn-small btn-success">Accept sample as new pattern</a>
                 <a ng-click="$parent.acceptNewAlphaMask($event)" class="btn btn-small btn-success">Accept new alpha mask</a>

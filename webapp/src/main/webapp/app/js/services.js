@@ -20,12 +20,20 @@ visualTestingServices.factory('ParticularSuite', ['$resource',
         });
     }]);
 
-visualTestingServices.factory('ParticularMask',['$resource',function($resource){
-        return $resource('rest/masks/:maskID',{maskID: '@maskID'},{query: {method: 'GET', isArray: false}});
-}]);
+visualTestingServices.factory('Masks', ['$resource', function ($resource) {
+        return $resource('rest/masks/sample/:sampleID',{sampleID: '@sampleID'},{
+            query: {method: 'GET', isArray: true}
+        });
+    }]);
 
-visualTestingServices.factory('ParticularRun', ['$resource', '$log',
-    function ($resource, $log) {
+visualTestingServices.factory('ParticularMask', ['$resource', function ($resource) {
+        return $resource('rest/masks/:maskID', {maskID: '@maskID'}, {
+            query: {method: 'GET', isArray: false}
+        });
+    }]);
+
+visualTestingServices.factory('ParticularRun', ['$resource',
+    function ($resource) {
         return $resource('rest/runs/comparison-result/:runId', {runId: '@runId'}, {
             query: {method: 'GET', isArray: true}
         });
@@ -81,18 +89,18 @@ visualTestingServices.factory('AcceptNewMask', function ($http) {
     }
 });
 
-visualTestingServices.factory('DeleteSelectedMask',function($http){
+visualTestingServices.factory('DeleteSelectedMask', function ($http) {
     return {
-        deleteSelectedMask: function(selectedMaskId){
+        deleteSelectedMask: function (selectedMaskId) {
             return $http.delete('rest/masks/' + selectedMaskId);
         }
     }
 });
 
-visualTestingServices.factory('UpdateSelectedMask',function($http){
+visualTestingServices.factory('UpdateSelectedMask', function ($http) {
     return {
-        updateSelectedMask: function(selectedMask){
-            return $http.put('rest/masks/',selectedMask);
+        updateSelectedMask: function (selectedMask) {
+            return $http.put('rest/masks/', selectedMask);
         }
     }
 });

@@ -9,10 +9,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
-import java.util.logging.Level;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -81,6 +79,7 @@ public class Mask {
 
     @JsonCreator
     public Mask(Map<String, Object> props) {
+        this.maskID = objectMapper.convertValue(props.get("maskID"), Long.class);
         this.sample = objectMapper.convertValue(props.get("sample"), Sample.class);
         this.testSuite = objectMapper.convertValue(props.get("testSuite"), TestSuite.class);
         this.sourceData = (String) props.get("sourceData");

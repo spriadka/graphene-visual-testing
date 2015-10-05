@@ -48,10 +48,17 @@ public class MaskManager {
     }
     
     public void updateMask(Mask mask){
-        em.merge(mask);
+        Mask maskToBeUpdated = em.find(Mask.class, mask.getMaskID());
+        maskToBeUpdated.setHeight(mask.getHeight());
+        maskToBeUpdated.setLeft(mask.getLeft());
+        maskToBeUpdated.setWidth(mask.getWidth());
+        maskToBeUpdated.setTop(mask.getTop());
+        maskToBeUpdated.setSample(mask.getSample());
+        maskToBeUpdated.setTestSuite(mask.getTestSuite());
+        em.merge(maskToBeUpdated);
     }
     
-    public List<Mask> getMasksForSample(long sampleId){
+    public List<Mask> getMasksForSample(Long sampleId){
         Query query = em.createQuery("SELECT m FROM MASK m WHERE m.sample.sampleID = :sampleId");
         return query.setParameter("sampleId", sampleId).getResultList();
     }

@@ -1,4 +1,4 @@
-/* global angular, Promise, Integer */
+/* global angular, Promise, Integer, _ */
 
 'use strict';
 
@@ -34,8 +34,8 @@ visualTestingControllers.controller('SuiteListCtrl', ['$scope', '$route', '$log'
     }]);
 
 visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routeParams',
-    '$route', '$log', 'DeleteParticularSuiteRun', 'ParticularRun', 'AcceptSampleAsNewPattern','promisedSuite',
-    function ($scope, $routeParams, $route, $log,DeleteParticularSuiteRun, ParticularRun, AcceptSampleAsNewPattern,promisedSuite) {
+    '$route', '$log', 'DeleteParticularSuiteRun', 'ParticularRun', 'AcceptSampleAsNewPattern', 'promisedSuite',
+    function ($scope, $routeParams, $route, $log, DeleteParticularSuiteRun, ParticularRun, AcceptSampleAsNewPattern, promisedSuite) {
         $scope.testSuiteID = promisedSuite.testSuiteID;
         $scope.runs = promisedSuite.runs;
         $scope.timestampToDate = timestampToDate;
@@ -72,60 +72,62 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
 ]);
 
 visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParams', '$log',
-    '$route', '$location', 'ParticularRun', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern', 'AcceptNewMask', 'ParticularSample', 'ParticularSuite','DeleteSelectedMask','ParticularMask','UpdateSelectedMask',
+    '$route', '$location', 'ParticularRun', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern', 'AcceptNewMask', 'ParticularSample', 'ParticularSuite', 'DeleteSelectedMask', 'ParticularMask', 'UpdateSelectedMask', 'Masks', '$resource',
     function ($scope, $routeParams, $log, $route, $location, ParticularRun,
-            RejectSample, AcceptSampleAsNewPattern, RejectPattern, AcceptNewMask, ParticularSample, ParticularSuite,DeleteSelectedMask,ParticularMask,UpdateSelectedMask) {
-                
+            RejectSample, AcceptSampleAsNewPattern, RejectPattern, AcceptNewMask, ParticularSample, ParticularSuite, DeleteSelectedMask, ParticularMask, UpdateSelectedMask, Masks, $resource) {
+
         $scope.comparisonResults = ParticularRun.query({runId: $routeParams.runId});
         $scope.back = back;
         $scope.path = $location.path();
         $scope.acceptNewAlphaMask = function (event) {
             var clicked = event.target;
             var parentDiv = $(clicked).parents().get(1);
-            var canvas = $(parentDiv).find('canvas').get(0);
-            var masks = $(parentDiv).find('.jcrop-selection.jcrop-current').get(0);
-            $log.info(parentDiv);
-            $log.info(masks);
-            if (typeof masks !== 'undefined') {
-                var promiseStart = Promise.resolve();
-                var promiseEnd = Promise.resolve();
-                var img = $(parentDiv).find('img[jcrop]').get(0);
-                var maskObj = {};
-                var promisedSample = ParticularSample.query({sampleID: img.id}).$promise;
-                var promisedTestSuite = ParticularSuite.query({testSuiteID: $routeParams.testSuiteID}).$promise;
-                promiseStart.then(function (value) {
-                    $scope.setCroppedImageAndAlignmentFromMask(masks, img, maskObj);
-                    return promisedTestSuite;
-                }).
-                        then(function (value) {
-                            maskObj.testSuite = value;
-                            return promisedSample;
-                        }).
-                        then(function (value) {
-                            maskObj.sample = value;
-                            return promiseEnd;
-                        })
-                        .then(function (value) {
-                            AcceptNewMask.acceptNewMask(JSON.stringify(maskObj));
-                        });
-            }
+            var img = $(parentDiv).find('img[jcrop]').get(0);
+            var sampleId = parseInt($(img).attr("sampleid"));
+            var jcropApi = _.find($scope.comparisonResults, function (comparisonResult) {
+                return comparisonResult.sampleID === sampleId;
+            }).jcrop_api;
+            var promiseStart = Promise.resolve();
+            var promiseEnd = Promise.resolve();
+            var maskObj = {};
+            maskObj.maskID = null;
+            var promisedSample = ParticularSample.query({sampleID: sampleId}).$promise;
+            var promisedTestSuite = ParticularSuite.query({testSuiteID: $routeParams.testSuiteID}).$promise;
+            promiseStart.then(function (value) {
+                $scope.setCroppedImageAndAlignmentFromMask(jcropApi, maskObj);
+                return promisedTestSuite;
+            }).
+                    then(function (value) {
+                        maskObj.testSuite = value;
+                        return promisedSample;
+                    }).
+                    then(function (value) {
+                        maskObj.sample = value;
+                        return promiseEnd;
+                    })
+                    .then(function (value) {
+                        return AcceptNewMask.acceptNewMask(JSON.stringify(maskObj));
+                    })
+                    .then(function(value){
+                        return Masks.query({sampleID: sampleId}).$promise;
+                    })
+                    .then(function(masks){
+                        $scope.reloadJcrop(jcropApi,masks);
+                    });
+
 
         };
 
-        $scope.setCroppedImageAndAlignmentFromMask = function (maskElem, img, maskObj) {
-            var startX = $(maskElem).css("left");
-            startX = parseInt(startX.substring(0, startX.length - 2));
-            var startY = $(maskElem).css("top");
-            startY = parseInt(startY.substring(0, startY.length - 2));
-            var width = $(maskElem).css("width");
-            width = parseInt(width.substring(0, width.length - 2));
-            var height = $(maskElem).css("height");
-            height = parseInt(height.substring(0, height.length - 2));
-            var canvas = document.createElement('canvas');
-            canvas.setAttribute('width', width.toString());
-            canvas.setAttribute('height', height.toString());
+        $scope.setCroppedImageAndAlignmentFromMask = function (jcropApi, maskObj) {
+            var selection = jcropApi.ui.selection;
+            var img = jcropApi.ui.stage.imgsrc;
+            var startX = selection.last.x;
+            var startY = selection.last.y;
+            var width = selection.last.w;
+            var height = selection.last.h;
+            var canvas = selection.core.container.context;
             var context = canvas.getContext("2d");
-            context.drawImage(img, startX, startY, width, height, 0, 0, width, height);
+            context.drawImage(img, startX, startY, width, height, startX, startY, width, height);
             var result = canvas.toDataURL();
             maskObj.sourceData = result;
             maskObj.horizontalAlignment = null;
@@ -134,6 +136,18 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
             maskObj.left = startX;
             maskObj.width = width;
             maskObj.height = height;
+        };
+
+        $scope.reloadJcrop = function (jcropApi, masks) {
+            $('.jcrop-selection').remove();
+            jcropApi.ui.multi = [];
+            for (var i = 0; i < masks.length; i++) {
+                var mask = masks[i];
+                var selection = jcropApi.newSelection();
+                $log.info(selection);
+                selection.update($.Jcrop.wrapFromXywh([mask.left, mask.top, mask.width, mask.height]));
+                selection.maskID = mask.maskID;
+            }
         };
 
         $scope.updateComparisonResults = function () {
@@ -148,21 +162,38 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
                 $log.info($scope.comparisonResults);
             });
         };
-        $scope.updateSelectedMask = function(event){
+        $scope.updateSelectedMask = function (event) {
             var clicked = event.target;
             var parentDiv = $(clicked).parents().get(1);
             var img = $(parentDiv).find('img[jcrop]').get(0);
-            var selectedMaskElement = $(parentDiv).find('.jcrop-selection.jcrop-current').get(0);
-            var selectedMaskId = parseInt($(selectedMaskElement).attr("maskid"));
-            var promisedSelectedMask = ParticularMask.query({maskID: selectedMaskId}).$promise;
-            promisedSelectedMask.then(function(originalMask){
-                var maskObj = originalMask;
-                $log.info(maskObj);
-                $scope.setCroppedImageAndAlignmentFromMask(selectedMaskElement,img,maskObj);
-                $log.info(maskObj);
-                UpdateSelectedMask.updateSelectedMask(JSON.stringify(maskObj));
+            var sampleId = parseInt($(img).attr("sampleid"));
+            var selectedComparisonResult = _.find($scope.comparisonResults, function (comparisonResult) {
+                return comparisonResult.sampleID === sampleId;
             });
-            
+            var selectedJcropApi = selectedComparisonResult.jcrop_api;
+            $log.info("BEFORE CHANGE");
+            $log.info(selectedJcropApi);
+            var selectedMaskId = selectedJcropApi.ui.selection.maskID;
+            if (typeof selectedMaskId !== 'undefined') {
+                var promisedSelectedMask = ParticularMask.query({maskID: selectedMaskId}).$promise;
+                promisedSelectedMask.then(function (originalMask) {
+                    var maskObj = originalMask;
+                    $scope.setCroppedImageAndAlignmentFromMask(selectedJcropApi, maskObj);
+                    return UpdateSelectedMask.updateSelectedMask(JSON.stringify(maskObj));
+                }).then(function (succesPayload) {
+                    var masks = Masks.query({sampleID: sampleId});
+                    return masks.$promise;
+                })
+                        .then(function (allMasks) {
+                            $log.info(allMasks);
+                            $scope.reloadJcrop(selectedJcropApi,allMasks);
+
+                        });
+            }
+            else {
+                $log.error("Mask not selected");
+            }
+
         };
         $scope.updateComparisonResults();
         $scope.rejectPattern = function (diffID) {
@@ -201,15 +232,26 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
                 $log.error('failure when replacing pattern', errorPayload);
             });
         };
-        
-        $scope.destroyCurrentMask = function(event){
+
+        $scope.destroyCurrentMask = function (event) {
             var clicked = event.target;
             var parentDiv = $(clicked).parents().get(1);
-            var selectedMask = $(parentDiv).find('.jcrop-selection.jcrop-current').get(0);
-            var selectedMaskId = parseInt($(selectedMask).attr("maskid"));
+            var img = $(parentDiv).find('img[jcrop]').get(0);
+            var sampleId = parseInt($(img).attr("sampleid"));
+            var jcropApi;
+            jcropApi = _.find($scope.comparisonResults, function (comparisonResult) {
+                return comparisonResult.sampleID === sampleId;
+            }).jcrop_api;
+            var selectedMaskId = jcropApi.ui.selection.maskID;
             $log.info(selectedMaskId);
             $log.info(typeof selectedMaskId);
-            DeleteSelectedMask.deleteSelectedMask(selectedMaskId);
+            if (typeof selectedMaskId === 'undefined') {
+                $log.error("Mask to be destroyed not selected");
+            }
+            else {
+                DeleteSelectedMask.deleteSelectedMask(selectedMaskId);
+                jcropApi.deleteSelection();
+            }
         };
 
     }]);

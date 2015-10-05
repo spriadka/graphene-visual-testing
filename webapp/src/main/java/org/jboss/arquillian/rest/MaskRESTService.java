@@ -73,6 +73,14 @@ public class MaskRESTService {
     public Mask getMask(@PathParam("maskID")long maskId){
         return maskManager.getMask(maskId);
     }
+    
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/sample/{sampleID: [0-9][0-9]*}")
+    public List<Mask> getMasks(@PathParam("sampleID")long sampleID){
+        return maskManager.getMasksForSample(sampleID);
+    }
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)

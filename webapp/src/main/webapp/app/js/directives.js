@@ -37,22 +37,22 @@ visualTestingDirectives.directive('alertInfo', function ($compile) {
     };
 });
 
-visualTestingDirectives.directive('runInfo',function ($compile) {
-    var linker = function(scope,elem,attr){
+visualTestingDirectives.directive('runInfo', function ($compile) {
+    var linker = function (scope, elem, attr) {
         var isDiff = scope.result.isDiff;
         var urlOfTemplate;
-        if (isDiff){
+        if (isDiff) {
             urlOfTemplate = 'app/partials/directives/runInfoDiff.html';
         }
         else {
             urlOfTemplate = 'app/partials/directives/runInfoSuccessful.html';
         }
         var promisedTemplate = $.get(urlOfTemplate);
-        promisedTemplate.then(function (html){
+        promisedTemplate.then(function (html) {
             $(elem).html(html).show();
             $compile(elem.contents())(scope);
         });
-        
+
     };
     return {
         restrict: 'A',
@@ -60,48 +60,38 @@ visualTestingDirectives.directive('runInfo',function ($compile) {
             result: '='
         },
         link: linker
-        
+
 
     };
 }
 );
 
-visualTestingDirectives.directive('slick',function(){
-   return {
-       restrict: 'A',
-       link: function(scope,elem,attr){
-           $(elem).slick();
-       }
-   } 
-});
-
 visualTestingDirectives.directive('jcrop', function () {
 
-        return {
-            restrict: 'A',
-            scope: true,
-            link: function (scope, elem, attr) {
-                var comparisonResult = scope.$parent.result;
-                $(elem).Jcrop({
-                    bgColor: 'black',
-                    multi: true,
-                },function(){
-                    comparisonResult.jcrop_api = this;
-                    if (comparisonResult.masks.length !== 0){
-                        for (var i=0; i < comparisonResult.masks.length; i++){
-                            var mask = comparisonResult.masks[i];
-                            var selection = comparisonResult.jcrop_api.newSelection();
-                            selection.update($.Jcrop.wrapFromXywh([mask.left,mask.top,mask.width,mask.height]));
-                            $(selection.element).attr("maskID",mask.maskID);
-                            selection.id = mask.maskID;
-                        }
-                        console.log(comparisonResult);
+    return {
+        restrict: 'A',
+        scope: true,
+        link: function (scope, elem, attr) {
+            var comparisonResult = scope.$parent.result;
+            $(elem).Jcrop({
+                bgColor: 'black',
+                multi: true
+            }, function () {
+                comparisonResult.jcrop_api = this;
+                if (comparisonResult.masks.length !== 0) {
+                    for (var i = 0; i < comparisonResult.masks.length; i++) {
+                        var mask = comparisonResult.masks[i];
+                        var selection = comparisonResult.jcrop_api.newSelection();
+                        selection.update($.Jcrop.wrapFromXywh([mask.left, mask.top, mask.width, mask.height]));
+                        selection.maskID = mask.maskID;
                     }
-                });
+                    console.log(comparisonResult);
+                }
+            });
 
-            }
-        };
-    });
+        }
+    };
+});
 
 
 

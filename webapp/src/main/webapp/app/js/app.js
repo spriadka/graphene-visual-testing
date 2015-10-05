@@ -9,8 +9,7 @@ var visualTestingApp = angular.module('visualTestingApp', [
   'visualTestingControllers',
   'visualTestingDirectives',
   'visualTestingServices',
-  'ui.bootstrap',
-  'slick'
+  'ui.bootstrap'
 ]);
 
 visualTestingApp.config(['$routeProvider',
