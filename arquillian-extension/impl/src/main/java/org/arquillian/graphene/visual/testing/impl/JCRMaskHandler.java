@@ -27,8 +27,13 @@ import org.jboss.rusheye.RushEye;
 import javax.inject.Inject;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
+import org.apache.http.client.methods.HttpGet;
 import org.arquillian.graphene.visual.testing.api.event.DeleteMaskFromSuiteEvent;
+import org.arquillian.graphene.visual.testing.configuration.GrapheneVisualTestingConfiguration;
 import org.dom4j.Node;
+import org.jboss.arquillian.core.api.Instance;
+import org.jboss.rusheye.arquillian.event.ReceiveMaskFromJCREvent;
+import org.jboss.rusheye.arquillian.event.RequestMaskFromJCREvent;
 
 /**
  *
@@ -38,6 +43,23 @@ public class JCRMaskHandler implements MaskHandler{
    
     @Inject
     private Event<CrawlMaskToJCREvent> crawlingMasksDoneEvent;
+    
+    @org.jboss.arquillian.core.api.annotation.Inject
+    private Instance<GrapheneVisualTestingConfiguration> gVC;
+    
+    @org.jboss.arquillian.core.api.annotation.Inject
+    private Event<ReceiveMaskFromJCREvent> receiveMaskEvent;
+    
+    
+    public void getMaskFileFromJCR(@org.jboss.arquillian.core.api.annotation.Observes RequestMaskFromJCREvent requestEvent){
+        String source = requestEvent.getMaskUrl();
+        GrapheneVisualTestingConfiguration conf = gVC.get();
+        String fileName = source.substring(source.lastIndexOf("masks/"));
+        File file;
+        RestUtils.executeGetAndSaveToFile(new HttpGet(source), RestUtils.getHTTPClient(conf.getJcrContextRootURL(),conf.getJcrUserName(),conf.getJcrPassword()),fileName,"MASK RECEIVED","FAILED TO RECEIVE MASK");
+        //file = new File(fileName);
+        //receiveMaskEvent.fire(new ReceiveMaskFromJCREvent(file));
+    }
     
     
     @Override
@@ -78,7 +100,7 @@ public class JCRMaskHandler implements MaskHandler{
         Element configurationNode = (Element) doc.selectSingleNode(xPath);
         for (MaskFromREST mask : masks){
             Element maskElement = configurationNode.addElement(QName.get("mask",ns));
-            maskElement.addAttribute("id", mask.getId().toString());
+            maskElement.addAttribute("id", "mask" + mask.getId());
             maskElement.addAttribute("source", mask.getSourceUrl());
             maskElement.addAttribute("type", mask.getMaskType().value());
         }
@@ -86,14 +108,14 @@ public class JCRMaskHandler implements MaskHandler{
     
     private void deleteMaskFromConfiguration(Long maskID, Document doc){
         Namespace ns = Namespace.get(RushEye.NAMESPACE_VISUAL_SUITE);
-        String xPath = "/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"visual-suite\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"global-configuration\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"mask\" and @id=\"" + maskID + "\"]";
+        String xPath = "/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"visual-suite\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"global-configuration\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"mask\" and @id=\"mask" + maskID + "\"]";
         Node maskElement = doc.selectSingleNode(xPath);
         maskElement.detach();
     }
     
     private void deleteMaskFromTest(Long maskID, Document doc){
         Namespace ns = Namespace.get(RushEye.NAMESPACE_VISUAL_SUITE);
-        String xPath = "/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"visual-suite\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"test\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"mask\" and @id=\"" + maskID + "\"]";
+        String xPath = "/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"visual-suite\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"test\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"mask\" and @id=\"mask" + maskID + "\"]";
         Node maskElement = doc.selectSingleNode(xPath);
         maskElement.detach();
     }
@@ -105,10 +127,13 @@ public class JCRMaskHandler implements MaskHandler{
             testName = testName.substring(0, testName.lastIndexOf(".png"));
             String xPath = "/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"visual-suite\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"test\" and @name=\"" + testName + "\"]";
             Element testElement = (Element)doc.selectSingleNode(xPath);
+            Element patternElement = testElement.element(QName.get("pattern", ns));
+            patternElement.detach();
             Element maskElement = testElement.addElement(QName.get("mask",ns ));
-            maskElement.addAttribute("id", mask.getId().toString());
+            maskElement.addAttribute("id", "mask" + mask.getId());
             maskElement.addAttribute("source", mask.getSourceUrl());
             maskElement.addAttribute("type", mask.getMaskType().value());
+            testElement.add(patternElement);
         }
     }
     

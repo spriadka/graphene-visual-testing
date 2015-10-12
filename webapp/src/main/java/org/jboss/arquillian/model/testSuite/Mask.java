@@ -5,12 +5,14 @@
  */
 package org.jboss.arquillian.model.testSuite;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.Objects;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -36,12 +38,11 @@ public class Mask {
     @Column(name = "MASK_ID")
     private Long maskID;
 
-    @JoinColumn(name = "TEST_SUITE_ID")
-    @ManyToOne(fetch = FetchType.EAGER)
-    private TestSuite testSuite;
-
     @Column(name = "SOURCE_URL", unique = true, length = Diff.STRING_COLUMN_LENGTH)
     private String sourceUrl;
+    
+    @Column(name = "TEST_SUITE_NAME")
+    private String testSuiteName;
 
     @JsonIgnore
     @Transient
@@ -54,7 +55,8 @@ public class Mask {
     private VerticalAlign verticalAlignment = null;
 
     @JoinColumn(name = "SAMPLE_ID")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonBackReference(value = "sample-masks")
     private Sample sample;
 
     @JsonIgnore
@@ -81,7 +83,7 @@ public class Mask {
     public Mask(Map<String, Object> props) {
         this.maskID = objectMapper.convertValue(props.get("maskID"), Long.class);
         this.sample = objectMapper.convertValue(props.get("sample"), Sample.class);
-        this.testSuite = objectMapper.convertValue(props.get("testSuite"), TestSuite.class);
+        this.testSuiteName = (String)props.get("testSuiteName");
         this.sourceData = (String) props.get("sourceData");
         this.top = (int) props.get("top");
         this.left = (int) props.get("left");
@@ -96,7 +98,7 @@ public class Mask {
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 61 * hash + Objects.hashCode(this.getTestSuite());
+        hash = 61 * hash + Objects.hashCode(this.getSample());
         hash = 61 * hash + Objects.hashCode(this.getSourceUrl());
         return hash;
     }
@@ -110,7 +112,7 @@ public class Mask {
             return false;
         }
         final Mask mask = (Mask) obj;
-        if (!Objects.equals(this.testSuite, mask.testSuite)) {
+        if (!Objects.equals(this.sample, mask.sample)) {
             return false;
         }
         if (!Objects.equals(this.sourceUrl, mask.sourceUrl)) {
@@ -131,13 +133,6 @@ public class Mask {
      */
     public Long getMaskID() {
         return maskID;
-    }
-
-    /**
-     * @return the testSuite
-     */
-    public TestSuite getTestSuite() {
-        return testSuite;
     }
 
     /**
@@ -181,13 +176,6 @@ public class Mask {
     @JsonProperty
     public String getSourceData() {
         return sourceData;
-    }
-
-    /**
-     * @param testSuite the testSuite to set
-     */
-    public void setTestSuite(TestSuite testSuite) {
-        this.testSuite = testSuite;
     }
 
     /**
@@ -251,6 +239,20 @@ public class Mask {
      */
     public void setLeft(int left) {
         this.left = left;
+    }
+
+    /**
+     * @return the testSuiteName
+     */
+    public String getTestSuiteName() {
+        return testSuiteName;
+    }
+
+    /**
+     * @param testSuiteName the testSuiteName to set
+     */
+    public void setTestSuiteName(String testSuiteName) {
+        this.testSuiteName = testSuiteName;
     }
 
 }

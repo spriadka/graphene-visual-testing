@@ -2,22 +2,20 @@
 <a ng-click="back()">Back to test suite runs list</a> -->
 
 
-<nav class="navbar navbar-inverse navbar-fixed-top">
+<nav class="navbar navbar-inverse navbar-fixed-top" style="height: 54px;">
     <div class="container-fluid">
         <div class="navbar-header">
             <a class="navbar-brand" href="#/suites">GrapheneVisualTesting</a>
         </div>
         <div>
             <ul class="nav navbar-nav">
-                <li class="active"><a href="{{path}}">Home</a></li>
-                <li><a ng-click="back()">Back</a></li>
+                <li class="active"><a >Run</a></li>
+                <li><a ng-click="back()"><span class="glyphicon glyphicon-chevron-left" style="margin-right: 10px;"></span>Back to Runs</a></li>
             </ul>
         </div>
     </div>
 </nav>
-<br>
-<br>
-<ul style="list-style-type: none;">
+<ul style="list-style-type: none; position: relative; margin-top: 60px;">
     <li ng-repeat="comparisonResult in comparisonResults">
         <div run-info result="comparisonResult"></div>
     </li>

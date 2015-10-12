@@ -63,7 +63,7 @@ public class MaskRESTService {
         Mask result = maskManager.createMask(mask);
         addMaskToDatabase(result);
         LOGGER.info("Mask(s) in database created");
-        addMaskToSuite(mask);
+        addMaskToSuite(result);
     }
     
     @GET
@@ -87,8 +87,8 @@ public class MaskRESTService {
     @Path("/{maskID: [0-9][0-9]*}")
     public Response deleteMask(@PathParam("maskID")long maskId) {
         Mask toRemove = maskManager.getMask(maskId);
-        deleteMaskFromDatabase(toRemove);
         deleteMaskFromJCR(toRemove);
+        deleteMaskFromDatabase(toRemove);
         return Response.ok().build();
     }
     
@@ -102,7 +102,7 @@ public class MaskRESTService {
     }
     
     private void deleteMaskFromJCR(Mask mask){
-        String name = mask.getTestSuite().getName() + ":" + mask.getSample().getName();
+        String name = mask.getTestSuiteName() + ":" + mask.getSample().getName();
         MaskFromREST maskFromREST = new MaskFromRESTBuilder().id(mask.getMaskID())
                 .name(name)
                 .sourceUrl(mask.getSourceUrl())
@@ -124,7 +124,7 @@ public class MaskRESTService {
     
     private void addMaskToSuite(Mask mask){
         List<MaskFromREST> masksToBeCrawled = new ArrayList<>();
-        String name = mask.getTestSuite().getName() + ":" + mask.getSample().getName();
+        String name = mask.getTestSuiteName() + ":" + mask.getSample().getName();
         MaskFromREST maskFromREST = new MaskFromRESTBuilder()
                 .id(mask.getMaskID())
                 .name(name)

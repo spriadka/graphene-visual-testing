@@ -1,15 +1,22 @@
 package org.jboss.arquillian.model.testSuite;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.util.List;
 import java.util.Objects;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
 /**
  *
@@ -37,6 +44,12 @@ public class Sample {
     @JoinColumn(name = "TEST_SUITE_RUN_ID")
     @JsonBackReference(value = "test-suite-run-sample")
     private TestSuiteRun testSuiteRun;
+    
+    @Transient
+    @JsonIgnore
+    @OneToMany(mappedBy = "sample",fetch = FetchType.EAGER,cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonManagedReference(value = "sample-masks")
+    private List<Mask> masks;
 
     public Long getSampleID() {
         return sampleID;
@@ -112,5 +125,19 @@ public class Sample {
      */
     public void setLastModificationDate(String lastModificationDate) {
         this.lastModificationDate = lastModificationDate;
+    }
+
+    /**
+     * @return the masks
+     */
+    public List<Mask> getMasks() {
+        return masks;
+    }
+
+    /**
+     * @param masks the masks to set
+     */
+    public void setMasks(List<Mask> masks) {
+        this.masks = masks;
     }
 }

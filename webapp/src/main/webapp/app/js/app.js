@@ -30,7 +30,12 @@ visualTestingApp.config(['$routeProvider',
       }).
       when('/suites/:testSuiteID/runs/:runId', {
         templateUrl: PARTIALS + '/particular-run.html',
-        controller: 'ParticularRunCtrl'
+        controller: 'ParticularRunCtrl',
+        resolve: {
+            promisedRuns: function(ResolveComparisonResults){
+                return ResolveComparisonResults.getComparisonResults();
+            }
+        }
       }).
       otherwise({
         redirectTo: '/suites'

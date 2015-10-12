@@ -18,7 +18,8 @@ public class SampleManager {
     private EntityManager em;
     
     public Sample findById(long id) {
-        return em.find(Sample.class, id);
+        Sample toReturn = em.find(Sample.class, id);
+        return toReturn;
     }
     
     public Sample createTestSuiteRun(Sample sample) {
@@ -27,7 +28,7 @@ public class SampleManager {
     }
     
     public void deleteSample(Sample sample) {
-        em.remove(em.contains(sample) ? sample : em.merge(sample));
+        em.remove(em.contains(sample) ? em.find(Sample.class, sample.getSampleID()) : em.merge(sample));
     }
     
     public List<Sample> getSamples(Long testSuiteRunID){

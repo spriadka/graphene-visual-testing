@@ -69,10 +69,12 @@ visualTestingDirectives.directive('runInfo', function ($compile) {
 visualTestingDirectives.directive('jcrop', function () {
 
     return {
-        restrict: 'A',
+        restrict: 'C',
         scope: true,
         link: function (scope, elem, attr) {
             var comparisonResult = scope.$parent.result;
+            $(elem).attr("src",comparisonResult.sampleUrl);
+            $(elem).attr("sampleid",comparisonResult.sampleID);
             $(elem).Jcrop({
                 bgColor: 'black',
                 multi: true
@@ -84,6 +86,7 @@ visualTestingDirectives.directive('jcrop', function () {
                         var selection = comparisonResult.jcrop_api.newSelection();
                         selection.update($.Jcrop.wrapFromXywh([mask.left, mask.top, mask.width, mask.height]));
                         selection.maskID = mask.maskID;
+                        selection.setColor("#fdfab6",0.3);
                     }
                     console.log(comparisonResult);
                 }

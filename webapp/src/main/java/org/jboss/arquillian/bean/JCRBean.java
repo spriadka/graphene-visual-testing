@@ -115,7 +115,7 @@ public class JCRBean implements Serializable {
         Session session;
         try {
             session = getSession();
-            String testSuiteName = mask.getTestSuite().getName();
+            String testSuiteName = mask.getTestSuiteName();
             String masks = "masks";
             String[] names = mask.getSample().getName().split("/");
             String testClass = names[0];
@@ -156,7 +156,7 @@ public class JCRBean implements Serializable {
         Session session;
         try {
             session = getSession();
-            String testSuiteName = mask.getTestSuite().getName();
+            String testSuiteName = mask.getTestSuiteName();
             String masks = "masks";
             String[] names = mask.getSample().getName().split("/");
             String testClass = names[0];
@@ -209,7 +209,7 @@ public class JCRBean implements Serializable {
         String suiteXml = "suite.xml";
         try{
             session = getSession();
-            Node descriptorNode = session.getRootNode().getNode(mask.getTestSuite().getName()).getNode(suiteXml).getNode(Property.JCR_CONTENT);
+            Node descriptorNode = session.getRootNode().getNode(mask.getTestSuiteName()).getNode(suiteXml).getNode(Property.JCR_CONTENT);
             File toReturn = new File("suite.xml");
             InputStream dataToWrite = descriptorNode.getProperty(Property.JCR_DATA).getBinary().getStream();
             FileUtils.copyInputStreamToFile(dataToWrite, toReturn);

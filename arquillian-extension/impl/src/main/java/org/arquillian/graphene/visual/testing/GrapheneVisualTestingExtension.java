@@ -21,8 +21,8 @@ public class GrapheneVisualTestingExtension implements LoadableExtension {
         builder.observer(JCRSamplesAndDiffsHandler.class);
         builder.observer(AfterListener.class);
         builder.observer(ManagerStoppingObserver.class);
-        builder.service(DescriptorAndPatternsHandler.class, JCRDescriptorAndPatternsHandler.class);
         builder.observer(JCRMaskHandler.class);
+        builder.service(DescriptorAndPatternsHandler.class, JCRDescriptorAndPatternsHandler.class);
         builder.observer(MaskListener.class);
         
     }

@@ -21,7 +21,7 @@ visualTestingServices.factory('ParticularSuite', ['$resource',
     }]);
 
 visualTestingServices.factory('Masks', ['$resource', function ($resource) {
-        return $resource('rest/masks/sample/:sampleID',{sampleID: '@sampleID'},{
+        return $resource('rest/masks/sample/:sampleID', {sampleID: '@sampleID'}, {
             query: {method: 'GET', isArray: true}
         });
     }]);
@@ -200,4 +200,49 @@ visualTestingServices.factory('ResolveRuns', ['$route', 'ParticularSuite', 'Part
 
 
         }
+    }]);
+
+visualTestingServices.factory('ResolveComparisonResults', ['$route', '$log', '$q', 'ParticularRun', function ($route, $log, $q, ParticularRun) {
+        var getImageWidth = function (comparisonResult) {
+            var defferedWidth = $q.defer();
+            $("<img/>").attr("src", comparisonResult.sampleUrl).load(function () {
+                defferedWidth.resolve(this.width);
+            });
+            return defferedWidth.promise;
+        };
+
+        var isDiff = function (result) {
+            if (result.diffUrl !== null) {
+                return true;
+            }
+            return false;
+        };
+        
+        var setImageWidth = function(comparisonResult){
+            getImageWidth(comparisonResult).then(function(width){
+                comparisonResult.imageWidth = width;
+            });  
+        };
+
+        var getPromisedComparisonResults = function () {
+            var promisedResults = ParticularRun.query({runId: $route.current.params.runId}).$promise;
+            promisedResults.then(function (comparisonResults) {
+                for (var i = 0; i < comparisonResults.length; i++) {
+                    var comparisonResult = comparisonResults[i];
+                    comparisonResult.isDiff = isDiff(comparisonResult);
+                    setImageWidth(comparisonResult);
+                    
+                }
+                $log.info(promisedResults);
+            });
+            return promisedResults;
+
+        };
+
+        return {
+            getComparisonResults: function () {
+                return getPromisedComparisonResults();
+            }
+        }
+
     }]);

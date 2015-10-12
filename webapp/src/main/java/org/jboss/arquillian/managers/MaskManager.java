@@ -49,12 +49,13 @@ public class MaskManager {
     
     public void updateMask(Mask mask){
         Mask maskToBeUpdated = em.find(Mask.class, mask.getMaskID());
+        maskToBeUpdated.setSourceUrl(mask.getSourceUrl());
         maskToBeUpdated.setHeight(mask.getHeight());
         maskToBeUpdated.setLeft(mask.getLeft());
         maskToBeUpdated.setWidth(mask.getWidth());
         maskToBeUpdated.setTop(mask.getTop());
         maskToBeUpdated.setSample(mask.getSample());
-        maskToBeUpdated.setTestSuite(mask.getTestSuite());
+        maskToBeUpdated.setTestSuiteName(mask.getTestSuiteName());
         em.merge(maskToBeUpdated);
     }
     
