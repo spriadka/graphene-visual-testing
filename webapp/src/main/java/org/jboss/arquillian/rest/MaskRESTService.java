@@ -96,8 +96,8 @@ public class MaskRESTService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateMask(Mask mask){
-        maskManager.updateMask(mask);
-        jcrBean.updateMaskSource(mask);
+        Mask updatedMask = maskManager.updateMask(mask);
+        jcrBean.updateMaskSource(updatedMask);
         return Response.ok().build();
     }
     

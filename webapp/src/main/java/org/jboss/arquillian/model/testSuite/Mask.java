@@ -255,4 +255,11 @@ public class Mask {
         this.testSuiteName = testSuiteName;
     }
 
+    /**
+     * @param sourceData the sourceData to set
+     */
+    public void setSourceData(String sourceData) {
+        this.sourceData = sourceData;
+    }
+
 }

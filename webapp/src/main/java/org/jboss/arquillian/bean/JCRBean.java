@@ -122,12 +122,12 @@ public class JCRBean implements Serializable {
             String testName = names[1];
             String beforeOrAfter = names[2].substring(0, names[2].indexOf("."));
             Node maskNode = session.getRootNode().getNode(testSuiteName).getNode(masks).getNode(testClass).getNode(testName).getNode(beforeOrAfter).getNode(mask.getMaskID().toString()).getNode(Property.JCR_CONTENT);
-            byte[] newData = Base64.decodeFast(mask.getSourceData());
+            byte[] newData = Base64.decodeFast(mask.getSourceData().split(";")[1].split(",")[1]);
             maskNode.setProperty(Property.JCR_DATA, session.getValueFactory().createBinary(new ByteArrayInputStream(newData)));
             session.save();
         }
         catch (Exception e){
-            
+            LOGGER.error("FAILED TO UPDATE MASK",e);
         }
     }
     

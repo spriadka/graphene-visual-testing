@@ -16,13 +16,13 @@ visualTestingDirectives.directive('alertInfo', function ($compile) {
         var run = scope.info;
         console.log(run.needsToBeUpdated);
         if (run.needsToBeUpdated) {
-            var spanElem = "<span class=\"glyphicon glyphicon-ok-circle\"></span>";
+            var spanElem = "<span class=\"glyphicon glyphicon-ok-circle\" style=\"margin-right: 20px;\"></span>";
             var message = "PATTERNS OUT OF DATE";
             $(elem).addClass("alert alert-danger").html(spanElem + message).show();
             $compile(elem.contents())(scope);
         }
         else {
-            var spanElem = "<span class=\"glyphicon glyphicon-ok-circle\"></span>";
+            var spanElem = "<span class=\"glyphicon glyphicon-ok-circle\" style=\"margin-right: 20px;\"></span>";
             var message = "ALL PATTERNS UP TO DATE";
             $(elem).addClass("alert alert-success").html(spanElem + message).show();
             $compile(elem.contents())(scope);
@@ -86,7 +86,7 @@ visualTestingDirectives.directive('jcrop', function () {
                         var selection = comparisonResult.jcrop_api.newSelection();
                         selection.update($.Jcrop.wrapFromXywh([mask.left, mask.top, mask.width, mask.height]));
                         selection.maskID = mask.maskID;
-                        selection.setColor("#fdfab6",0.3);
+                        selection.setColor("#00ffd4",0.3);
                     }
                     console.log(comparisonResult);
                 }

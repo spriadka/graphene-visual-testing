@@ -150,7 +150,7 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
                 $log.info(selection);
                 selection.update($.Jcrop.wrapFromXywh([mask.left, mask.top, mask.width, mask.height]));
                 selection.maskID = mask.maskID;
-                selection.setColor("#fdfab6",0.3);
+                selection.setColor("#00ffd4",0.3);
             }
         };
 
@@ -171,12 +171,14 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
                 promisedSelectedMask.then(function (originalMask) {
                     var maskObj = originalMask;
                     $scope.setCroppedImageAndAlignmentFromMask(selectedJcropApi, maskObj);
+                    $log.info(maskObj);
                     return UpdateSelectedMask.updateSelectedMask(JSON.stringify(maskObj));
                 }).then(function (succesPayload) {
                     var masks = Masks.query({sampleID: sampleId});
                     return masks.$promise;
                 })
                         .then(function (allMasks) {
+                            $log.info("MASKS");
                             $log.info(allMasks);
                             $scope.reloadJcrop(selectedJcropApi, allMasks);
 

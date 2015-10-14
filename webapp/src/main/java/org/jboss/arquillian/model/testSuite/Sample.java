@@ -45,9 +45,8 @@ public class Sample {
     @JsonBackReference(value = "test-suite-run-sample")
     private TestSuiteRun testSuiteRun;
     
-    @Transient
     @JsonIgnore
-    @OneToMany(mappedBy = "sample",fetch = FetchType.EAGER,cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "sample",fetch = FetchType.EAGER,cascade = CascadeType.REMOVE)
     @JsonManagedReference(value = "sample-masks")
     private List<Mask> masks;
 
