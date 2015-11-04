@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
@@ -32,8 +31,10 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.apache.http.entity.StringEntity;
+import org.jboss.logging.Logger;
 import org.jboss.rusheye.suite.ResultConclusion;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -43,7 +44,7 @@ import org.w3c.dom.NodeList;
  */
 public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
 
-    private static final Logger LOGGER = Logger.getLogger(JCRSamplesAndDiffsHandler.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(JCRSamplesAndDiffsHandler.class);
 
     @Inject
     private Instance<RusheyeConfiguration> rusheyeConf;
@@ -119,8 +120,9 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
         for (Map.Entry<String, String> entry : patternsNamesAndCorrespondingDiffs.entrySet()) {
             for (int i = 0; i < testNodes.getLength(); i++) {
                 if (testNodes.item(i).getAttributes().getNamedItem("name").getNodeValue().equals(entry.getKey())) {
-                    String patternSource = testNodes.item(i).getChildNodes().item(1).getAttributes()
-                            .getNamedItem("source").getNodeValue();
+                    Element testNode = (Element)testNodes.item(i);
+                    LOGGER.error(testNode.getElementsByTagName("pattern").getLength());
+                    String patternSource = testNode.getElementsByTagName("pattern").item(0).getAttributes().getNamedItem("source").getNodeValue();
                     //UPLOAD SAMPLE
                     File sampleToUpload = new File(screenshotsDir + File.separator + patternSource);
                     String url = grapheneVisualTestingConf.get().getJcrContextRootURL() + "/upload/" + suiteName + "/runs/"
@@ -161,8 +163,8 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
         for (String same : samplesList) {
             for (int i = 0; i < testNodes.getLength(); i++) {
                 if (testNodes.item(i).getAttributes().getNamedItem("name").getNodeValue().equals(same) && !patternsAndDiffs.containsKey(same)) {
-                    String patternSource = testNodes.item(i).getChildNodes().item(1).getAttributes()
-                            .getNamedItem("source").getNodeValue();
+                    Element testElement = (Element)testNodes.item(i);
+                    String patternSource = testElement.getElementsByTagName("pattern").item(0).getAttributes().getNamedItem("source").getNodeValue();
                     //UPLOAD SAMPLE
                     File sampleToUpload = new File(screenshotsDir + File.separator + patternSource);
                     String url = grapheneVisualTestingConf.get().getJcrContextRootURL() + "/upload/" + suiteName + "/runs/"
@@ -270,7 +272,7 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
                 result.add(sameTests.item(i).getAttributes().getNamedItem("name").getNodeValue());
             }
         } catch (XPathExpressionException ex) {
-            Logger.getLogger(JCRSamplesAndDiffsHandler.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(ex);
         }
         return result;
     }
@@ -283,7 +285,7 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
             Document resultXml = getDOMFromResultXMLazily();
             result = Integer.parseInt(xPath.compile("count(/visual-suite-result/test/pattern[@result=" + "'" + ResultConclusion.ERROR.toString() + "'])").evaluate(resultXml));
         } catch (XPathExpressionException ex) {
-            Logger.getLogger(JCRSamplesAndDiffsHandler.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(ex);
         }
         return result;
     }
@@ -308,7 +310,7 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
             db = dbf.newDocumentBuilder();
             result = db.parse(xmlFile);
         } catch (ParserConfigurationException | SAXException | IOException ex) {
-            Logger.getLogger(JCRSamplesAndDiffsHandler.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(ex);
         }
         return result;
     }

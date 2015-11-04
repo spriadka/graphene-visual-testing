@@ -2,7 +2,6 @@ package org.jboss.arquillian.rest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -27,6 +26,7 @@ import org.jboss.arquillian.model.testSuite.Sample;
 import org.jboss.arquillian.model.testSuite.TestSuiteRun;
 import org.jboss.arquillian.rest.builder.DiffComparisonResultBuilder;
 import org.jboss.arquillian.rest.builder.SampleComparisonResultBuilder;
+import org.jboss.logging.Logger;
 
 /**
  *
@@ -50,14 +50,14 @@ public class TestSuiteRunRESTService {
 
     @Inject
     private PatternManager patternManager;
-    
+
     @Inject
     private MaskManager maskManager;
 
     @Inject
     private JCRBean jcrBean;
 
-    private static final Logger LOGGER = Logger.getLogger(TestSuiteRunRESTService.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(TestSuiteRunRESTService.class);
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -109,20 +109,22 @@ public class TestSuiteRunRESTService {
         List<Diff> diffs = diffManager.getDiffsForRun(id);
         List<Long> alreadyUploadedSamples = new ArrayList<>();
         if (diffManager.areThereDiffs(id)) {
-            for (Diff diff : diffs){
+            for (Diff diff : diffs) {
                 result.add(new DiffComparisonResultBuilder().manager(maskManager).diff(diff).build());
+                alreadyUploadedSamples.add(diff.getSample().getSampleID());
             }
         }
         List<Sample> samples = sampleManager.getSamples(id);
         for (Sample sample : samples) {
+            LOGGER.info(sample.getSampleID().toString());
             Pattern pattern = patternManager.getPattern(sample.getName(), sample.getTestSuiteRun().getTestSuite().getTestSuiteID());
+            LOGGER.info("PATTERN");
+            LOGGER.info(pattern);
             if (!alreadyUploadedSamples.contains(sample.getSampleID())) {
                 result.add(new SampleComparisonResultBuilder().sample(sample).pattern(pattern).build());
             }
         }
         return result;
     }
-    
 
-    
 }

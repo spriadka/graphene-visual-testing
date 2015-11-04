@@ -28,12 +28,14 @@ import javax.inject.Inject;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.arquillian.graphene.visual.testing.api.event.DeleteMaskFromSuiteEvent;
 import org.arquillian.graphene.visual.testing.configuration.GrapheneVisualTestingConfiguration;
 import org.dom4j.Node;
 import org.jboss.arquillian.core.api.Instance;
+import org.jboss.rusheye.arquillian.configuration.RusheyeConfiguration;
 import org.jboss.rusheye.arquillian.event.ReceiveMaskFromJCREvent;
-import org.jboss.rusheye.arquillian.event.RequestMaskFromJCREvent;
+import org.json.JSONObject;
 
 /**
  *
@@ -43,24 +45,6 @@ public class JCRMaskHandler implements MaskHandler{
    
     @Inject
     private Event<CrawlMaskToJCREvent> crawlingMasksDoneEvent;
-    
-    @org.jboss.arquillian.core.api.annotation.Inject
-    private Instance<GrapheneVisualTestingConfiguration> gVC;
-    
-    @org.jboss.arquillian.core.api.annotation.Inject
-    private Event<ReceiveMaskFromJCREvent> receiveMaskEvent;
-    
-    
-    public void getMaskFileFromJCR(@org.jboss.arquillian.core.api.annotation.Observes RequestMaskFromJCREvent requestEvent){
-        String source = requestEvent.getMaskUrl();
-        GrapheneVisualTestingConfiguration conf = gVC.get();
-        String fileName = source.substring(source.lastIndexOf("masks/"));
-        File file;
-        RestUtils.executeGetAndSaveToFile(new HttpGet(source), RestUtils.getHTTPClient(conf.getJcrContextRootURL(),conf.getJcrUserName(),conf.getJcrPassword()),fileName,"MASK RECEIVED","FAILED TO RECEIVE MASK");
-        //file = new File(fileName);
-        //receiveMaskEvent.fire(new ReceiveMaskFromJCREvent(file));
-    }
-    
     
     @Override
     public void deleteMasks(@Observes DeleteMaskFromSuiteEvent deleteMaskEvent) {

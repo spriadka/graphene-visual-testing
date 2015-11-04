@@ -149,6 +149,52 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
         }
 
     }
+    
+    @Override
+    public void retreiveMasks(){
+        GrapheneVisualTestingConfiguration configuration = grapheneVisualTestingConf.get();
+        RusheyeConfiguration rConf = rusheyeConf.get();
+        String maskDirectory = rConf.getMaskBase().getPath();
+        String masksUrl = configuration.getJcrContextRootURL() + File.separator + "items" + File.separator + configuration.getTestSuiteName() + "?depth=-1";
+        HttpGet getMaskHttpGet = new HttpGet(masksUrl);
+        getMaskHttpGet.addHeader("Accept","application/json");
+        JSONObject allMasksChildren = new JSONObject(RestUtils.executeGet(getMaskHttpGet, RestUtils.getHTTPClient(configuration.getJcrContextRootURL(), configuration.getJcrUserName(),configuration.getJcrPassword()),"ALL MASKS RETREIVED", "FAILED TO RETREIVE MASKS"));
+        File maskDir = new File(maskDirectory);
+        maskDir.mkdirs();
+        JSONObject testClasses = allMasksChildren.getJSONObject("children").getJSONObject("masks").getJSONObject("children");
+        CloseableHttpClient httpClient = RestUtils.getHTTPClient(configuration.getJcrContextRootURL(),configuration.getJcrUserName(),configuration.getJcrPassword());
+        downloadMasks(testClasses,configuration.getTestSuiteName(), maskDir, httpClient);
+    }
+    
+    private void downloadMasks(JSONObject testClasses, String suiteName,File maskDir,CloseableHttpClient httpClient){
+        for (Object testClass: testClasses.keySet()){
+            String testClassName = testClass.toString();
+            JSONObject testClassObject = testClasses.getJSONObject(testClassName);
+            JSONObject testNames = testClassObject.getJSONObject("children");
+            File testClassDir = new File(maskDir.getAbsolutePath() + File.separator + testClassName);
+            testClassDir.mkdirs();
+            for (Object testName : testNames.keySet()){
+                JSONObject testNode = testNames.getJSONObject(testName.toString());
+                JSONObject beforeOrAfterNodes = testNode.getJSONObject("children");
+                File testNameDir = new File(testClassDir.getAbsolutePath() + File.separator + testName.toString());
+                testNameDir.mkdirs();
+                for (Object beforeOrAfter : beforeOrAfterNodes.keySet()){
+                    JSONObject beforeOrAfterNode = beforeOrAfterNodes.getJSONObject(beforeOrAfter.toString());
+                    JSONObject masksChildren = beforeOrAfterNode.getJSONObject("children");
+                    File beforeOrAfterDir = new File(testNameDir.getAbsolutePath() + File.separator + beforeOrAfter.toString());
+                    beforeOrAfterDir.mkdirs();
+                    for (Object mask : masksChildren.keySet()){
+                        JSONObject maskNode = masksChildren.getJSONObject(mask.toString());
+                        String maskUrl = maskNode.getJSONObject("children").getJSONObject("jcr:content").getString("jcr:data");
+                        HttpGet getMask = new HttpGet(maskUrl);
+                        File maskFile = new File(beforeOrAfterDir.getAbsolutePath() + File.separator + mask.toString());
+                        RestUtils.executeGetAndSaveToFile(getMask, httpClient,maskFile.getAbsolutePath(),"Mask" + mask.toString() + " retreived succesfully", "Failed to retreive mask " + mask.toString());
+                    }
+                }
+                
+            }
+        }
+    }
 
     private void findAndDownloadScreenshot(JSONObject testClasses, String suiteName, CloseableHttpClient httpClient) {
         StringBuilder builder = new StringBuilder();

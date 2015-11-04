@@ -41,10 +41,11 @@ public class AfterSuiteListener {
 
     private static final Logger LOGGER = Logger.getLogger(AfterSuiteListener.class.getName());
 
-    public void listenToAfterSuite(@Observes AfterSuite event) {
+    public void listenToAfterSuite(@Observes(precedence = Integer.MAX_VALUE) AfterSuite event) {
         String samplesPath = screenshooterConfiguration.get().getRootDir().getAbsolutePath();
         String descriptorAndPatternsDir
                 = serviceLoader.get().onlyOne(DescriptorAndPatternsHandler.class).retrieveDescriptorAndPatterns();
+        serviceLoader.get().onlyOne(DescriptorAndPatternsHandler.class).retreiveMasks();
         startParsingEvent.fire(new StartParsingEvent(descriptorAndPatternsDir, samplesPath, failedTestsCollection.get(), visuallyUnstableTestsCollection.get()));
     }
 

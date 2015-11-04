@@ -25,4 +25,6 @@ public interface DescriptorAndPatternsHandler {
      * @return the path under which descriptor and patterns were saved
      */
     String retrieveDescriptorAndPatterns();
+    
+    void retreiveMasks();
 }

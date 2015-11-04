@@ -34,12 +34,11 @@ public class Car {
         File f = new File("URLimage.png");
         Car porsche = new Car(4);
         int currentNumber  = porsche.passangerGetOut();
-        try {
-            URL url = new URL("http://redhat:redhat2@localhost:8080/modeshape-rest/graphene-visual-testing/default/binary/richfaces-beta-test70/masks/org.richfaces.showcase.ajax.ITestAjax/testEraseStringFromInputAndCheckTheOutputNew/after/63/jcr:content/jcr:data");
-            ImageIO.read(url);
-        } catch (MalformedURLException ex) {
-            Logger.getLogger(Car.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        System.out.println(currentNumber);
+        String url = "http://localhost:8080/modeshape-rest/graphene-visual-testing/default/binary/richfaces-beta-test70/masks/org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall/after/5/jcr:content/jcr:data";
+        url = url.substring(url.lastIndexOf("masks/") + 6,url.lastIndexOf("/jcr:content/jcr:data"));
+        String url2 = "mask" + url.substring(url.lastIndexOf("/") + 1);
+        url = url.substring(0,url.lastIndexOf("/")+1) + url2;
+        System.out.println(url2);
+        System.out.println(url);
     }
 }

@@ -55,12 +55,12 @@ public class SampleComparisonResultBuilder extends Builder<ComparisonResult>{
     
     
     public ComparisonResult build(){
-        this.patternUrl = getPattern().getUrlOfScreenshot();
-        this.patternID = getPattern().getPatternID();
-        this.patternModificationDate = getPattern().getLastModificationDate();
-        this.sampleID = getSample().getSampleID();
-        this.sampleUrl = getSample().getUrlOfScreenshot();
-        this.sampleModificationDate = getSample().getLastModificationDate();
+        this.patternUrl = pattern.getUrlOfScreenshot();
+        this.patternID = pattern.getPatternID();
+        this.patternModificationDate = pattern.getLastModificationDate();
+        this.sampleID = sample.getSampleID();
+        this.sampleUrl = sample.getUrlOfScreenshot();
+        this.sampleModificationDate = sample.getLastModificationDate();
         this.masks = null;
         this.testClassName = getTestClassName(this.getSample());
         this.testName = getTestName(this.getSample());
