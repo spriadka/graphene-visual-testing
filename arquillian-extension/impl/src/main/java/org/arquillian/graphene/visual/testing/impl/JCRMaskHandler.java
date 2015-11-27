@@ -27,15 +27,8 @@ import org.jboss.rusheye.RushEye;
 import javax.inject.Inject;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.arquillian.graphene.visual.testing.api.event.DeleteMaskFromSuiteEvent;
-import org.arquillian.graphene.visual.testing.configuration.GrapheneVisualTestingConfiguration;
 import org.dom4j.Node;
-import org.jboss.arquillian.core.api.Instance;
-import org.jboss.rusheye.arquillian.configuration.RusheyeConfiguration;
-import org.jboss.rusheye.arquillian.event.ReceiveMaskFromJCREvent;
-import org.json.JSONObject;
 
 /**
  *

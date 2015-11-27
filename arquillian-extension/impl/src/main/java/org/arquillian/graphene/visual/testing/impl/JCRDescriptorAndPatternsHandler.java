@@ -15,11 +15,11 @@ import org.arquillian.graphene.visual.testing.api.DescriptorAndPatternsHandler;
 import org.arquillian.graphene.visual.testing.configuration.GrapheneVisualTestingConfiguration;
 import org.jboss.arquillian.core.api.Instance;
 import org.jboss.arquillian.core.api.annotation.Inject;
-import org.jboss.arquillian.core.api.annotation.Observes;
 import org.jboss.rusheye.arquillian.configuration.RusheyeConfiguration;
 import org.jboss.rusheye.arquillian.event.FailedTestsCollection;
 import org.jboss.rusheye.arquillian.event.StartCrawlMissingTestsEvent;
 import org.jboss.rusheye.arquillian.event.VisuallyUnstableTestsCollection;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -79,13 +79,12 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
                 String.format("Error while creating suite name in database for test suite: %s", suiteName));
 
         //UPLOADING PATTERNS
-        return crawlAndUploadPatterns(patternsRootDir, patternsRootDir.getName(), httpclient,timestamp);
+        return crawlAndUploadPatterns(patternsRootDir, patternsRootDir.getName(), httpclient, timestamp);
     }
-    
-    
+
     @Override
-    public boolean saveDescriptorAndMissingPatterns(StartCrawlMissingTestsEvent event){
-        System.out.println("GONNA UPLOAD DESCRIPTOR AND MISSING PATTERNS!!!!!!!!!!!!!!!!!");
+    public boolean saveDescriptorAndMissingPatterns(StartCrawlMissingTestsEvent event) {
+        LOGGER.info("NEW TEST(S) FOUND, ADDING THEM TO TEST SUITE");
         Date now = new Date();
         String timestamp = "" + now.getTime();
         GrapheneVisualTestingConfiguration gVC = grapheneVisualTestingConf.get();
@@ -116,8 +115,8 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
                 String.format("Error while creating suite name in database for test suite: %s", suiteName));
 
         //UPLOADING PATTERNS
-        return crawlAndUploadMissingPatterns(patternsRootDir,patternsRootDir.getName(),httpclient,event.getMissingTests(),timestamp);
-        
+        return crawlAndUploadMissingPatterns(patternsRootDir, patternsRootDir.getName(), httpclient, event.getMissingTests(), timestamp);
+
     }
 
     @Override
@@ -149,49 +148,53 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
         }
 
     }
-    
+
     @Override
-    public void retreiveMasks(){
+    public void retreiveMasks() {
         GrapheneVisualTestingConfiguration configuration = grapheneVisualTestingConf.get();
         RusheyeConfiguration rConf = rusheyeConf.get();
         String maskDirectory = rConf.getMaskBase().getPath();
         String masksUrl = configuration.getJcrContextRootURL() + File.separator + "items" + File.separator + configuration.getTestSuiteName() + "?depth=-1";
         HttpGet getMaskHttpGet = new HttpGet(masksUrl);
-        getMaskHttpGet.addHeader("Accept","application/json");
-        JSONObject allMasksChildren = new JSONObject(RestUtils.executeGet(getMaskHttpGet, RestUtils.getHTTPClient(configuration.getJcrContextRootURL(), configuration.getJcrUserName(),configuration.getJcrPassword()),"ALL MASKS RETREIVED", "FAILED TO RETREIVE MASKS"));
-        File maskDir = new File(maskDirectory);
-        maskDir.mkdirs();
-        JSONObject testClasses = allMasksChildren.getJSONObject("children").getJSONObject("masks").getJSONObject("children");
-        CloseableHttpClient httpClient = RestUtils.getHTTPClient(configuration.getJcrContextRootURL(),configuration.getJcrUserName(),configuration.getJcrPassword());
-        downloadMasks(testClasses,configuration.getTestSuiteName(), maskDir, httpClient);
+        getMaskHttpGet.addHeader("Accept", "application/json");
+        try {
+            JSONObject allMasksChildren = new JSONObject(RestUtils.executeGet(getMaskHttpGet, RestUtils.getHTTPClient(configuration.getJcrContextRootURL(), configuration.getJcrUserName(), configuration.getJcrPassword()), "ALL MASKS RETREIVED", "FAILED TO RETREIVE MASKS"));
+            File maskDir = new File(maskDirectory);
+            maskDir.mkdirs();
+            JSONObject testClasses = allMasksChildren.getJSONObject("children").getJSONObject("masks").getJSONObject("children");
+            CloseableHttpClient httpClient = RestUtils.getHTTPClient(configuration.getJcrContextRootURL(), configuration.getJcrUserName(), configuration.getJcrPassword());
+            downloadMasks(testClasses, configuration.getTestSuiteName(), maskDir, httpClient);
+        } catch (JSONException je) {
+            LOGGER.info("MASKS FOR TEST SUITE " + configuration.getTestSuiteName() + "NOT CREATED YET");
+        }
     }
-    
-    private void downloadMasks(JSONObject testClasses, String suiteName,File maskDir,CloseableHttpClient httpClient){
-        for (Object testClass: testClasses.keySet()){
+
+    private void downloadMasks(JSONObject testClasses, String suiteName, File maskDir, CloseableHttpClient httpClient) {
+        for (Object testClass : testClasses.keySet()) {
             String testClassName = testClass.toString();
             JSONObject testClassObject = testClasses.getJSONObject(testClassName);
             JSONObject testNames = testClassObject.getJSONObject("children");
             File testClassDir = new File(maskDir.getAbsolutePath() + File.separator + testClassName);
             testClassDir.mkdirs();
-            for (Object testName : testNames.keySet()){
+            for (Object testName : testNames.keySet()) {
                 JSONObject testNode = testNames.getJSONObject(testName.toString());
                 JSONObject beforeOrAfterNodes = testNode.getJSONObject("children");
                 File testNameDir = new File(testClassDir.getAbsolutePath() + File.separator + testName.toString());
                 testNameDir.mkdirs();
-                for (Object beforeOrAfter : beforeOrAfterNodes.keySet()){
+                for (Object beforeOrAfter : beforeOrAfterNodes.keySet()) {
                     JSONObject beforeOrAfterNode = beforeOrAfterNodes.getJSONObject(beforeOrAfter.toString());
                     JSONObject masksChildren = beforeOrAfterNode.getJSONObject("children");
                     File beforeOrAfterDir = new File(testNameDir.getAbsolutePath() + File.separator + beforeOrAfter.toString());
                     beforeOrAfterDir.mkdirs();
-                    for (Object mask : masksChildren.keySet()){
+                    for (Object mask : masksChildren.keySet()) {
                         JSONObject maskNode = masksChildren.getJSONObject(mask.toString());
                         String maskUrl = maskNode.getJSONObject("children").getJSONObject("jcr:content").getString("jcr:data");
                         HttpGet getMask = new HttpGet(maskUrl);
                         File maskFile = new File(beforeOrAfterDir.getAbsolutePath() + File.separator + mask.toString());
-                        RestUtils.executeGetAndSaveToFile(getMask, httpClient,maskFile.getAbsolutePath(),"Mask" + mask.toString() + " retreived succesfully", "Failed to retreive mask " + mask.toString());
+                        RestUtils.executeGetAndSaveToFile(getMask, httpClient, maskFile.getAbsolutePath(), "Mask" + mask.toString() + " retreived succesfully", "Failed to retreive mask " + mask.toString());
                     }
                 }
-                
+
             }
         }
     }
@@ -280,9 +283,9 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
         boolean result = true;
         for (File dirOrFile : patternsDir.listFiles()) {
             if (dirOrFile.isDirectory()) {
-                result = crawlAndUploadPatterns(dirOrFile, rootOfPatterns, httpClient,timestamp);
+                result = crawlAndUploadPatterns(dirOrFile, rootOfPatterns, httpClient, timestamp);
             } else {
-                
+
                 String suiteName = grapheneVisualTestingConf.get().getTestSuiteName();
                 String absolutePath = dirOrFile.getAbsolutePath();
                 String patternRelativePath = absolutePath.split(rootOfPatterns + File.separator)[1];
@@ -318,14 +321,12 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
         return result;
     }
 
-    
-
-    private boolean crawlAndUploadMissingPatterns(File patternsDir, String rootOfPatterns, CloseableHttpClient httpclient, List<String> missingTests,String timestamp) {
+    private boolean crawlAndUploadMissingPatterns(File patternsDir, String rootOfPatterns, CloseableHttpClient httpclient, List<String> missingTests, String timestamp) {
         GrapheneVisualTestingConfiguration gVC = grapheneVisualTestingConf.get();
         boolean result = true;
         for (File dirOrFile : patternsDir.listFiles()) {
             if (dirOrFile.isDirectory()) {
-                result = crawlAndUploadMissingPatterns(dirOrFile, rootOfPatterns, httpclient, missingTests,timestamp);
+                result = crawlAndUploadMissingPatterns(dirOrFile, rootOfPatterns, httpclient, missingTests, timestamp);
             } else {
                 String suiteName = grapheneVisualTestingConf.get().getTestSuiteName();
                 String absolutePath = dirOrFile.getAbsolutePath();

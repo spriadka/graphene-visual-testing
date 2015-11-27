@@ -106,8 +106,6 @@ public class MaskRESTService {
         MaskFromREST maskFromREST = new MaskFromRESTBuilder().id(mask.getMaskID())
                 .name(name)
                 .sourceUrl(mask.getSourceUrl())
-                .horizontalAlign(mask.getHorizotalAlignment())
-                .verticalAlign(mask.getVerticalAlignment())
                 .maskType(MaskType.SELECTIVE_ALPHA)
                 .build();
         maskHandler.get().deleteMasks(new DeleteMaskFromSuiteEvent(maskFromREST, jcrBean.getDescriptorForMask(mask)));
@@ -128,8 +126,6 @@ public class MaskRESTService {
         MaskFromREST maskFromREST = new MaskFromRESTBuilder()
                 .id(mask.getMaskID())
                 .name(name)
-                .verticalAlign(mask.getVerticalAlignment())
-                .horizontalAlign(mask.getHorizotalAlignment())
                 .maskType(MaskType.SELECTIVE_ALPHA)
                 .sourceUrl(mask.getSourceUrl())
                 .build();

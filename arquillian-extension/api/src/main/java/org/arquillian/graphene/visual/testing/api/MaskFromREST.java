@@ -18,8 +18,6 @@ public class MaskFromREST {
     
     private Long id;
     private String sourceUrl;
-    private VerticalAlign verticalAlign;
-    private HorizontalAlign horizontalAlign;
     private MaskType maskType = MaskType.SELECTIVE_ALPHA;
     private String name;
     
@@ -27,8 +25,6 @@ public class MaskFromREST {
         this.id = builder.getId();
         this.sourceUrl = builder.getSourceUrl();
         this.name = builder.getName();
-        this.horizontalAlign = builder.getHorizontalAlign();
-        this.verticalAlign = builder.getVerticalAlign();
         this.maskType = builder.getMaskType();
     }
 
@@ -58,34 +54,6 @@ public class MaskFromREST {
      */
     public void setSourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
-    }
-
-    /**
-     * @return the verticalAlign
-     */
-    public VerticalAlign getVerticalAlign() {
-        return verticalAlign;
-    }
-
-    /**
-     * @param verticalAlign the verticalAlign to set
-     */
-    public void setVerticalAlign(VerticalAlign verticalAlign) {
-        this.verticalAlign = verticalAlign;
-    }
-
-    /**
-     * @return the horizontalAlign
-     */
-    public HorizontalAlign getHorizontalAlign() {
-        return horizontalAlign;
-    }
-
-    /**
-     * @param horizontalAlign the horizontalAlign to set
-     */
-    public void setHorizontalAlign(HorizontalAlign horizontalAlign) {
-        this.horizontalAlign = horizontalAlign;
     }
 
     /**

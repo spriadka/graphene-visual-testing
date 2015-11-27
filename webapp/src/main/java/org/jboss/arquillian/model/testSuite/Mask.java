@@ -23,8 +23,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 import org.jboss.logging.Logger;
-import org.jboss.rusheye.suite.HorizontalAlign;
-import org.jboss.rusheye.suite.VerticalAlign;
 
 /**
  *
@@ -47,12 +45,6 @@ public class Mask {
     @JsonIgnore
     @Transient
     private String sourceData;
-
-    @Column(name = "HORIZONTAL_ALIGNMENT")
-    private HorizontalAlign horizotalAlignment = null;
-
-    @Column(name = "VERTICAL_ALIGNMENT")
-    private VerticalAlign verticalAlignment = null;
 
     @JoinColumn(name = "SAMPLE_ID")
     @ManyToOne(fetch = FetchType.EAGER)
@@ -118,12 +110,6 @@ public class Mask {
         if (!Objects.equals(this.sourceUrl, mask.sourceUrl)) {
             return false;
         }
-        if (!Objects.equals(this.horizotalAlignment, mask.horizotalAlignment)) {
-            return false;
-        }
-        if (!Objects.equals(this.verticalAlignment, mask.verticalAlignment)) {
-            return false;
-        }
         return true;
 
     }
@@ -147,20 +133,6 @@ public class Mask {
      */
     public void setSourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
-    }
-
-    /**
-     * @return the horizotalAlignment
-     */
-    public HorizontalAlign getHorizotalAlignment() {
-        return horizotalAlignment;
-    }
-
-    /**
-     * @return the verticalAlignment
-     */
-    public VerticalAlign getVerticalAlignment() {
-        return verticalAlignment;
     }
 
     /**

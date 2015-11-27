@@ -6,9 +6,7 @@
 package org.arquillian.graphene.visual.testing.api.builder;
 
 import org.arquillian.graphene.visual.testing.api.MaskFromREST;
-import org.jboss.rusheye.suite.HorizontalAlign;
 import org.jboss.rusheye.suite.MaskType;
-import org.jboss.rusheye.suite.VerticalAlign;
 
 /**
  *
@@ -18,8 +16,6 @@ public class MaskFromRESTBuilder extends Builder<MaskFromREST>{
     
     private Long id;
     private String sourceUrl;
-    private VerticalAlign verticalAlign;
-    private HorizontalAlign horizontalAlign;
     private MaskType maskType = MaskType.SELECTIVE_ALPHA;
     private String name;
     
@@ -33,15 +29,6 @@ public class MaskFromRESTBuilder extends Builder<MaskFromREST>{
         return this;
     }
     
-    public MaskFromRESTBuilder verticalAlign(VerticalAlign verticalAlign){
-        this.verticalAlign = verticalAlign;
-        return this;
-    }
-    
-    public MaskFromRESTBuilder horizontalAlign(HorizontalAlign horizontalAlign){
-        this.horizontalAlign = horizontalAlign;
-        return this;
-    }
     
     public MaskFromRESTBuilder maskType(MaskType maskType){
         this.maskType = maskType;
@@ -69,20 +56,6 @@ public class MaskFromRESTBuilder extends Builder<MaskFromREST>{
      */
     public String getSourceUrl() {
         return sourceUrl;
-    }
-
-    /**
-     * @return the verticalAlign
-     */
-    public VerticalAlign getVerticalAlign() {
-        return verticalAlign;
-    }
-
-    /**
-     * @return the horizontalAlign
-     */
-    public HorizontalAlign getHorizontalAlign() {
-        return horizontalAlign;
     }
 
     /**

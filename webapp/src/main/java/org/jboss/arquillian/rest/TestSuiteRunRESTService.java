@@ -116,10 +116,7 @@ public class TestSuiteRunRESTService {
         }
         List<Sample> samples = sampleManager.getSamples(id);
         for (Sample sample : samples) {
-            LOGGER.info(sample.getSampleID().toString());
             Pattern pattern = patternManager.getPattern(sample.getName(), sample.getTestSuiteRun().getTestSuite().getTestSuiteID());
-            LOGGER.info("PATTERN");
-            LOGGER.info(pattern);
             if (!alreadyUploadedSamples.contains(sample.getSampleID())) {
                 result.add(new SampleComparisonResultBuilder().sample(sample).pattern(pattern).build());
             }

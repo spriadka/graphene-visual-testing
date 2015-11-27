@@ -122,7 +122,6 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
             var selection = jcropApi.ui.selection;
             var img = jcropApi.ui.stage.imgsrc;
             var startX = selection.last.x;
-            $log.info(typeof startX);
             var startY = selection.last.y;
             var width = selection.last.w;
             var height = selection.last.h;

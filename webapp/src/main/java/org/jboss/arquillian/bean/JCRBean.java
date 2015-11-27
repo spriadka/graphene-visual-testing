@@ -12,8 +12,6 @@ import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.New;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.jcr.Binary;
@@ -26,13 +24,13 @@ import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.version.VersionException;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
 import org.arquillian.graphene.visual.testing.api.event.CrawlMaskDoneEvent;
 import org.arquillian.graphene.visual.testing.api.event.CrawlMaskToJCREvent;
 import org.jboss.arquillian.model.testSuite.Mask;
 import org.jboss.arquillian.model.testSuite.Pattern;
 import org.jboss.arquillian.model.testSuite.Sample;
-import org.arquillian.graphene.visual.testing.configuration.GrapheneVisualTestingConfiguration;
 import org.jboss.arquillian.util.Base64;
 
 
@@ -49,11 +47,10 @@ public class JCRBean implements Serializable {
     private BasicAuthSessionStore sessionStore;
     
     @Inject
-    @New
-    private Instance<GrapheneVisualTestingConfiguration> gVC;
+    private Event<CrawlMaskDoneEvent> event;
     
     @Inject
-    private Event<CrawlMaskDoneEvent> event;
+    private HttpServletRequest servletRequest;
     
 
     public Session getSession() throws RepositoryException {
@@ -125,6 +122,7 @@ public class JCRBean implements Serializable {
             byte[] newData = Base64.decodeFast(mask.getSourceData().split(";")[1].split(",")[1]);
             maskNode.setProperty(Property.JCR_DATA, session.getValueFactory().createBinary(new ByteArrayInputStream(newData)));
             session.save();
+            
         }
         catch (Exception e){
             LOGGER.error("FAILED TO UPDATE MASK",e);
@@ -174,12 +172,23 @@ public class JCRBean implements Serializable {
             byte[] imageData = Base64.decodeFast(mask.getSourceData().split(";")[1].split(",")[1]);
             contentNode.setProperty(Property.JCR_DATA, session.getValueFactory().createBinary(new ByteArrayInputStream(imageData)));
             session.save();
-            mask.setSourceUrl(gVC.get().getJcrContextRootURL() + "/binary" + contentNode.getProperty(Property.JCR_DATA).getPath());
+            mask.setSourceUrl(getFullURL() 
+                    + "/modeshape-rest/"
+                    + "graphene-visual-testing/"
+                    + "default/"
+                    + "binary"
+                    + contentNode.getPath()
+                    + "/jcr:data");
+            LOGGER.info("MASK URL: " + mask.getSourceUrl());
         } catch (VersionException | LockException | ConstraintViolationException ex) {
             LOGGER.error(ex);
         } catch (RepositoryException ex) {
             LOGGER.error(ex);
         }
+    }
+    
+    private String getFullURL(){
+        return servletRequest.getRequestURL().substring(0, servletRequest.getRequestURL().indexOf(servletRequest.getContextPath()));
     }
 
     private Node addNodeAndProceed(Node node, String nodeName) {
