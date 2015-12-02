@@ -38,7 +38,7 @@ public class MaskManager {
         em.remove(em.contains(mask) ? mask : em.merge(mask));
     }
     
-    public Mask getMask(long maskId){
+    public Mask getMask(String maskId){
         return em.find(Mask.class, maskId);
     }
     
@@ -54,6 +54,7 @@ public class MaskManager {
         maskToBeUpdated.setLeft(mask.getLeft());
         maskToBeUpdated.setWidth(mask.getWidth());
         maskToBeUpdated.setTop(mask.getTop());
+        maskToBeUpdated.setSourceUrl(mask.getSourceUrl());
         return maskToBeUpdated;
     }
     

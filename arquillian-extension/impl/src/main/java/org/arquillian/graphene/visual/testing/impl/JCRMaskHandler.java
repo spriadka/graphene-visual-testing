@@ -42,7 +42,7 @@ public class JCRMaskHandler implements MaskHandler{
     @Override
     public void deleteMasks(@Observes DeleteMaskFromSuiteEvent deleteMaskEvent) {
         File descriptor = deleteMaskEvent.getSuiteDescriptor();
-        Long maskID = deleteMaskEvent.getMask().getId();
+        String maskID = deleteMaskEvent.getMask().getId();
         try{
             Document suiteXml = new SAXReader().read(descriptor);
             deleteMaskFromConfiguration(maskID, suiteXml);
@@ -77,22 +77,22 @@ public class JCRMaskHandler implements MaskHandler{
         Element configurationNode = (Element) doc.selectSingleNode(xPath);
         for (MaskFromREST mask : masks){
             Element maskElement = configurationNode.addElement(QName.get("mask",ns));
-            maskElement.addAttribute("id", "mask" + mask.getId());
+            maskElement.addAttribute("id",mask.getId());
             maskElement.addAttribute("source", mask.getSourceUrl());
             maskElement.addAttribute("type", mask.getMaskType().value());
         }
     }
     
-    private void deleteMaskFromConfiguration(Long maskID, Document doc){
+    private void deleteMaskFromConfiguration(String maskID, Document doc){
         Namespace ns = Namespace.get(RushEye.NAMESPACE_VISUAL_SUITE);
-        String xPath = "/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"visual-suite\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"global-configuration\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"mask\" and @id=\"mask" + maskID + "\"]";
+        String xPath = "/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"visual-suite\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"global-configuration\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"mask\" and @id=\"" + maskID + "\"]";
         Node maskElement = doc.selectSingleNode(xPath);
         maskElement.detach();
     }
     
-    private void deleteMaskFromTest(Long maskID, Document doc){
+    private void deleteMaskFromTest(String maskID, Document doc){
         Namespace ns = Namespace.get(RushEye.NAMESPACE_VISUAL_SUITE);
-        String xPath = "/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"visual-suite\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"test\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"mask\" and @id=\"mask" + maskID + "\"]";
+        String xPath = "/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"visual-suite\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"test\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"mask\" and @id=\"" + maskID + "\"]";
         Node maskElement = doc.selectSingleNode(xPath);
         maskElement.detach();
     }
@@ -107,7 +107,7 @@ public class JCRMaskHandler implements MaskHandler{
             Element patternElement = testElement.element(QName.get("pattern", ns));
             patternElement.detach();
             Element maskElement = testElement.addElement(QName.get("mask",ns ));
-            maskElement.addAttribute("id", "mask" + mask.getId());
+            maskElement.addAttribute("id",mask.getId());
             maskElement.addAttribute("source", mask.getSourceUrl());
             maskElement.addAttribute("type", mask.getMaskType().value());
             testElement.add(patternElement);
@@ -118,7 +118,6 @@ public class JCRMaskHandler implements MaskHandler{
         File toWrite = new File("suite.xml");
         try {
             XMLWriter writer = new XMLWriter(new FileOutputStream(toWrite),OutputFormat.createPrettyPrint());
-            System.out.println(doc.getText());
             writer.write(doc);
             crawlingMasksDoneEvent.fire(new CrawlMaskToJCREvent(toWrite,suiteName));
         } catch (IOException ex) {

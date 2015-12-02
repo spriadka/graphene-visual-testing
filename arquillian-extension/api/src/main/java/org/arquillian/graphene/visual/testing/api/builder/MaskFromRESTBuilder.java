@@ -14,12 +14,12 @@ import org.jboss.rusheye.suite.MaskType;
  */
 public class MaskFromRESTBuilder extends Builder<MaskFromREST>{
     
-    private Long id;
+    private String id;
     private String sourceUrl;
     private MaskType maskType = MaskType.SELECTIVE_ALPHA;
     private String name;
     
-    public MaskFromRESTBuilder id(Long id){
+    public MaskFromRESTBuilder id(String id){
         this.id = id;
         return this;
     }
@@ -47,7 +47,7 @@ public class MaskFromRESTBuilder extends Builder<MaskFromREST>{
     /**
      * @return the id
      */
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

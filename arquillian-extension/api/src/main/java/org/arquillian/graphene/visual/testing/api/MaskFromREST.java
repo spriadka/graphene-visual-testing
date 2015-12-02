@@ -16,7 +16,7 @@ import org.jboss.rusheye.suite.VerticalAlign;
  */
 public class MaskFromREST {
     
-    private Long id;
+    private String id;
     private String sourceUrl;
     private MaskType maskType = MaskType.SELECTIVE_ALPHA;
     private String name;
@@ -31,14 +31,14 @@ public class MaskFromREST {
     /**
      * @return the id
      */
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
     /**
      * @param id the id to set
      */
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

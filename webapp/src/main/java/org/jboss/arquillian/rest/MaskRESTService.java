@@ -69,8 +69,8 @@ public class MaskRESTService {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{maskID: [0-9][0-9]*}")
-    public Mask getMask(@PathParam("maskID")long maskId){
+    @Path("/{maskID: mask[0-9][0-9]*}")
+    public Mask getMask(@PathParam("maskID")String maskId){
         return maskManager.getMask(maskId);
     }
     
@@ -84,8 +84,8 @@ public class MaskRESTService {
 
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{maskID: [0-9][0-9]*}")
-    public Response deleteMask(@PathParam("maskID")long maskId) {
+    @Path("/{maskID: mask[0-9][0-9]*}")
+    public Response deleteMask(@PathParam("maskID")String maskId) {
         Mask toRemove = maskManager.getMask(maskId);
         deleteMaskFromJCR(toRemove);
         deleteMaskFromDatabase(toRemove);

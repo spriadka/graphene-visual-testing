@@ -158,7 +158,7 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
         HttpGet getMaskHttpGet = new HttpGet(masksUrl);
         getMaskHttpGet.addHeader("Accept", "application/json");
         try {
-            JSONObject allMasksChildren = new JSONObject(RestUtils.executeGet(getMaskHttpGet, RestUtils.getHTTPClient(configuration.getJcrContextRootURL(), configuration.getJcrUserName(), configuration.getJcrPassword()), "ALL MASKS RETREIVED", "FAILED TO RETREIVE MASKS"));
+            JSONObject allMasksChildren = new JSONObject(RestUtils.executeGet(getMaskHttpGet, RestUtils.getHTTPClient(configuration.getJcrContextRootURL(), configuration.getJcrUserName(), configuration.getJcrPassword()), "ALL MASKS CHILDREN RETREIVED", "FAILED TO RETREIVE MASKS"));
             File maskDir = new File(maskDirectory);
             maskDir.mkdirs();
             JSONObject testClasses = allMasksChildren.getJSONObject("children").getJSONObject("masks").getJSONObject("children");
@@ -191,7 +191,7 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
                         String maskUrl = maskNode.getJSONObject("children").getJSONObject("jcr:content").getString("jcr:data");
                         HttpGet getMask = new HttpGet(maskUrl);
                         File maskFile = new File(beforeOrAfterDir.getAbsolutePath() + File.separator + mask.toString());
-                        RestUtils.executeGetAndSaveToFile(getMask, httpClient, maskFile.getAbsolutePath(), "Mask" + mask.toString() + " retreived succesfully", "Failed to retreive mask " + mask.toString());
+                        RestUtils.executeGetAndSaveToFile(getMask, httpClient, maskFile.getAbsolutePath(), "MASK: clear" + mask.toString() + " retreived succesfully", "Failed to retreive mask " + mask.toString());
                     }
                 }
 

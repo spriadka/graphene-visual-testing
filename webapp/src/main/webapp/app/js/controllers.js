@@ -120,17 +120,27 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
 
         $scope.setCroppedImageAndAlignmentFromMask = function (jcropApi, maskObj) {
             var selection = jcropApi.ui.selection;
-            var img = jcropApi.ui.stage.imgsrc;
+            var imgSource = jcropApi.ui.stage.imgsrc;
             var startX = selection.last.x;
             var startY = selection.last.y;
             var width = selection.last.w;
             var height = selection.last.h;
+            var img = document.createElement("img");
+            img.width = imgSource.width;
+            img.height = imgSource.height;
             var canvas = document.createElement("canvas");
-            canvas.width = width;
-            canvas.height = height;
+            //canvas.width = width;
+            //canvas.height = height;
+            canvas.width = img.width;
+            canvas.height = img.height;
             var context = canvas.getContext("2d");
-            context.drawImage(img, startX, startY, width, height, 0, 0, width, height);
+            context.globalAlpha = 1;
+            context.fillStyle = "green";
+            context.rect(startX,startY,width,height);
+            context.fill();
+            //context.drawImage(img, startX, startY, width, height, 0, 0, width, height);
             var result = canvas.toDataURL();
+            $log.info(result);
             maskObj.sourceData = result;
             maskObj.horizontalAlignment = null;
             maskObj.verticalAlignment = null;
@@ -161,10 +171,7 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
             var selectedComparisonResult = _.find($scope.comparisonResults, function (comparisonResult) {
                 return comparisonResult.sampleID === sampleId;
             });
-            var selectedJcropApi = selectedComparisonResult.jcrop_api;
-            $log.info("BEFORE CHANGE");
-            $log.info(selectedJcropApi);
-            var selectedMaskId = selectedJcropApi.ui.selection.maskID;
+            var selectedJcropApi = selectedComparisonResult.jcrop_api;            var selectedMaskId = selectedJcropApi.ui.selection.maskID;
             if (typeof selectedMaskId !== 'undefined') {
                 var promisedSelectedMask = ParticularMask.query({maskID: selectedMaskId}).$promise;
                 promisedSelectedMask.then(function (originalMask) {

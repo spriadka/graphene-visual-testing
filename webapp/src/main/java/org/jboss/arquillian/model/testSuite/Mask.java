@@ -21,7 +21,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Transient;
+import org.hibernate.annotations.GenericGenerator;
 import org.jboss.logging.Logger;
 
 /**
@@ -32,9 +34,10 @@ import org.jboss.logging.Logger;
 public class Mask {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "mask-generator")
+    @GenericGenerator(name = "mask-generator",strategy = "org.jboss.arquillian.generator.MaskGenerator")
     @Column(name = "MASK_ID")
-    private Long maskID;
+    private String maskID;
 
     @Column(name = "SOURCE_URL", unique = true, length = Diff.STRING_COLUMN_LENGTH)
     private String sourceUrl;
@@ -73,7 +76,7 @@ public class Mask {
 
     @JsonCreator
     public Mask(Map<String, Object> props) {
-        this.maskID = objectMapper.convertValue(props.get("maskID"), Long.class);
+        this.maskID = (String)props.get("maskID");
         this.sample = objectMapper.convertValue(props.get("sample"), Sample.class);
         this.testSuiteName = (String)props.get("testSuiteName");
         this.sourceData = (String) props.get("sourceData");
@@ -117,7 +120,7 @@ public class Mask {
     /**
      * @return the maskID
      */
-    public Long getMaskID() {
+    public String getMaskID() {
         return maskID;
     }
 

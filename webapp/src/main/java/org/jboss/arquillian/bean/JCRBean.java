@@ -118,7 +118,7 @@ public class JCRBean implements Serializable {
             String testClass = names[0];
             String testName = names[1];
             String beforeOrAfter = names[2].substring(0, names[2].indexOf("."));
-            Node maskNode = session.getRootNode().getNode(testSuiteName).getNode(masks).getNode(testClass).getNode(testName).getNode(beforeOrAfter).getNode(mask.getMaskID().toString()).getNode(Property.JCR_CONTENT);
+            Node maskNode = session.getRootNode().getNode(testSuiteName).getNode(masks).getNode(testClass).getNode(testName).getNode(beforeOrAfter).getNode(mask.getMaskID()).getNode(Property.JCR_CONTENT);
             byte[] newData = Base64.decodeFast(mask.getSourceData().split(";")[1].split(",")[1]);
             maskNode.setProperty(Property.JCR_DATA, session.getValueFactory().createBinary(new ByteArrayInputStream(newData)));
             session.save();
@@ -165,7 +165,7 @@ public class JCRBean implements Serializable {
             Node testClassNode = addNodeAndProceed(masksNode, testClass);
             Node testNameNode = addNodeAndProceed(testClassNode, testName);
             Node beforeOrAfterNode = addNodeAndProceed(testNameNode, beforeOrAfter);
-            Node idNode = addNodeAndProceed(beforeOrAfterNode, mask.getMaskID().toString());
+            Node idNode = addNodeAndProceed(beforeOrAfterNode, mask.getMaskID());
             Node contentNode = addNodeAndProceed(idNode, Property.JCR_CONTENT);
             String imageType = mask.getSourceData().split(";")[0].split(":")[1];
             contentNode.setProperty(Property.JCR_MIMETYPE, imageType);
@@ -193,7 +193,7 @@ public class JCRBean implements Serializable {
 
     private Node addNodeAndProceed(Node node, String nodeName) {
 
-        String ntFileOrFolder = (nodeName.matches("[0-9][0-9]*")) ? NodeType.NT_FILE : NodeType.NT_FOLDER;
+        String ntFileOrFolder = (nodeName.matches("mask[0-9][0-9]*")) ? NodeType.NT_FILE : NodeType.NT_FOLDER;
         String resource = NodeType.NT_RESOURCE;
         try {
 
