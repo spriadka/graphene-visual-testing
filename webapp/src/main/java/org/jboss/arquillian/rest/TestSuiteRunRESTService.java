@@ -24,8 +24,6 @@ import org.jboss.arquillian.model.testSuite.Diff;
 import org.jboss.arquillian.model.testSuite.Pattern;
 import org.jboss.arquillian.model.testSuite.Sample;
 import org.jboss.arquillian.model.testSuite.TestSuiteRun;
-import org.jboss.arquillian.rest.builder.DiffComparisonResultBuilder;
-import org.jboss.arquillian.rest.builder.SampleComparisonResultBuilder;
 import org.jboss.logging.Logger;
 
 /**
@@ -110,7 +108,7 @@ public class TestSuiteRunRESTService {
         List<Long> alreadyUploadedSamples = new ArrayList<>();
         if (diffManager.areThereDiffs(id)) {
             for (Diff diff : diffs) {
-                result.add(new DiffComparisonResultBuilder().manager(maskManager).diff(diff).build());
+                result.add(ComparisonResult.withDiff(diff));
                 alreadyUploadedSamples.add(diff.getSample().getSampleID());
             }
         }
@@ -118,7 +116,7 @@ public class TestSuiteRunRESTService {
         for (Sample sample : samples) {
             Pattern pattern = patternManager.getPattern(sample.getName(), sample.getTestSuiteRun().getTestSuite().getTestSuiteID());
             if (!alreadyUploadedSamples.contains(sample.getSampleID())) {
-                result.add(new SampleComparisonResultBuilder().sample(sample).pattern(pattern).build());
+                result.add(ComparisonResult.successful(sample, pattern));
             }
         }
         return result;

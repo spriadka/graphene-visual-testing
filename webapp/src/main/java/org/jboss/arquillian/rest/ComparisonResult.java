@@ -2,90 +2,68 @@ package org.jboss.arquillian.rest;
 
 import java.io.Serializable;
 import java.util.List;
-import org.jboss.arquillian.managers.MaskManager;
 import org.jboss.arquillian.model.testSuite.Diff;
 import org.jboss.arquillian.model.testSuite.Mask;
+import org.jboss.arquillian.model.testSuite.Pattern;
 import org.jboss.arquillian.model.testSuite.Sample;
-import org.jboss.arquillian.rest.builder.Builder;
-import org.jboss.arquillian.rest.builder.DiffComparisonResultBuilder;
-import org.jboss.arquillian.rest.builder.SampleComparisonResultBuilder;
 
 /**
  *
  * @author jhuska
  */
 public class ComparisonResult implements Serializable {
-
-    private String patternUrl;
-
-    private Long patternID;
-
-    private String patternModificationDate;
-
-    private String sampleUrl;
-
-    private Long sampleID;
-
-    private String sampleModificationDate;
-
-    private String diffUrl;
-
-    private Long diffID;
-
-    private String testClassName;
-
-    private String testName;
-
-    private List<Mask> masks;
-
-    public ComparisonResult() {
+    
+    private String patternUrl = null;
+    private Long patternID = null;
+    private String patternModificationDate = null;
+    private String sampleUrl = null;
+    private Long sampleID = null;
+    private String sampleModificationDate = null;
+    private String diffUrl = null;
+    private Long diffID = null;
+    private String testClassName = null;
+    private String testName = null;
+    private List<Mask> masks = null;
+    
+    
+    private ComparisonResult(){
         
     }
     
-    public ComparisonResult(SampleComparisonResultBuilder builder){
-        this.patternID = builder.getPatternID();
-        this.patternUrl = builder.getPatternUrl();
-        this.patternModificationDate = builder.getPatternModificationDate();
-        this.masks = builder.getMasks();
-        this.sampleID = builder.getSampleID();
-        this.sampleUrl = builder.getSampleUrl();
-        this.sampleModificationDate = builder.getSampleModificationDate();
-        this.testName = builder.getTestName();
-        this.testClassName = builder.getTestClassName();
-        this.diffID = null;
-        this.diffUrl = null;
+    private void setComparisonResultFromSampleAndPattern(Sample sample, Pattern pattern){
+        this.patternID = pattern.getPatternID();
+        this.patternModificationDate = pattern.getLastModificationDate();
+        this.patternUrl = pattern.getUrlOfScreenshot();
+        this.sampleID = sample.getSampleID();
+        this.sampleModificationDate = sample.getLastModificationDate();
+        this.sampleUrl = sample.getUrlOfScreenshot();
+        this.testClassName = getTestClassName(sample);
+        this.testName = getTestName(sample);
+        this.masks = sample.getMasks();
     }
-    public ComparisonResult(DiffComparisonResultBuilder builder){
-        this.patternID = builder.getPatternID();
-        this.patternUrl = builder.getPatternUrl();
-        this.patternModificationDate = builder.getPatternModificationDate();
-        this.masks = builder.getMasks();
-        this.sampleID = builder.getSampleID();
-        this.sampleUrl = builder.getSampleUrl();
-        this.sampleModificationDate = builder.getSampleModificationDate();
-        this.testName = builder.getTestName();
-        this.testClassName = builder.getTestClassName();
-        this.diffID = builder.getDiffID();
-        this.diffUrl = builder.getDiffUrl();
+    
+    private void setComparisonResultFromDiff(Diff diff){
+        Sample sample = diff.getSample();
+        Pattern pattern = diff.getPattern();
+        this.diffID = diff.getDiffID();
+        this.diffUrl = diff.getUrlOfScreenshot();
+        setComparisonResultFromSampleAndPattern(sample, pattern);
     }
     
     
-
-    public ComparisonResult(String patternUrl, Long patternID, String patternModificationDate, String sampleUrl, Long sampleID, String sampleModificationDate,
-            String diffUrl, Long diffID, String testClassName, String testName) {
-        this.patternUrl = patternUrl;
-        this.patternID = patternID;
-        this.patternModificationDate = patternModificationDate;
-        this.sampleUrl = sampleUrl;
-        this.sampleID = sampleID;
-        this.sampleModificationDate = sampleModificationDate;
-        this.diffUrl = diffUrl;
-        this.diffID = diffID;
-        this.testClassName = testClassName;
-        this.testName = testName;
-        //this.masks = maskManager.getMasksForSample(sampleID);
+    public static ComparisonResult successful(Sample sample, Pattern pattern){
+        ComparisonResult result = new ComparisonResult();
+        result.setComparisonResultFromSampleAndPattern(sample, pattern);
+        return result;     
+    }
+    
+    public static ComparisonResult withDiff(Diff diff){
+        ComparisonResult result = new ComparisonResult();
+        result.setComparisonResultFromDiff(diff);
+        return result;
     }
 
+    
     public String getPatternUrl() {
         return patternUrl;
     }
@@ -191,7 +169,13 @@ public class ComparisonResult implements Serializable {
     public void setMasks(List<Mask> masks) {
         this.masks = masks;
     }
-
-
     
+    private static String getTestClassName(Sample sample) {
+        return sample.getName().split("/")[0];
+    }
+    
+    private static String getTestName(Sample sample) {
+        return sample.getName().split("/")[1];
+    }
+
 }

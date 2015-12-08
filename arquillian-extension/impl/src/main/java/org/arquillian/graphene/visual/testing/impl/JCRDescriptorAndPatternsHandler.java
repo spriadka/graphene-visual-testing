@@ -191,7 +191,7 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
                         String maskUrl = maskNode.getJSONObject("children").getJSONObject("jcr:content").getString("jcr:data");
                         HttpGet getMask = new HttpGet(maskUrl);
                         File maskFile = new File(beforeOrAfterDir.getAbsolutePath() + File.separator + mask.toString());
-                        RestUtils.executeGetAndSaveToFile(getMask, httpClient, maskFile.getAbsolutePath(), "MASK: clear" + mask.toString() + " retreived succesfully", "Failed to retreive mask " + mask.toString());
+                        RestUtils.executeGetAndSaveToFile(getMask, httpClient, maskFile.getAbsolutePath(), "MASK: " + mask.toString() + " retreived succesfully", "Failed to retreive mask " + mask.toString());
                     }
                 }
 
