@@ -11,42 +11,25 @@
     <pattern-retriever type="org.jboss.rusheye.retriever.pattern.PatternFileRetriever"/>  
     <mask-retriever type="org.jboss.rusheye.retriever.mask.MaskFileRetriever"/>  
     <sample-retriever type="org.jboss.rusheye.retriever.sample.FileSampleRetriever"/>  
-    <perception/> 
+    <perception/>  
+    <mask id="mask5" source="http://localhost:8080/modeshape-rest/graphene-visual-testing/default/binary/openshift-simple2/masks/org.jboss.arquillian.extension.testsuite.tests.AnotherTest/testSeznamAndTypeSomething/after/mask5/jcr:content/jcr:data" type="selective-alpha"/>  
+    <mask id="mask6" source="http://localhost:8080/modeshape-rest/graphene-visual-testing/default/binary/openshift-simple2/masks/org.jboss.arquillian.extension.testsuite.tests.AnotherTest/testSeznamAndTypeSomething/after/mask6/jcr:content/jcr:data" type="selective-alpha"/>  
+    <mask id="mask7" source="http://localhost:8080/modeshape-rest/graphene-visual-testing/default/binary/openshift-simple2/masks/org.jboss.arquillian.extension.testsuite.tests.AnotherTest/testGoogleAndTypeSomething/after/mask7/jcr:content/jcr:data" type="selective-alpha"/>  
+    <mask id="mask8" source="http://localhost:8080/modeshape-rest/graphene-visual-testing/default/binary/openshift-simple2/masks/org.jboss.arquillian.extension.testsuite.tests.AnotherTest/testGoogleAndTypeSomething/after/mask8/jcr:content/jcr:data" type="selective-alpha"/>  
+    <mask id="mask9" source="http://localhost:8080/modeshape-rest/graphene-visual-testing/default/binary/openshift-simple2/masks/org.jboss.arquillian.extension.testsuite.tests.AnotherTest/testSector/after/mask9/jcr:content/jcr:data" type="selective-alpha"/>
   </global-configuration>  
-  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall.after"> 
-    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall.after" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall/after.png"/> 
+  <test name="org.jboss.arquillian.extension.testsuite.tests.AnotherTest.testSector.after"> 
+    <mask id="mask9" source="http://localhost:8080/modeshape-rest/graphene-visual-testing/default/binary/openshift-simple2/masks/org.jboss.arquillian.extension.testsuite.tests.AnotherTest/testSector/after/mask9/jcr:content/jcr:data" type="selective-alpha"/>
+    <pattern name="org.jboss.arquillian.extension.testsuite.tests.AnotherTest.testSector.after" source="org.jboss.arquillian.extension.testsuite.tests.AnotherTest/testSector/after.png"/>
   </test>  
-  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall.before"> 
-    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall.before" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall/before.png"/> 
+  <test name="org.jboss.arquillian.extension.testsuite.tests.AnotherTest.testGoogleAndTypeSomething.after"> 
+    <mask id="mask7" source="http://localhost:8080/modeshape-rest/graphene-visual-testing/default/binary/openshift-simple2/masks/org.jboss.arquillian.extension.testsuite.tests.AnotherTest/testGoogleAndTypeSomething/after/mask7/jcr:content/jcr:data" type="selective-alpha"/>  
+    <mask id="mask8" source="http://localhost:8080/modeshape-rest/graphene-visual-testing/default/binary/openshift-simple2/masks/org.jboss.arquillian.extension.testsuite.tests.AnotherTest/testGoogleAndTypeSomething/after/mask8/jcr:content/jcr:data" type="selective-alpha"/>  
+    <pattern name="org.jboss.arquillian.extension.testsuite.tests.AnotherTest.testGoogleAndTypeSomething.after" source="org.jboss.arquillian.extension.testsuite.tests.AnotherTest/testGoogleAndTypeSomething/after.png"/> 
   </test>  
-  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall4.after"> 
-    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall4.after" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall4/after.png"/> 
-  </test>  
-  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall4.before"> 
-    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall4.before" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall4/before.png"/> 
-  </test>  
-  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall3.after"> 
-    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall3.after" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall3/after.png"/> 
-  </test>  
-  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall3.before"> 
-    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall3.before" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall3/before.png"/> 
-  </test>  
-  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall2.after"> 
-    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall2.after" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall2/after.png"/> 
-  </test>  
-  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall2.before"> 
-    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall2.before" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall2/before.png"/> 
-  </test>  
-  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall5.after"> 
-    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall5.after" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall5/after.png"/> 
-  </test>  
-  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall5.before"> 
-    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall5.before" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall5/before.png"/> 
-  </test>  
-  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall6.after">
-    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall6.after" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall6/after.png"/>
-  </test>
-  <test name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall6.before">
-    <pattern name="org.richfaces.showcase.functions.ITestFunctions.testFunctionFindComponentCall6.before" source="org.richfaces.showcase.functions.ITestFunctions/testFunctionFindComponentCall6/before.png"/>
-  </test>
+  <test name="org.jboss.arquillian.extension.testsuite.tests.AnotherTest.testSeznamAndTypeSomething.after"> 
+    <mask id="mask5" source="http://localhost:8080/modeshape-rest/graphene-visual-testing/default/binary/openshift-simple2/masks/org.jboss.arquillian.extension.testsuite.tests.AnotherTest/testSeznamAndTypeSomething/after/mask5/jcr:content/jcr:data" type="selective-alpha"/>  
+    <mask id="mask6" source="http://localhost:8080/modeshape-rest/graphene-visual-testing/default/binary/openshift-simple2/masks/org.jboss.arquillian.extension.testsuite.tests.AnotherTest/testSeznamAndTypeSomething/after/mask6/jcr:content/jcr:data" type="selective-alpha"/>  
+    <pattern name="org.jboss.arquillian.extension.testsuite.tests.AnotherTest.testSeznamAndTypeSomething.after" source="org.jboss.arquillian.extension.testsuite.tests.AnotherTest/testSeznamAndTypeSomething/after.png"/> 
+  </test> 
 </visual-suite>
