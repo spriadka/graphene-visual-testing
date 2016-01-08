@@ -6,6 +6,7 @@
 package org.jboss.arquillian.managers;
 
 import java.util.List;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -58,9 +59,9 @@ public class MaskManager {
         return maskToBeUpdated;
     }
     
-    public List<Mask> getMasksForSample(Long sampleId){
-        Query query = em.createQuery("SELECT m FROM MASK m WHERE m.sample.sampleID = :sampleId");
-        return query.setParameter("sampleId", sampleId).getResultList();
+    public List<Mask> getMasksForPattern(Long patternId){
+        Query query = em.createQuery("SELECT m FROM MASK m WHERE m.pattern.patternID = :patternId");
+        return query.setParameter("patternId", patternId).getResultList();
     }
     
     

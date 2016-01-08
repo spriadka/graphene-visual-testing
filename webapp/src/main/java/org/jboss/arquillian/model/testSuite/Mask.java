@@ -17,12 +17,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Transient;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.jboss.logging.Logger;
 
@@ -48,11 +47,11 @@ public class Mask {
     @JsonIgnore
     @Transient
     private String sourceData;
-
-    @JoinColumn(name = "SAMPLE_ID")
+    
+    @JoinColumn(name = "PATTERN_ID")
     @ManyToOne(fetch = FetchType.EAGER)
-    @JsonBackReference(value = "sample-masks")
-    private Sample sample;
+    @JsonBackReference(value = "pattern-masks")
+    private Pattern pattern;
 
     @JsonIgnore
     @Transient
@@ -75,9 +74,9 @@ public class Mask {
     private int left;
 
     @JsonCreator
-    public Mask(Map<String, Object> props) {
+    public  Mask(Map<String, Object> props) {
         this.maskID = (String)props.get("maskID");
-        this.sample = objectMapper.convertValue(props.get("sample"), Sample.class);
+        this.pattern = objectMapper.convertValue(props.get("pattern"), Pattern.class);
         this.testSuiteName = (String)props.get("testSuiteName");
         this.sourceData = (String) props.get("sourceData");
         this.top = (int) props.get("top");
@@ -90,13 +89,7 @@ public class Mask {
 
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 61 * hash + Objects.hashCode(this.getSample());
-        hash = 61 * hash + Objects.hashCode(this.getSourceUrl());
-        return hash;
-    }
+
 
     @Override
     public boolean equals(Object obj) {
@@ -107,14 +100,25 @@ public class Mask {
             return false;
         }
         final Mask mask = (Mask) obj;
-        if (!Objects.equals(this.sample, mask.sample)) {
-            return false;
-        }
-        if (!Objects.equals(this.sourceUrl, mask.sourceUrl)) {
-            return false;
-        }
-        return true;
+        EqualsBuilder equalsBuilder = new EqualsBuilder();
+        equalsBuilder.append(this.width, mask.width);
+        equalsBuilder.append(this.height, mask.height);
+        equalsBuilder.append(this.left, mask.left);
+        equalsBuilder.append(this.top, mask.top);
+        equalsBuilder.append(this.getPattern(), mask.getPattern());
+        return equalsBuilder.isEquals();
 
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 11 * hash + Objects.hashCode(this.getPattern());
+        hash = 11 * hash + this.width;
+        hash = 11 * hash + this.height;
+        hash = 11 * hash + this.top;
+        hash = 11 * hash + this.left;
+        return hash;
     }
 
     /**
@@ -139,13 +143,6 @@ public class Mask {
     }
 
     /**
-     * @return the sample
-     */
-    public Sample getSample() {
-        return sample;
-    }
-
-    /**
      * @return the sourceData
      */
     @JsonProperty
@@ -153,12 +150,6 @@ public class Mask {
         return sourceData;
     }
 
-    /**
-     * @param sample the sample to set
-     */
-    public void setSample(Sample sample) {
-        this.sample = sample;
-    }
 
     /**
      * @return the width
@@ -235,6 +226,25 @@ public class Mask {
      */
     public void setSourceData(String sourceData) {
         this.sourceData = sourceData;
+    }
+    
+    @Override
+    public String toString(){
+        return "MASK ID: " + maskID + "PATTERN ID: " + getPattern().getPatternID() + "SOURCE URL: " + sourceUrl;
+    }
+
+    /**
+     * @return the pattern
+     */
+    public Pattern getPattern() {
+        return pattern;
+    }
+
+    /**
+     * @param pattern the pattern to set
+     */
+    public void setPattern(Pattern pattern) {
+        this.pattern = pattern;
     }
 
 }

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -44,11 +45,6 @@ public class Sample {
     @JoinColumn(name = "TEST_SUITE_RUN_ID")
     @JsonBackReference(value = "test-suite-run-sample")
     private TestSuiteRun testSuiteRun;
-    
-    @JsonIgnore
-    @OneToMany(mappedBy = "sample",fetch = FetchType.EAGER,cascade = CascadeType.REMOVE)
-    @JsonManagedReference(value = "sample-masks")
-    private List<Mask> masks;
 
     public Long getSampleID() {
         return sampleID;
@@ -124,19 +120,5 @@ public class Sample {
      */
     public void setLastModificationDate(String lastModificationDate) {
         this.lastModificationDate = lastModificationDate;
-    }
-
-    /**
-     * @return the masks
-     */
-    public List<Mask> getMasks() {
-        return masks;
-    }
-
-    /**
-     * @param masks the masks to set
-     */
-    public void setMasks(List<Mask> masks) {
-        this.masks = masks;
     }
 }

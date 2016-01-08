@@ -6,16 +6,10 @@
 package org.jboss.arquillian.generator;
 
 import java.io.Serializable;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Savepoint;
-import java.sql.Statement;
-import java.util.logging.Level;
-import javax.persistence.PrePersist;
 import org.hibernate.HibernateException;
-import org.hibernate.Transaction;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.id.IdentifierGenerator;
 import org.jboss.logging.Logger;

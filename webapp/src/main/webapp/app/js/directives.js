@@ -11,22 +11,61 @@ var visualTestingDirectives = angular.module('visualTestingDirectives', []);
 
 
 visualTestingDirectives.directive('alertInfo', function ($compile) {
-    console.log("Directive was called");
+    
+    var timestampToDate = function (timestamp) {
+    var date = new Date(timestamp);
+
+    var hours = date.getHours();
+    var minutes = "0" + date.getMinutes();
+    var seconds = "0" + date.getSeconds();
+    var time = hours + ':' + minutes.substr(minutes.length - 2) + ':' + seconds.substr(seconds.length - 2);
+
+    var monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+
+    return monthNames[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear() + ", " + time;
+};
+    
+    var createMessage = function(run){
+      console.log(run.errorContent);
+      var message = "<div>";
+      for (var i = 0; i < run.errorContent.length; i++){
+          var errorPattern = run.errorContent[i];
+          var fromDate = timestampToDate(parseInt(errorPattern.patternDate));
+          message += "Pattern for test: " + "<b>" + errorPattern.name + "</b>" + " was modified " + "<b>" + fromDate +"</b>";
+          message += "<br/>";
+      }
+      if (run.extraTests){
+          message += "Added <b>" + run.extraTests + "</b> extra tests";
+      }
+      message += "</div>";
+      return message;
+    };
+    
     var linker = function (scope, elem, attr) {
         var run = scope.info;
-        console.log(run.needsToBeUpdated);
-        if (run.needsToBeUpdated) {
-            var spanElem = "<span class=\"glyphicon glyphicon-ok-circle\" style=\"margin-right: 20px;\"></span>";
-            var message = "PATTERNS OUT OF DATE";
-            $(elem).addClass("alert alert-danger").html(spanElem + message).show();
-            $compile(elem.contents())(scope);
-        }
-        else {
-            var spanElem = "<span class=\"glyphicon glyphicon-ok-circle\" style=\"margin-right: 20px;\"></span>";
-            var message = "ALL PATTERNS UP TO DATE";
-            $(elem).addClass("alert alert-success").html(spanElem + message).show();
-            $compile(elem.contents())(scope);
-        }
+        run.needsToBeUpdated.then(function (value) {
+            var needsToBeUpdated = value;
+            if (needsToBeUpdated) {
+                var spanElem = "<span class=\"glyphicon glyphicon-exclamation-sign\"></span>";
+                var message = "TESTS WERE MODIFIED";
+                var numOutDatedPatterns = run.errorContent.length;
+                var extraTests = run.extraTests ? 1 : 0;
+                numOutDatedPatterns += extraTests;
+                console.log("ERROR CONTENT: " + numOutDatedPatterns);
+                var badgeNotification = "<span class=\"badge\" style=\"margin-right: 20px; margin-left: 5px;\" >" + numOutDatedPatterns + "</span>";
+                $(elem).addClass("alert alert-danger").html(spanElem + badgeNotification + message).show();
+                $(elem).attr("data-toggle","popover").attr("data-container","body").attr("data-html","true").attr("data-placement","bottom").attr("data-content",createMessage(run));
+                $(elem).popover();
+                $compile(elem.contents())(scope);
+            }
+            else {
+                var spanElem = "<span class=\"glyphicon glyphicon-ok-circle\" style=\"margin-right: 20px;\"></span>";
+                var message = "ALL TESTS OK";
+                $(elem).addClass("alert alert-success").html(spanElem + message).show();
+                $compile(elem.contents())(scope);
+            }
+        });
     };
     return {
         restrict: 'A',
@@ -65,16 +104,17 @@ visualTestingDirectives.directive('runInfo', function ($compile) {
     };
 }
 );
-
 visualTestingDirectives.directive('jcrop', function () {
 
     return {
         restrict: 'C',
         scope: true,
         link: function (scope, elem, attr) {
+            console.log("directive called");
             var comparisonResult = scope.$parent.result;
-            $(elem).attr("src",comparisonResult.sampleUrl);
-            $(elem).attr("sampleid",comparisonResult.sampleID);
+            console.log(comparisonResult);
+            $(elem).attr("src", comparisonResult.sampleUrl);
+            $(elem).attr("patternid", comparisonResult.patternID);
             $(elem).Jcrop({
                 bgColor: 'black',
                 multi: true
@@ -86,9 +126,8 @@ visualTestingDirectives.directive('jcrop', function () {
                         var selection = comparisonResult.jcrop_api.newSelection();
                         selection.update($.Jcrop.wrapFromXywh([mask.left, mask.top, mask.width, mask.height]));
                         selection.maskID = mask.maskID;
-                        selection.setColor("#00ffd4",0.3);
+                        selection.setColor("#00ffd4", 0.3);
                     }
-                    console.log(comparisonResult);
                 }
             });
 

@@ -77,9 +77,9 @@ public class MaskRESTService {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/sample/{sampleID: [0-9][0-9]*}")
-    public List<Mask> getMasks(@PathParam("sampleID")long sampleID){
-        return maskManager.getMasksForSample(sampleID);
+    @Path("/pattern/{patternID: [0-9][0-9]*}")
+    public List<Mask> getMasks(@PathParam("patternID")long patternID){
+        return maskManager.getMasksForPattern(patternID);
     }
 
     @DELETE
@@ -102,7 +102,7 @@ public class MaskRESTService {
     }
     
     private void deleteMaskFromJCR(Mask mask){
-        String name = mask.getTestSuiteName() + ":" + mask.getSample().getName();
+        String name = mask.getTestSuiteName() + ":" + mask.getPattern().getName();
         MaskFromREST maskFromREST = new MaskFromRESTBuilder().id(mask.getMaskID())
                 .name(name)
                 .sourceUrl(mask.getSourceUrl())
@@ -122,7 +122,7 @@ public class MaskRESTService {
     
     private void addMaskToSuite(Mask mask){
         List<MaskFromREST> masksToBeCrawled = new ArrayList<>();
-        String name = mask.getTestSuiteName() + ":" + mask.getSample().getName();
+        String name = mask.getTestSuiteName() + ":" + mask.getPattern().getName();
         MaskFromREST maskFromREST = new MaskFromRESTBuilder()
                 .id(mask.getMaskID())
                 .name(name)

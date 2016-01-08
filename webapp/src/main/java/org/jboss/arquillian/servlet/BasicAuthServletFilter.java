@@ -18,7 +18,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import org.jboss.arquillian.bean.BasicAuthSessionStore;
-import org.jboss.arquillian.bean.JCRBean;
 import org.jboss.arquillian.util.Base64;
 
 /**

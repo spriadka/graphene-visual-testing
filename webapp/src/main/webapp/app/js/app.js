@@ -23,8 +23,8 @@ visualTestingApp.config(['$routeProvider',
         templateUrl: PARTIALS + '/test-suite-runs-list.html',
         controller: 'ParticularSuiteCtrl',
         resolve: {
-            promisedSuite: function(ResolveRuns){
-                return ResolveRuns.getRuns();
+            promisedSuite: function(ResolveSuite){
+                return ResolveSuite.getSuite();
             }
         }
       }).

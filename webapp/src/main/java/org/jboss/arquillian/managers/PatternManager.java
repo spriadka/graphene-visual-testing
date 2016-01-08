@@ -30,6 +30,12 @@ public class PatternManager {
         em.merge(pattern);
     }
     
+    public Pattern getPattern(Long patternID){
+        Query query = em.createQuery("SELECT p FROM PATTERN p WHERE p.patternID = :patternID");
+        query.setParameter("patternID", patternID);
+        return (Pattern)query.getSingleResult();
+    }
+    
     public Pattern getPattern(String nameOfPattern, Long testSuiteID) {
         Query query = 
                 em.createQuery("SELECT e FROM PATTERN e WHERE e.name = :name AND e.testSuite.testSuiteID = :testSuiteID");

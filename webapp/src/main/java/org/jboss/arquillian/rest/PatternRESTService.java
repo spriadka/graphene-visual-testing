@@ -4,6 +4,7 @@ import org.jboss.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -44,6 +45,14 @@ public class PatternRESTService {
     private JCRBean jcrBean;
     
     private final Logger LOGGER = Logger.getLogger(PatternRESTService.class);
+    
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{patternID: [0-9][0-9]*}")
+    public Pattern getPattern(@PathParam("patternID")long patternId){
+        return patternManager.getPattern(patternId);
+    }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)

@@ -1,9 +1,12 @@
 package org.jboss.arquillian.model.testSuite;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,6 +23,7 @@ import javax.persistence.OneToMany;
  * @author jhuska
  */
 @Entity(name = "PATTERN")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Pattern {
 
     @Id
@@ -44,6 +48,11 @@ public class Pattern {
     @OneToMany(mappedBy = "pattern", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JsonManagedReference(value = "pattern-diff")
     private List<Diff> diffs;
+    
+    @JsonIgnore
+    @OneToMany(mappedBy = "pattern",fetch = FetchType.EAGER,cascade = CascadeType.REMOVE)
+    @JsonManagedReference(value = "pattern-masks")
+    private Set<Mask> masks;
 
     public Long getPatternID() {
         return patternID;
@@ -131,5 +140,19 @@ public class Pattern {
      */
     public void setLastModificationDate(String lastModificationDate) {
         this.lastModificationDate = lastModificationDate;
+    }
+
+    /**
+     * @return the masks
+     */
+    public Set<Mask> getMasks() {
+        return masks;
+    }
+
+    /**
+     * @param masks the masks to set
+     */
+    public void setMasks(Set<Mask> masks) {
+        this.masks = masks;
     }
 }

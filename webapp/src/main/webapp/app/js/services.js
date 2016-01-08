@@ -21,7 +21,7 @@ visualTestingServices.factory('ParticularSuite', ['$resource',
     }]);
 
 visualTestingServices.factory('Masks', ['$resource', function ($resource) {
-        return $resource('rest/masks/sample/:sampleID', {sampleID: '@sampleID'}, {
+        return $resource('rest/masks/pattern/:patternID', {patternID: '@patternID'}, {
             query: {method: 'GET', isArray: true}
         });
     }]);
@@ -105,12 +105,16 @@ visualTestingServices.factory('UpdateSelectedMask', function ($http) {
     }
 });
 
+visualTestingServices.factory('PatternService', ['$resource', function ($resource) {
+        return $resource('rest/patterns/:patternID', {patternID: '@patternID'}, {query: {method: 'GET', isArray: false}});
+    }]);
+
 visualTestingServices.factory('ParticularSample', ['$resource', function ($resource) {
         return $resource('rest/samples/:sampleID', {sampleID: '@sampleID'}, {query: {method: 'GET', isArray: false}});
     }
 ]);
 
-visualTestingServices.factory('ResolveRuns', ['$route', 'ParticularSuite', 'ParticularRun', '$q', '$log', function ($route, ParticularSuite, ParticularRun, $q, $log) {
+visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'ParticularRun', '$q', '$log', function ($route, ParticularSuite, ParticularRun, $q, $log) {
         var getSumOfTests = function (run) {
             if (!isRun(run)) {
                 return 0;
@@ -145,7 +149,7 @@ visualTestingServices.factory('ResolveRuns', ['$route', 'ParticularSuite', 'Part
         var needsToBeUpdatedOneComparisonResult = function (comparisonResult) {
             var patternModificationDate = parseInt(comparisonResult.patternModificationDate);
             var sampleModificationDate = parseInt(comparisonResult.sampleModificationDate);
-            if (patternModificationDate > sampleModificationDate) {
+            if (patternModificationDate >= sampleModificationDate) {
                 return true;
             }
             return false;
@@ -153,13 +157,14 @@ visualTestingServices.factory('ResolveRuns', ['$route', 'ParticularSuite', 'Part
 
         var updateNeedsToBeUpdatedOneRun = function (run) {
             var comparisonResultsPromised = ParticularRun.query({runId: run.testSuiteRunID}).$promise;
-            var resultPromised = false;
+            var resultPromised = $q.defer();
             comparisonResultsPromised.then(function (comparisonResultsResolved) {
+                var result = false;
                 for (var i = 0; i < comparisonResultsResolved.length; i++) {
-                    $log.info("UPDATED PROMISE");
                     var comparisonResult = comparisonResultsResolved[i];
                     var partialResult = needsToBeUpdatedOneComparisonResult(comparisonResult);
                     if (partialResult) {
+                        result = true;
                         run.errorContent = (typeof run.errorContent !== 'undefined' && run.errorContent instanceof Array) ? run.errorContent : [];
                         var errorData = {};
                         errorData.name = comparisonResult.testName;
@@ -167,10 +172,10 @@ visualTestingServices.factory('ResolveRuns', ['$route', 'ParticularSuite', 'Part
                         errorData.sampleDate = comparisonResult.sampleModificationDate;
                         run.errorContent.push(errorData);
                     }
-                    resultPromised = resultPromised || partialResult;
                 }
+                resultPromised.resolve(result);
             });
-            return resultPromised;
+            return resultPromised.promise;
         };
 
         var getPromisedSuite = function () {
@@ -186,6 +191,7 @@ visualTestingServices.factory('ResolveRuns', ['$route', 'ParticularSuite', 'Part
                     if (currentNumberOfTests > previousNumberOfTests && (i > 0)) {
                         currentRun.extraTests = currentNumberOfTests - previousNumberOfTests;
                     }
+                    $log.info(currentRun);
                     currentRun.needsToBeUpdated = updateNeedsToBeUpdatedOneRun(currentRun);
                 }
 
@@ -194,11 +200,9 @@ visualTestingServices.factory('ResolveRuns', ['$route', 'ParticularSuite', 'Part
         };
 
         return {
-            getRuns: function () {
+            getSuite: function () {
                 return getPromisedSuite();
             }
-
-
         }
     }]);
 
@@ -217,11 +221,11 @@ visualTestingServices.factory('ResolveComparisonResults', ['$route', '$log', '$q
             }
             return false;
         };
-        
-        var setImageWidth = function(comparisonResult){
-            getImageWidth(comparisonResult).then(function(width){
+
+        var setImageWidth = function (comparisonResult) {
+            getImageWidth(comparisonResult).then(function (width) {
                 comparisonResult.imageWidth = width;
-            });  
+            });
         };
 
         var getPromisedComparisonResults = function () {
@@ -231,7 +235,6 @@ visualTestingServices.factory('ResolveComparisonResults', ['$route', '$log', '$q
                     var comparisonResult = comparisonResults[i];
                     comparisonResult.isDiff = isDiff(comparisonResult);
                     setImageWidth(comparisonResult);
-                    
                 }
                 $log.info(promisedResults);
             });

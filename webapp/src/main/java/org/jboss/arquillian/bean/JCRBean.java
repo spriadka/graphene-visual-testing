@@ -114,7 +114,7 @@ public class JCRBean implements Serializable {
             session = getSession();
             String testSuiteName = mask.getTestSuiteName();
             String masks = "masks";
-            String[] names = mask.getSample().getName().split("/");
+            String[] names = mask.getPattern().getName().split("/");
             String testClass = names[0];
             String testName = names[1];
             String beforeOrAfter = names[2].substring(0, names[2].indexOf("."));
@@ -156,7 +156,7 @@ public class JCRBean implements Serializable {
             session = getSession();
             String testSuiteName = mask.getTestSuiteName();
             String masks = "masks";
-            String[] names = mask.getSample().getName().split("/");
+            String[] names = mask.getPattern().getName().split("/");
             String testClass = names[0];
             String testName = names[1];
             String beforeOrAfter = names[2].substring(0, names[2].indexOf("."));

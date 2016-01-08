@@ -103,7 +103,7 @@ public class SamplesRESTService {
     }
     
     private void deleteMasksForSample(Diff diff){
-        List<Mask> masks = maskManager.getMasksForSample(diff.getSample().getSampleID());
+        List<Mask> masks = maskManager.getMasksForPattern(diff.getPattern().getPatternID());
         for (Mask mask : masks){
             maskManager.deleteMask(mask);
         }

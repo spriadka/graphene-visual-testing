@@ -1,11 +1,14 @@
 package org.jboss.arquillian.rest;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.jboss.arquillian.model.testSuite.Diff;
 import org.jboss.arquillian.model.testSuite.Mask;
 import org.jboss.arquillian.model.testSuite.Pattern;
 import org.jboss.arquillian.model.testSuite.Sample;
+import org.jboss.logging.Logger;
 
 /**
  *
@@ -23,8 +26,9 @@ public class ComparisonResult implements Serializable {
     private Long diffID = null;
     private String testClassName = null;
     private String testName = null;
-    private List<Mask> masks = null;
+    private Set<Mask> masks = Collections.EMPTY_SET;
     
+    private final Logger LOGGER = Logger.getLogger(ComparisonResult.class);
     
     private ComparisonResult(){
         
@@ -39,7 +43,6 @@ public class ComparisonResult implements Serializable {
         this.sampleUrl = sample.getUrlOfScreenshot();
         this.testClassName = getTestClassName(sample);
         this.testName = getTestName(sample);
-        this.masks = sample.getMasks();
     }
     
     private void setComparisonResultFromDiff(Diff diff){
@@ -47,6 +50,7 @@ public class ComparisonResult implements Serializable {
         Pattern pattern = diff.getPattern();
         this.diffID = diff.getDiffID();
         this.diffUrl = diff.getUrlOfScreenshot();
+        this.masks = pattern.getMasks();
         setComparisonResultFromSampleAndPattern(sample, pattern);
     }
     
@@ -54,12 +58,14 @@ public class ComparisonResult implements Serializable {
     public static ComparisonResult successful(Sample sample, Pattern pattern){
         ComparisonResult result = new ComparisonResult();
         result.setComparisonResultFromSampleAndPattern(sample, pattern);
+        result.LOGGER.info("MASKS LENGTH: " + result.masks.size());
         return result;     
     }
     
     public static ComparisonResult withDiff(Diff diff){
         ComparisonResult result = new ComparisonResult();
         result.setComparisonResultFromDiff(diff);
+        result.LOGGER.info("MASKS LENGTH: " + result.masks.size());
         return result;
     }
 
@@ -159,14 +165,14 @@ public class ComparisonResult implements Serializable {
     /**
      * @return the masks
      */
-    public List<Mask> getMasks() {
+    public Set<Mask> getMasks() {
         return masks;
     }
 
     /**
      * @param masks the masks to set
      */
-    public void setMasks(List<Mask> masks) {
+    public void setMasks(Set<Mask> masks) {
         this.masks = masks;
     }
     

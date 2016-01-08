@@ -2,7 +2,7 @@
 <a ng-click="back()">Back to test suite runs list</a> -->
 
 
-<nav class="navbar navbar-inverse navbar-fixed-top" style="height: 54px;">
+<nav class="navbar navbar-inverse navbar-fixed-top" style="height: 50px;">
     <div class="container-fluid">
         <div class="navbar-header">
             <a class="navbar-brand" href="#/suites">GrapheneVisualTesting</a>
@@ -15,8 +15,20 @@
         </div>
     </div>
 </nav>
-<ul style="list-style-type: none; position: relative; margin-top: 60px;">
-    <li ng-repeat="comparisonResult in comparisonResults">
-        <div run-info result="comparisonResult"></div>
-    </li>
-</ul>
+    <div id="wrapper">
+        <div id="sidebar-wrapper" style="top: 50px;">
+            <ul class="sidebar-nav">
+                <li>
+                    <a>SomeText</a>
+                </li>
+
+            </ul>
+        </div>
+        <div id="page-content-wrapper" ng-init="load()">
+            <ul style="list-style-type: none; position: relative; margin-top: 60px;">
+                <li ng-repeat="comparisonResult in comparisonResults">
+                    <div run-info result="comparisonResult"></div>
+                </li>
+            </ul>
+        </div>
+    </div>
