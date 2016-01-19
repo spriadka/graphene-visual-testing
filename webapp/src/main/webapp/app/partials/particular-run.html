@@ -15,20 +15,25 @@
         </div>
     </div>
 </nav>
-    <div id="wrapper">
-        <div id="sidebar-wrapper" style="top: 50px;">
-            <ul class="sidebar-nav">
-                <li>
-                    <a>SomeText</a>
-                </li>
+<div id="wrapper">
+    <div id="sidebar-wrapper" style="top: 50px;">
+        <ul class="sidebar-nav">
+            <li>
+                <a>Displaying </a>
+                <a>{{visible + 1}}</a> 
+                <a>result</a>
+                <a>from</a>
+                <a>{{allResults}}</a>
+                <a>results</a>
+            </li>
 
-            </ul>
-        </div>
-        <div id="page-content-wrapper" ng-init="load()">
-            <ul style="list-style-type: none; position: relative; margin-top: 60px;">
-                <li ng-repeat="comparisonResult in comparisonResults">
-                    <div run-info result="comparisonResult"></div>
-                </li>
-            </ul>
-        </div>
+        </ul>
     </div>
+    <div id="page-content-wrapper">
+        <ul style="list-style-type: none; position: relative; margin-top: 60px;">
+            <li ng-repeat="comparisonResult in comparisonResults">
+                <div run-info result="comparisonResult"></div>
+            </li>
+        </ul>
+    </div>
+</div>

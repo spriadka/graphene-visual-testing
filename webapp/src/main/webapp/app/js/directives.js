@@ -61,7 +61,7 @@ visualTestingDirectives.directive('alertInfo', function ($compile) {
             }
             else {
                 var spanElem = "<span class=\"glyphicon glyphicon-ok-circle\" style=\"margin-right: 20px;\"></span>";
-                var message = "ALL TESTS OK";
+                var message = "NO TESTS WERE CHANGED";
                 $(elem).addClass("alert alert-success").html(spanElem + message).show();
                 $compile(elem.contents())(scope);
             }
@@ -105,6 +105,7 @@ visualTestingDirectives.directive('runInfo', function ($compile) {
 }
 );
 visualTestingDirectives.directive('jcrop', function () {
+    
 
     return {
         restrict: 'C',
@@ -120,6 +121,14 @@ visualTestingDirectives.directive('jcrop', function () {
                 multi: true
             }, function () {
                 comparisonResult.jcrop_api = this;
+                var container = comparisonResult.jcrop_api.container;
+                container.on('cropcreate',function(element,selection,coordinates){
+                    var shadesColor = comparisonResult.jcrop_api.opt.bgColor;
+                    var shades = $(element.currentTarget).children(".jcrop-shades").children("div");
+                    if ($(shades).css("background-color") !== shadesColor){
+                        $(shades).css("background-color",shadesColor);
+                    }
+                });
                 if (comparisonResult.masks.length !== 0) {
                     for (var i = 0; i < comparisonResult.masks.length; i++) {
                         var mask = comparisonResult.masks[i];

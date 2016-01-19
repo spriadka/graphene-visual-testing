@@ -246,5 +246,29 @@ public class JCRBean implements Serializable {
         }
         
     }
+    
+    public void deleteMaskFromJCR(Mask mask){
+        Session session;
+        try{
+            session = getSession();
+            String masks = "masks";
+            String[] names = mask.getPattern().getName().split("/");
+            String testClass = names[0];
+            String testName = names[1];
+            String beforeOrAfter = names[2].substring(0, names[2].indexOf("."));
+            Node maskNode = session.getRootNode()
+                    .getNode(mask.getTestSuiteName())
+                    .getNode(masks)
+                    .getNode(testClass)
+                    .getNode(testName)
+                    .getNode(beforeOrAfter)
+                    .getNode(mask.getMaskID());
+            maskNode.remove();
+            session.save();
+        }
+        catch(RepositoryException re){
+            LOGGER.error(re);
+        }
+    }
 
 }

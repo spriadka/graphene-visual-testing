@@ -2,7 +2,6 @@ package org.jboss.arquillian.rest;
 
 import java.io.Serializable;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import org.jboss.arquillian.model.testSuite.Diff;
 import org.jboss.arquillian.model.testSuite.Mask;
@@ -29,9 +28,14 @@ public class ComparisonResult implements Serializable {
     private Set<Mask> masks = Collections.EMPTY_SET;
     
     private final Logger LOGGER = Logger.getLogger(ComparisonResult.class);
+
     
-    private ComparisonResult(){
-        
+    public ComparisonResult(Sample sample, Pattern pattern){
+        setComparisonResultFromSampleAndPattern(sample, pattern);
+    }
+    
+    public ComparisonResult(Diff diff){
+        setComparisonResultFromDiff(diff);
     }
     
     private void setComparisonResultFromSampleAndPattern(Sample sample, Pattern pattern){
@@ -53,22 +57,6 @@ public class ComparisonResult implements Serializable {
         this.masks = pattern.getMasks();
         setComparisonResultFromSampleAndPattern(sample, pattern);
     }
-    
-    
-    public static ComparisonResult successful(Sample sample, Pattern pattern){
-        ComparisonResult result = new ComparisonResult();
-        result.setComparisonResultFromSampleAndPattern(sample, pattern);
-        result.LOGGER.info("MASKS LENGTH: " + result.masks.size());
-        return result;     
-    }
-    
-    public static ComparisonResult withDiff(Diff diff){
-        ComparisonResult result = new ComparisonResult();
-        result.setComparisonResultFromDiff(diff);
-        result.LOGGER.info("MASKS LENGTH: " + result.masks.size());
-        return result;
-    }
-
     
     public String getPatternUrl() {
         return patternUrl;

@@ -108,7 +108,7 @@ public class TestSuiteRunRESTService {
         List<Long> alreadyUploadedSamples = new ArrayList<>();
         if (diffManager.areThereDiffs(id)) {
             for (Diff diff : diffs) {
-                result.add(ComparisonResult.withDiff(diff));
+                result.add(new ComparisonResult(diff));
                 alreadyUploadedSamples.add(diff.getSample().getSampleID());
             }
         }
@@ -116,7 +116,7 @@ public class TestSuiteRunRESTService {
         for (Sample sample : samples) {
             Pattern pattern = patternManager.getPattern(sample.getName(), sample.getTestSuiteRun().getTestSuite().getTestSuiteID());
             if (!alreadyUploadedSamples.contains(sample.getSampleID())) {
-                result.add(ComparisonResult.successful(sample, pattern));
+                result.add(new ComparisonResult(sample, pattern));
             }
         }
         return result;

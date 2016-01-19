@@ -87,8 +87,9 @@ public class MaskRESTService {
     @Path("/{maskID: mask[0-9][0-9]*}")
     public Response deleteMask(@PathParam("maskID")String maskId) {
         Mask toRemove = maskManager.getMask(maskId);
-        deleteMaskFromJCR(toRemove);
+        deleteMaskFromSuite(toRemove);
         deleteMaskFromDatabase(toRemove);
+        jcrBean.deleteMaskFromJCR(toRemove);
         return Response.ok().build();
     }
     
@@ -101,7 +102,7 @@ public class MaskRESTService {
         return Response.ok().build();
     }
     
-    private void deleteMaskFromJCR(Mask mask){
+    private void deleteMaskFromSuite(Mask mask){
         String name = mask.getTestSuiteName() + ":" + mask.getPattern().getName();
         MaskFromREST maskFromREST = new MaskFromRESTBuilder().id(mask.getMaskID())
                 .name(name)

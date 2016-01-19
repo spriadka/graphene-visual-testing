@@ -12,7 +12,6 @@ visualTestingControllers.controller('SuiteListCtrl', ['$scope', '$route', '$log'
         $scope.lastRun = function (suite) {
             return suite.runs[suite.runs.length - 1];
         };
-
         $scope.suites = Suites.query();
         $log.info($scope.suites);
         $scope.count = 0;
@@ -77,6 +76,8 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
     '$route', '$location', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern', 'AcceptNewMask', 'PatternService', 'ParticularSuite', 'DeleteSelectedMask', 'ParticularMask', 'UpdateSelectedMask', 'Masks', 'promisedRuns','$window',
     function ($scope, $routeParams, $log, $route, $location, RejectSample, AcceptSampleAsNewPattern, RejectPattern, AcceptNewMask, PatternService, ParticularSuite, DeleteSelectedMask, ParticularMask, UpdateSelectedMask, Masks, promisedRuns,$window) {
         $scope.comparisonResults = promisedRuns;
+        $scope.allResults = $scope.comparisonResults.length;
+        $log.info($scope.comparisonResults.length);
         $scope.back = back;
         $scope.path = $location.path();
         $scope.acceptNewAlphaMask = function (patternId) {
@@ -115,16 +116,6 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
 
 
         };
-        
-        $scope.item = $("div[id^=container").filter(":in-viewport");
-        $scope.$watch(function(){
-            console.log("scrolled");
-            return $window.scrollY;
-        },function(scroll){
-            var containerInViewport = $("div[id^='container'").filter(":in-viewport");
-            $log.info(containerInViewport);
-            $scope.item = containerInViewport;
-        });
 
         $scope.setCroppedImageAndAlignmentFromMask = function (jcropApi, maskObj) {
             var selection = jcropApi.ui.selection;
@@ -154,7 +145,14 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
             maskObj.width = width;
             maskObj.height = height;
         };
-
+        $scope.visible = 0;
+        $window.onscroll = function(){
+            var newVal = parseInt($("div[id^=container]").filter(":in-viewport").attr("id").substr(9));
+            if (newVal !== $scope.visible){
+                $scope.visible = newVal;
+                $scope.$apply();
+            }
+        };
         $scope.reloadJcrop = function (jcropApi, masks) {
             var wrapperContainer = jcropApi.container;
             var children = $(wrapperContainer.get(0)).children(".jcrop-selection");
@@ -242,17 +240,11 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
         };
 
         $scope.destroyCurrentMask = function (patternId) {
-            /*var clicked = event.target;
-            var parentDiv = $(clicked).parents().get(1);
-            var img = $(parentDiv).find('img.jcrop').get(0);
-            var sampleId = parseInt($(img).attr("sampleid"));*/
             var jcropApi;
             jcropApi = _.find($scope.comparisonResults, function (comparisonResult) {
                 return comparisonResult.patternID === patternId;
             }).jcrop_api;
             var selectedMaskId = jcropApi.ui.selection.maskID;
-            $log.info(selectedMaskId);
-            $log.info(typeof selectedMaskId);
             if (typeof selectedMaskId === 'undefined') {
                 $log.error("Mask to be destroyed not selected");
             }
@@ -260,10 +252,17 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
                 DeleteSelectedMask.deleteSelectedMask(selectedMaskId);
                 jcropApi.deleteSelection();
                 $log.info(jcropApi);
-                if (jcropApi.ui.multi.length === 0) {
-                    jcropApi.destroy();
+                if (jcropApi.ui.multi.length === 0){
+                    $scope.clearJcrop(jcropApi);
                 }
             }
+        };
+        
+        $scope.clearJcrop = function(jcropApi){
+            var jcropContainer = jcropApi.container;
+            var jcropShades = $(jcropContainer).children(".jcrop-shades").children("div");
+            $log.info(jcropShades);
+            $(jcropShades).css("background-color","transparent");
         };
     }
 ]);
