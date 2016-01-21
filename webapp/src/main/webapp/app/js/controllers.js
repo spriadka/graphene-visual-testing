@@ -264,6 +264,11 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
             $log.info(jcropShades);
             $(jcropShades).css("background-color","transparent");
         };
+        
+        $scope.toggleSidebar = function(){
+            $("#sidebar-arrow").toggleClass("toggled");
+            $("#sidebar-wrapper").toggleClass("toggled");
+        };
     }
 ]);
 

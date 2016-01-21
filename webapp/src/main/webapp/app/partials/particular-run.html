@@ -16,15 +16,19 @@
     </div>
 </nav>
 <div id="wrapper">
-    <div id="sidebar-wrapper" style="top: 50px;">
-        <ul class="sidebar-nav">
-            <li>
-                <a>Displaying </a>
-                <a>{{visible + 1}}</a> 
-                <a>result</a>
-                <a>from</a>
-                <a>{{allResults}}</a>
-                <a>results</a>
+    <div id="sidebar-wrapper" style="top: 50%; height: 50px; border-top-right-radius: 25px; border-bottom-right-radius: 25px">
+        <ul class="sidebar-nav" style="height: 100%;">
+            <li style="height: inherit;">
+                <div id="sidebar-info">
+                    <a id="sidebar-text">Displaying 
+                        {{visible + 1}} 
+                        test 
+                        from 
+                        {{allResults}}
+                        tests
+                    </a>
+                    <a id="sidebar-arrow" class="glyphicon glyphicon-chevron-left" ng-click="toggleSidebar()"></a>
+                </div>
             </li>
 
         </ul>
