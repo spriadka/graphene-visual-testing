@@ -73,8 +73,8 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
 ]);
 
 visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParams', '$log',
-    '$route', '$location', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern', 'AcceptNewMask', 'PatternService', 'ParticularSuite', 'DeleteSelectedMask', 'ParticularMask', 'UpdateSelectedMask', 'Masks', 'promisedRuns','$window',
-    function ($scope, $routeParams, $log, $route, $location, RejectSample, AcceptSampleAsNewPattern, RejectPattern, AcceptNewMask, PatternService, ParticularSuite, DeleteSelectedMask, ParticularMask, UpdateSelectedMask, Masks, promisedRuns,$window) {
+    '$route', '$location', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern', 'AcceptNewMask', 'PatternService', 'ParticularSuite', 'DeleteSelectedMask', 'ParticularMask', 'UpdateSelectedMask', 'Masks', 'promisedRuns', '$window',
+    function ($scope, $routeParams, $log, $route, $location, RejectSample, AcceptSampleAsNewPattern, RejectPattern, AcceptNewMask, PatternService, ParticularSuite, DeleteSelectedMask, ParticularMask, UpdateSelectedMask, Masks, promisedRuns, $window) {
         $scope.comparisonResults = promisedRuns;
         $scope.allResults = $scope.comparisonResults.length;
         $log.info($scope.comparisonResults.length);
@@ -146,11 +146,15 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
             maskObj.height = height;
         };
         $scope.visible = 0;
-        $window.onscroll = function(){
-            var newVal = parseInt($("div[id^=container]").filter(":in-viewport").attr("id").substr(9));
-            if (newVal !== $scope.visible){
-                $scope.visible = newVal;
-                $scope.$apply();
+        $window.onscroll = function () {
+            var currentTest = $(".jumbotron").filter(":in-viewport").parent();
+            if ($(currentTest).get(0)) {
+                var currentTestId = $(currentTest).attr("id").substr(9);
+                var newVal = parseInt(currentTestId);
+                if (newVal !== $scope.visible) {
+                    $scope.visible = newVal;
+                    $scope.$apply();
+                }
             }
         };
         $scope.reloadJcrop = function (jcropApi, masks) {
@@ -171,9 +175,9 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
 
         $scope.updateSelectedMask = function (patternId) {
             /*var clicked = event.target;
-            var parentDiv = $(clicked).parents().get(1);
-            var img = $(parentDiv).find('img.jcrop').get(0);
-            var sampleId = parseInt($(img).attr("sampleid"));*/
+             var parentDiv = $(clicked).parents().get(1);
+             var img = $(parentDiv).find('img.jcrop').get(0);
+             var sampleId = parseInt($(img).attr("sampleid"));*/
             var selectedComparisonResult = _.find($scope.comparisonResults, function (comparisonResult) {
                 return comparisonResult.patternID === patternId;
             });
@@ -252,20 +256,20 @@ visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParam
                 DeleteSelectedMask.deleteSelectedMask(selectedMaskId);
                 jcropApi.deleteSelection();
                 $log.info(jcropApi);
-                if (jcropApi.ui.multi.length === 0){
+                if (jcropApi.ui.multi.length === 0) {
                     $scope.clearJcrop(jcropApi);
                 }
             }
         };
-        
-        $scope.clearJcrop = function(jcropApi){
+
+        $scope.clearJcrop = function (jcropApi) {
             var jcropContainer = jcropApi.container;
             var jcropShades = $(jcropContainer).children(".jcrop-shades").children("div");
             $log.info(jcropShades);
-            $(jcropShades).css("background-color","transparent");
+            $(jcropShades).css("background-color", "transparent");
         };
-        
-        $scope.toggleSidebar = function(){
+
+        $scope.toggleSidebar = function () {
             $("#sidebar-arrow").toggleClass("toggled");
             $("#sidebar-wrapper").toggleClass("toggled");
         };
@@ -324,16 +328,10 @@ var isRun = function (run) {
     var failed = run.numberOfFailedComparisons;
     var failedTests = run.numberOfFailedFunctionalTests;
     var sum = success + failed + failedTests;
-    if (sum === 0) {
-        return false;
-    }
-    return true;
+    return sum === 0;
 };
 
 var isDiff = function (result) {
-    if (result.diffUrl !== null) {
-        return true;
-    }
-    return false;
+    return result.diffUrl !== null;
 };
 

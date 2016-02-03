@@ -4,3 +4,5 @@ target
 .project
 nb-*
 openshift
+.idea
+*.iml
