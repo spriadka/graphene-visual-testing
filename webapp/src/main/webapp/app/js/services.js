@@ -116,11 +116,12 @@ visualTestingServices.factory('ParticularSample', ['$resource', function ($resou
 
 visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'ParticularRun', '$q', '$log', function ($route, ParticularSuite, ParticularRun, $q, $log) {
         var getSumOfTests = function (run) {
+            console.log("IS RUN? " + isRun(run));
             if (!isRun(run)) {
                 return 0;
             }
             else {
-                var success = run.numberOfSuccessfullComparisons;
+                var success = run.numberOfSuccessfulComparisons;
                 var failed = run.numberOfFailedComparisons;
                 var failedTests = run.numberOfFailedFunctionalTests;
                 var sum = success + failed + failedTests;
@@ -129,7 +130,7 @@ visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'Par
         };
 
         var getSuccessfulPercentage = function (run) {
-            return 100 * (run.numberOfSuccessfullComparisons / getSumOfTests(run));
+            return 100 * (run.numberOfSuccessfulComparisons / getSumOfTests(run));
         };
 
         var getFailedPercentage = function (run) {
@@ -186,11 +187,11 @@ visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'Par
                 for (var i = 0; i < promisedRuns.length; i++) {
                     var currentRun = promisedRuns[i];
                     updatePercentageOneRun(currentRun);
-                    var currentNumberOfTests = getSumOfTests(currentRun);
+                    /*var currentNumberOfTests = getSumOfTests(currentRun);
                     var previousNumberOfTests = getSumOfTests(promisedRuns[i - 1]);
                     if (currentNumberOfTests > previousNumberOfTests && (i > 0)) {
                         currentRun.extraTests = currentNumberOfTests - previousNumberOfTests;
-                    }
+                    }*/
                     $log.info(currentRun);
                     currentRun.needsToBeUpdated = updateNeedsToBeUpdatedOneRun(currentRun);
                 }

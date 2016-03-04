@@ -38,7 +38,7 @@ public class TestSuiteRun implements Serializable {
 
     private int numberOfFailedComparisons;
     
-    private int numberOfSuccessfullComparisons;
+    private int numberOfSuccessfulComparisons;
     
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -171,16 +171,16 @@ public class TestSuiteRun implements Serializable {
     }
 
     /**
-     * @return the numberOfSuccessfullComparisions
+     * @return the numberOfSuccessfulComparisons
      */
-    public int getNumberOfSuccessfullComparisons() {
-        return numberOfSuccessfullComparisons;
+    public int getNumberOfSuccessfulComparisons() {
+        return numberOfSuccessfulComparisons;
     }
 
     /**
-     * @param numberOfSuccessfullComparisions the numberOfSuccessfullComparisions to set
+     * @param numberOfSuccessfulComparisons the numberOfSuccessfulComparisons to set
      */
-    public void setNumberOfSuccessfullComparisions(int numberOfSuccessfullComparisions) {
-        this.numberOfSuccessfullComparisons = numberOfSuccessfullComparisions;
+    public void setNumberOfSuccessfulComparisons(int numberOfSuccessfulComparisons) {
+        this.numberOfSuccessfulComparisons = numberOfSuccessfulComparisons;
     }
 }

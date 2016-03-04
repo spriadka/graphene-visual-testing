@@ -1,8 +1,10 @@
 package org.arquillian.graphene.visual.testing.impl;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -311,6 +313,7 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
                 RestUtils.executePost(postCreatePattern, httpClient,
                         String.format("Pattern in database for %s created!", suiteName),
                         String.format("Error while creating pattern in database for test suite: %s", suiteName));
+                uploadWords(patternRelativePath, httpClient,gVC);
 
             }
             //if partial result is false, finish early with false status
@@ -319,6 +322,20 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
             }
         }
         return result;
+    }
+
+    private void uploadWords(String patternPath,CloseableHttpClient httpClient, GrapheneVisualTestingConfiguration gVC) {
+        LOGGER.info("UPLOADING WORDS");
+        LOGGER.info(patternPath);
+        String[] tokens = patternPath.replace("/", ".").split("\\.");
+        for (String token : tokens){
+            LOGGER.log(Level.INFO, "Uploading: {0}to DB", token);
+            HttpPost postCreateWords = new HttpPost(gVC.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/words");
+            StringEntity wordEnity = new StringEntity("{\"value\": \"" + token + "\"}",ContentType.APPLICATION_JSON);
+            postCreateWords.setHeader("Content-Type","application/json");
+            postCreateWords.setEntity(wordEnity);
+            RestUtils.executePost(postCreateWords, httpClient, token + " created", "FAILED TO CREATE: " + token);
+        }
     }
 
     private boolean crawlAndUploadMissingPatterns(File patternsDir, String rootOfPatterns, CloseableHttpClient httpclient, List<String> missingTests, String timestamp) {

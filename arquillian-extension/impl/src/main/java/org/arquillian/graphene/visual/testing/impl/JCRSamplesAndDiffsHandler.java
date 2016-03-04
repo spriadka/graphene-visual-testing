@@ -88,7 +88,7 @@ public class JCRSamplesAndDiffsHandler implements SamplesAndDiffsHandler {
                 "{\"timestamp\":\"" + timestamp.getTime() + "\",\"projectRevision\":\"ffff1111\","
                 + "\"numberOfFailedFunctionalTests\":\"" + getNumberOfFailed() + "\","
                 + "\"numberOfFailedComparisons\":\"" + getDiffNames().size() + "\","
-                + "\"numberOfSuccessfullComparisons\":\"" + getSame().size() + "\","
+                + "\"numberOfSuccessfulComparisons\":\"" + getSame().size() + "\","
                 + "\"testSuite\":{\"name\":\"" + suiteName + "\"}}", ContentType.APPLICATION_JSON);
         postCreateSuiteRun.setEntity(suiteRunEntity);
         String testSuiteRunID = RestUtils.executePost(postCreateSuiteRun, httpclient,

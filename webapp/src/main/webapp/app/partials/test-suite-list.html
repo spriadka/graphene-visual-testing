@@ -43,7 +43,7 @@
             <td>
                 <div class="progress progress-striped" style="margin: 10px 20px 10px 0px; border-radius: 25px;">
                     <div>
-                        <div class="progress-bar progress-bar-success" style="width: {{getSuccessfullPercentage(lastRun(suite))}}%" role="progressbar">SAME {{lastRun(suite).numberOfSuccessfullComparisons}}</div>
+                        <div class="progress-bar progress-bar-success" style="width: {{getSuccessfulPercentage(lastRun(suite))}}%" role="progressbar">SAME {{lastRun(suite).numberOfSuccessfulComparisons}}</div>
                         <div class="progress-bar progress-bar-danger" style="width: {{getFailedPercentage(lastRun(suite))}}%" role="progressbar">DIFFERS {{lastRun(suite).numberOfFailedComparisons}}</div>
                         <div class="progress-bar progress-bar-error" style="width: {{getFailedTestsPercentage(lastRun(suite))}}%"  role="progressbar">FAILED {{lastRun(suite).numberOfFailedFunctionalTests}}</div>                    
                     </div>

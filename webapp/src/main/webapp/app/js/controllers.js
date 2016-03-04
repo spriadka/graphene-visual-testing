@@ -13,7 +13,6 @@ visualTestingControllers.controller('SuiteListCtrl', ['$scope', '$route', '$log'
             return suite.runs[suite.runs.length - 1];
         };
         $scope.suites = Suites.query();
-        $log.info($scope.suites);
         $scope.count = 0;
         $scope.deleteSuite = function (testSuiteID) {
             var promise =
@@ -28,7 +27,7 @@ visualTestingControllers.controller('SuiteListCtrl', ['$scope', '$route', '$log'
                     });
         };
         $scope.getFailedPercentage = getFailedPercentage;
-        $scope.getSuccessfullPercentage = getSuccessfulPercentage;
+        $scope.getSuccessfulPercentage = getSuccessfulPercentage;
         $scope.getFailedTestsPercentage = getFailedTestsPercentage;
     }]);
 
@@ -300,7 +299,7 @@ var getSumOfTests = function (run) {
         return 0;
     }
     else {
-        var success = run.numberOfSuccessfullComparisons;
+        var success = run.numberOfSuccessfulComparisons;
         var failed = run.numberOfFailedComparisons;
         var failedTests = run.numberOfFailedFunctionalTests;
         var sum = success + failed + failedTests;
@@ -309,7 +308,7 @@ var getSumOfTests = function (run) {
 };
 
 var getSuccessfulPercentage = function (run) {
-    return 100 * (run.numberOfSuccessfullComparisons / getSumOfTests(run));
+    return 100 * (run.numberOfSuccessfulComparisons / getSumOfTests(run));
 };
 
 var getFailedPercentage = function (run) {
@@ -324,11 +323,11 @@ var isRun = function (run) {
     if (run === null || angular.isUndefined(run)) {
         return false;
     }
-    var success = run.numberOfSuccessfullComparisons;
+    var success = run.numberOfSuccessfulComparisons;
     var failed = run.numberOfFailedComparisons;
     var failedTests = run.numberOfFailedFunctionalTests;
     var sum = success + failed + failedTests;
-    return sum === 0;
+    return sum !== 0;
 };
 
 var isDiff = function (result) {
