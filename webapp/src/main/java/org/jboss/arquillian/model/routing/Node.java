@@ -15,6 +15,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 /**
  *
@@ -30,6 +31,7 @@ public class Node implements Serializable {
     private Long nodeId;
     
     @Column(name = "WORD_ID")
+    @OneToOne
     private Word wordId;
     
     @OneToMany

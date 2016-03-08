@@ -325,11 +325,8 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
     }
 
     private void uploadWords(String patternPath,CloseableHttpClient httpClient, GrapheneVisualTestingConfiguration gVC) {
-        LOGGER.info("UPLOADING WORDS");
-        LOGGER.info(patternPath);
         String[] tokens = patternPath.replace("/", ".").split("\\.");
         for (String token : tokens){
-            LOGGER.log(Level.INFO, "Uploading: {0}to DB", token);
             HttpPost postCreateWords = new HttpPost(gVC.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/words");
             StringEntity wordEnity = new StringEntity("{\"value\": \"" + token + "\"}",ContentType.APPLICATION_JSON);
             postCreateWords.setHeader("Content-Type","application/json");
