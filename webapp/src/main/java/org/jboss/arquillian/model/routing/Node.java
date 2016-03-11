@@ -8,11 +8,13 @@ package org.jboss.arquillian.model.routing;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -30,12 +32,18 @@ public class Node implements Serializable {
     @Column(name = "NODE_ID")
     private Long nodeId;
     
-    @Column(name = "WORD_ID")
     @OneToOne
     private Word wordId;
     
-    @OneToMany
-    private Set<Node> children;
+    @JoinColumn(name = "PARENT_NODE_ID",referencedColumnName = "NODE_ID")
+    private Long parentId;
+
+    @ManyToOne
+    @JoinColumn(name = "PARENT_NODE_ID")
+    private Node parent;
+    
+    @OneToMany(mappedBy = "parent")
+    private Set<Node> children = Collections.EMPTY_SET;
     
 
     /**
@@ -78,5 +86,33 @@ public class Node implements Serializable {
      */
     public void setChildren(Set<Node> children) {
         this.children = children;
+    }
+
+    /**
+     * @return the parentId
+     */
+    public Long getParentId() {
+        return parentId;
+    }
+
+    /**
+     * @param parentId the parentId to set
+     */
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
+    /**
+     * @return the parent
+     */
+    public Node getParent() {
+        return parent;
+    }
+
+    /**
+     * @param parent the parent to set
+     */
+    public void setParent(Node parent) {
+        this.parent = parent;
     }
 }

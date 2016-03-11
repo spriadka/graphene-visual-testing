@@ -19,6 +19,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -139,6 +140,47 @@ public class RestUtils {
             }
         }
     }
+    
+    public static String executePut(HttpPut put, CloseableHttpClient httpclient, String successLog, String errorLog){
+        CloseableHttpResponse response = null;
+        BufferedReader bfr = null;
+        StringBuilder builder = new StringBuilder();
+        try {
+            response = httpclient.execute(put);
+            if (!isOKOrCreated(response)) {
+                StatusLine status = response.getStatusLine();
+                LOGGER.info(String.format("%s %s %s", errorLog, status.getReasonPhrase(), status.getStatusCode()));
+                return builder.toString();
+            }
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                bfr = new BufferedReader(new InputStreamReader(entity.getContent()));
+
+                String line = bfr.readLine();
+                while (line != null) {
+                    builder.append(line);
+                    line = bfr.readLine();
+                }
+                EntityUtils.consume(entity);
+                if (successLog != null) {
+                    LOGGER.info(successLog);
+                }
+            }
+            LOGGER.info(successLog);
+            return builder.toString();
+        } catch (IOException ex) {
+            LOGGER.severe(String.format(errorLog + " %s", ex.getMessage()));
+        } finally {
+            try {
+                if (response != null) {
+                    response.close();
+                }
+            } catch (IOException ex) {
+                LOGGER.severe(ex.getMessage());
+            }
+        }
+        return builder.toString();
+    }
 
     public static String executePost(HttpPost post, CloseableHttpClient httpclient, String successLog, String errorLog) {
         CloseableHttpResponse response = null;
@@ -153,6 +195,7 @@ public class RestUtils {
             }
             HttpEntity entity = response.getEntity();
             if (entity != null) {
+                LOGGER.info(entity.toString());
                 bfr = new BufferedReader(new InputStreamReader(entity.getContent()));
 
                 String line = bfr.readLine();

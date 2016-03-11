@@ -9,7 +9,14 @@ public class Resources {
 
     @SuppressWarnings("unused")
     @Produces
-    @PersistenceContext(type=PersistenceContextType.EXTENDED)
+    @PersistenceContext
     private EntityManager em;
+
+    /**
+     * @return the em
+     */
+    public EntityManager getEm() {
+        return em;
+    }
 
 }

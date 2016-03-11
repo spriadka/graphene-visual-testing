@@ -13,31 +13,29 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.jboss.arquillian.managers.WordManager;
+import org.jboss.arquillian.managers.NodeManager;
+import org.jboss.arquillian.model.routing.Node;
 import org.jboss.arquillian.model.routing.Word;
-import org.jboss.logging.Logger;
 
 /**
  *
  * @author spriadka
  */
-
 @RequestScoped
-@Path("/words")
-public class WordRESTService {
+@Path("/nodes")
+public class NodeRESTService {
     
     @Inject
-    private WordManager manager;
-    
-    private Logger LOGGER = Logger.getLogger(WordRESTService.class);
+    private NodeManager nodeManager;
     
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addWords(Word word){
-        Word response = manager.addWord(word);
-        Response toReturn =  Response.ok(response.toJSON(),MediaType.APPLICATION_JSON).build();
-        LOGGER.info(toReturn);
-        return toReturn;
+    public Response addNode(Word word){
+       Node toAdd = new Node();
+       toAdd.setWordId(word);
+       nodeManager.addNode(toAdd);
+       return Response.ok(toAdd,MediaType.APPLICATION_JSON).build();
     }
+    
 }

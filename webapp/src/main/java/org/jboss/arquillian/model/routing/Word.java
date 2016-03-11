@@ -5,7 +5,11 @@
  */
 package org.jboss.arquillian.model.routing;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -61,6 +65,15 @@ public class Word implements Serializable {
     @Override
     public String toString(){
         return value;
+    }
+    
+    public String toJSON(){
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException ex) {
+            Logger.getLogger(Word.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
     }
     
     

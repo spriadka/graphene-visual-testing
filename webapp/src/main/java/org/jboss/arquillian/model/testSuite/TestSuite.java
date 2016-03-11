@@ -41,6 +41,7 @@ public class TestSuite implements Serializable {
     @OneToMany(mappedBy = "testSuite", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JsonManagedReference(value = "test-suite-patterns")
     private List<Pattern> patterns;
+    
 
     public List<Pattern> getPatterns() {
         return patterns;
@@ -119,5 +120,7 @@ public class TestSuite implements Serializable {
         }
         return true;
     }
+
+
 
 }

@@ -111,4 +111,18 @@ public class GrapheneVisualTestingConfiguration extends Configuration<Screenshoo
                     + dir.getAbsolutePath() + "'.");
         }
     }
+
+    /**
+     * @param jcrUserName the jcrUserName to set
+     */
+    public void setJcrUserName(String jcrUserName) {
+        this.jcrUserName = jcrUserName;
+    }
+
+    /**
+     * @param jcrPassword the jcrPassword to set
+     */
+    public void setJcrPassword(String jcrPassword) {
+        this.jcrPassword = jcrPassword;
+    }
 }
