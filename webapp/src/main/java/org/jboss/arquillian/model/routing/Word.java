@@ -31,7 +31,7 @@ public class Word implements Serializable {
     @Column(name = "WORD_ID",unique = true)
     private Long wordId;
     
-    @Column(name = "VALUE",unique = true)
+    @Column(name = "TEXT",unique = true)
     private String value;
 
     /**

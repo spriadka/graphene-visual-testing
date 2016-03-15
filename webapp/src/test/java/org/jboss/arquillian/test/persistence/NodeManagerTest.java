@@ -73,13 +73,13 @@ public class NodeManagerTest {
         Assert.assertNotNull(expected);
         Assert.assertEquals(expected.getValue(), wordToInsert);
         Node nodeToBeInserted = new Node();
-        nodeToBeInserted.setWordId(expected);
+        nodeToBeInserted.setWord(expected);
         Node expectedNode = nodeManager.addNode(nodeToBeInserted);
         expectedNode.setParent(expectedNode);
         expectedNode = nodeManager.updateNode(expectedNode);
         LOGGER.info("EXPECTED NODE PARENT");
         LOGGER.info(expectedNode.getParent().getNodeId());
-        Assert.assertEquals(expectedNode.getWordId(), expected);       
+        Assert.assertEquals(expectedNode.getWord(), expected);       
     }
     
     @Test
@@ -92,7 +92,7 @@ public class NodeManagerTest {
         }
         for (String token : tokens){
             Node toAdd = new Node();
-            toAdd.setWordId(wordManager.getWordFromValue(token));
+            toAdd.setWord(wordManager.getWordFromValue(token));
             addedNodes.add(nodeManager.addNode(toAdd));
         }
         Assert.assertEquals(tokens.length, addedNodes.size());

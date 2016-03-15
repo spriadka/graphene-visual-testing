@@ -8,8 +8,10 @@ package org.jboss.arquillian.rest;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -39,5 +41,12 @@ public class WordRESTService {
         Response toReturn =  Response.ok(response.toJSON(),MediaType.APPLICATION_JSON).build();
         LOGGER.info(toReturn);
         return toReturn;
+    }
+    
+    @GET
+    @Path("/{wordId:[0-9][0-9]*}")
+    public Response getWord(@PathParam("wordId")long wordId){
+        Word response = manager.getWord(wordId);
+        return response != null ? Response.ok(response,MediaType.APPLICATION_JSON).build() : Response.serverError().build();
     }
 }

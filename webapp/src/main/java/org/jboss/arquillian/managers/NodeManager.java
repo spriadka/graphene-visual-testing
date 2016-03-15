@@ -58,7 +58,7 @@ public class NodeManager {
     
     public Node updateNode(Node node){
         Node found = em.find(Node.class, node.getNodeId());
-        found.setWordId(node.getWordId());
+        found.setWord(node.getWord());
         found.setParent(node.getParent());
         found.setChildren(node.getChildren());
         return found;

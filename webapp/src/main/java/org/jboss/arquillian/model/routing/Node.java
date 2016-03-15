@@ -5,12 +5,19 @@
  */
 package org.jboss.arquillian.model.routing;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -25,6 +32,7 @@ import javax.persistence.OneToOne;
  */
 
 @Entity(name = "NODE")
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
 public class Node implements Serializable {
     
     @Id
@@ -33,17 +41,14 @@ public class Node implements Serializable {
     private Long nodeId;
     
     @OneToOne
-    private Word wordId;
-    
-    @JoinColumn(name = "PARENT_NODE_ID",referencedColumnName = "NODE_ID")
-    private Long parentId;
+    private Word word;
 
     @ManyToOne
-    @JoinColumn(name = "PARENT_NODE_ID")
+    @JoinColumn(referencedColumnName = "NODE_ID")
     private Node parent;
     
-    @OneToMany(mappedBy = "parent")
-    private Set<Node> children = Collections.EMPTY_SET;
+    @OneToMany(mappedBy = "parent",fetch = FetchType.EAGER)
+    private Set<Node> children = Collections.<Node>emptySet();
     
 
     /**
@@ -63,15 +68,15 @@ public class Node implements Serializable {
     /**
      * @return the wordId
      */
-    public Word getWordId() {
-        return wordId;
+    public Word getWord() {
+        return word;
     }
 
     /**
-     * @param wordId the wordId to set
+     * @param word the wordId to set
      */
-    public void setWordId(Word wordId) {
-        this.wordId = wordId;
+    public void setWord(Word word) {
+        this.word = word;
     }
 
     /**
@@ -89,20 +94,6 @@ public class Node implements Serializable {
     }
 
     /**
-     * @return the parentId
-     */
-    public Long getParentId() {
-        return parentId;
-    }
-
-    /**
-     * @param parentId the parentId to set
-     */
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
-    }
-
-    /**
      * @return the parent
      */
     public Node getParent() {
@@ -114,5 +105,9 @@ public class Node implements Serializable {
      */
     public void setParent(Node parent) {
         this.parent = parent;
+    }
+    
+    public boolean isParent(){
+        return this.parent != null;
     }
 }
