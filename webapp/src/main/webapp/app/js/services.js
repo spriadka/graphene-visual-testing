@@ -114,6 +114,10 @@ visualTestingServices.factory('ParticularSample', ['$resource', function ($resou
     }
 ]);
 
+visualTestingServices.factory('NodeService',['$resource',function($resource){
+        return $resource('rest/nodes/:nodeID',{nodeId: '@nodeID'}, {query: {method: 'GET', isArray: false}});
+}]);
+
 visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'ParticularRun', '$q', '$log', function ($route, ParticularSuite, ParticularRun, $q, $log) {
         var getSumOfTests = function (run) {
             console.log("IS RUN? " + isRun(run));

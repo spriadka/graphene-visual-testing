@@ -78,9 +78,11 @@
                         <mockito.version>${mockito.version}</mockito.version>
                         <infinispan.version>${infinispan.version}</infinispan.version>
                     </systemPropertyVariables>
+                    <!--
                     <classpathDependencyExcludes>
                         <classPathDependencyExclude>org.jboss.arquillian.extension:graphene-visual-testing-extension-impl</classPathDependencyExclude>
                     </classpathDependencyExcludes>
+                    -->
                 </configuration>
                 <version>2.18</version>
             </plugin>
@@ -495,6 +497,12 @@
         </profile>
         <profile>
             <id>wildfly-8-2-remote</id>
+            <activation>
+                <property>
+                    <name>integration</name>
+                    <value>wildfly-8-2-remote</value>
+                </property>
+            </activation>
             <dependencies>
                 <dependency>
                     <groupId>org.wildfly</groupId>

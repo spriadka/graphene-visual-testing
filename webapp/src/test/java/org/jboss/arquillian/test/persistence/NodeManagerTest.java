@@ -19,6 +19,7 @@ import org.jboss.arquillian.managers.NodeManager;
 import org.jboss.arquillian.managers.WordManager;
 import org.jboss.arquillian.model.routing.Word;
 import org.jboss.arquillian.model.routing.Node;
+import org.jboss.arquillian.util.TreePrinter;
 import org.jboss.logging.Logger;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -43,6 +44,7 @@ public class NodeManagerTest {
                 .addClass(WordManager.class)
                 .addClass(Word.class)
                 .addClass(NodeManager.class)
+                .addClass(TreePrinter.class)
                 .addClass(Node.class);
     }
     
@@ -94,6 +96,7 @@ public class NodeManagerTest {
             Node toAdd = new Node();
             toAdd.setWord(wordManager.getWordFromValue(token));
             addedNodes.add(nodeManager.addNode(toAdd));
+            LOGGER.info(TreePrinter.print(toAdd));
         }
         Assert.assertEquals(tokens.length, addedNodes.size());
         

@@ -12,6 +12,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.arquillian.graphene.visual.testing.configuration.GrapheneVisualTestingConfiguration;
 import org.arquillian.graphene.visual.testing.impl.RestUtils;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,12 +23,16 @@ import org.junit.Test;
 public class RestUtilsTest {
 
     private final Logger LOGGER = Logger.getLogger(RestUtilsTest.class.getName());
+    
+    private GrapheneVisualTestingConfiguration conf = new GrapheneVisualTestingConfiguration();
+    
+    public RestUtilsTest(){
+        conf.setJcrUserName("redhat");
+        conf.setJcrPassword("redhat2");
+    }
 
     @Test
     public void testResponse() {
-        GrapheneVisualTestingConfiguration conf = new GrapheneVisualTestingConfiguration();
-        conf.setJcrUserName("redhat");
-        conf.setJcrPassword("redhat2");
         String token = "test-word";
         CloseableHttpClient httpClient = RestUtils.getHTTPClient(conf.getJcrContextRootURL(), conf.getJcrUserName(), conf.getJcrPassword());
         HttpPost postCreateWords = new HttpPost(conf.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/words");
@@ -35,8 +40,16 @@ public class RestUtilsTest {
         postCreateWords.setHeader("Content-Type", "application/json");
         postCreateWords.setEntity(wordEnity);
         String response = RestUtils.executePost(postCreateWords, httpClient, token + " created", "FAILED TO CREATE: " + token);
-        LOGGER.info(response);
-
     }
+    
+    @Test
+    public void testJSONParser(){
+        String valJSON = "{\"nodeId\":1,\"parent\":{\"nodeId\":2}}";
+        JSONObject parser = new JSONObject(valJSON);
+        LOGGER.info(Long.toString(parser.getLong("nodeId")));
+        LOGGER.info(Long.toString(parser.getJSONObject("parent").getLong("nodeId")));
+        Assert.assertEquals((long) 1, parser.getLong("nodeId"));
+    }
+    
 
 }

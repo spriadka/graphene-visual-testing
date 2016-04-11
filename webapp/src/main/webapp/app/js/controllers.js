@@ -50,6 +50,8 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                         $log.error('failure delete suite run', errorPayload);
                     });
         };
+        $scope.rootSuiteNode = promisedSuite.rootNode;
+        $log.info($scope.rootSuiteNode);
         $scope.isDiff = isDiff;
         $scope.acceptAllNewSamplesAsNewPatterns = function (testSuiteRunID) {
             var promised = ParticularRun.query({runId: testSuiteRunID}).$promise;

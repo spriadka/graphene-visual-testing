@@ -6,16 +6,13 @@
 package org.jboss.arquillian.managers;
 
 import javax.ejb.Stateless;
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
 import javax.persistence.Query;
-import javax.ws.rs.Produces;
 import org.jboss.arquillian.model.routing.Node;
-import org.jboss.arquillian.model.routing.Word;
 import org.jboss.logging.Logger;
 
 /**
@@ -43,18 +40,12 @@ public class NodeManager {
            return result;
        }
        catch(NoResultException nre){
-            em.persist(node);
+           node.setParent(node);
+           em.persist(node);
            return node;
        }
     }
     
-    public Node addChildrenToNode(Node toUpdate,String wordValue){
-        Word fromValue = wordManager.getWordFromValue(wordValue);
-        Node result = em.find(Node.class, toUpdate.getNodeId());
-        
-        return result;
-        
-    }
     
     public Node updateNode(Node node){
         Node found = em.find(Node.class, node.getNodeId());

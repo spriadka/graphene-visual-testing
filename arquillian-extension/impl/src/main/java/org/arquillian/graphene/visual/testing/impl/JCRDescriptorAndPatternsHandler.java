@@ -3,15 +3,21 @@ package org.arquillian.graphene.visual.testing.impl;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.http.Header;
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.message.BasicHeader;
 import org.arquillian.extension.recorder.screenshooter.ScreenshooterConfiguration;
 import org.arquillian.graphene.visual.testing.api.DescriptorAndPatternsHandler;
 import org.arquillian.graphene.visual.testing.configuration.GrapheneVisualTestingConfiguration;
@@ -33,6 +39,8 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
     public static final String PATTERNS_DEFAULT_DIR = "target/patterns";
 
     private static final Logger LOGGER = Logger.getLogger(JCRDescriptorAndPatternsHandler.class.getName());
+
+    private static final Header JSON_CONTENT = new BasicHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
 
     @Inject
     private Instance<ScreenshooterConfiguration> screenshooterConf;
@@ -69,19 +77,36 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
                 String.format("Suite descriptor for %s uploaded!", suiteName),
                 String.format("Error while uploading test suite descriptor for test suite: %s", suiteName));
 
+        //UPLOAD ROOT NODE FOR CLASS HIERARCHY
+        String uploadedRootNode = uploadRootNode(gVC, httpclient);
         //CREATE SUITE NAME IN DATABASE
         HttpPost postCreateSuiteName = new HttpPost(gVC.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/suites");
         postCreateSuiteName.setHeader("Content-Type", "application/json");
         StringEntity suiteNameEntity = new StringEntity(
                 "{\"name\":\"" + suiteName + "\",\"numberOfFunctionalTests\":\"" + getNumberOfTests()
-                + "\",\"numberOfVisualComparisons\":\"" + getNumberOfComparisons() + "\"}", ContentType.APPLICATION_JSON);
+                + "\",\"numberOfVisualComparisons\":\"" + getNumberOfComparisons() + "\","
+                + "\"rootNode\":" + uploadedRootNode + "}", ContentType.APPLICATION_JSON);
         postCreateSuiteName.setEntity(suiteNameEntity);
         RestUtils.executePost(postCreateSuiteName, httpclient,
                 String.format("Suite name in database for %s created!", suiteName),
                 String.format("Error while creating suite name in database for test suite: %s", suiteName));
-
+        Map<String, Long> nodesAndIds = new HashMap<>();
+        JSONObject response = new JSONObject(uploadedRootNode);
+        nodesAndIds.put(suiteName, response.getLong("nodeId"));
         //UPLOADING PATTERNS
-        return crawlAndUploadPatterns(patternsRootDir, patternsRootDir.getName(), httpclient, timestamp);
+        return crawlAndUploadPatterns(patternsRootDir, patternsRootDir.getName(), httpclient, timestamp, nodesAndIds);
+    }
+
+    private String uploadRootNode(GrapheneVisualTestingConfiguration conf, CloseableHttpClient httpClient) {
+        HttpPost postRootWord = new HttpPost(conf.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/words");
+        StringEntity rootWordEntity = new StringEntity("{\"value\":\"" + conf.getTestSuiteName() + "\"}", ContentType.APPLICATION_JSON);
+        postRootWord.setHeader(JSON_CONTENT);
+        postRootWord.setEntity(rootWordEntity);
+        String wordJSONResponse = RestUtils.executePost(postRootWord, httpClient, "OK", "NOK");
+        HttpPost postRootNode = new HttpPost(conf.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/nodes");
+        postRootNode.setHeader(JSON_CONTENT);
+        postRootNode.setEntity(new StringEntity(wordJSONResponse, ContentType.APPLICATION_JSON));
+        return RestUtils.executePost(postRootNode, httpClient, "OK", "NOK");
     }
 
     @Override
@@ -280,12 +305,12 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
         }
     }
 
-    private boolean crawlAndUploadPatterns(File patternsDir, String rootOfPatterns, CloseableHttpClient httpClient, String timestamp) {
+    private boolean crawlAndUploadPatterns(File patternsDir, String rootOfPatterns, CloseableHttpClient httpClient, String timestamp, Map<String, Long> nodesAndIds) {
         GrapheneVisualTestingConfiguration gVC = grapheneVisualTestingConf.get();
         boolean result = true;
         for (File dirOrFile : patternsDir.listFiles()) {
             if (dirOrFile.isDirectory()) {
-                result = crawlAndUploadPatterns(dirOrFile, rootOfPatterns, httpClient, timestamp);
+                result = crawlAndUploadPatterns(dirOrFile, rootOfPatterns, httpClient, timestamp, nodesAndIds);
             } else {
 
                 String suiteName = grapheneVisualTestingConf.get().getTestSuiteName();
@@ -313,7 +338,7 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
                 RestUtils.executePost(postCreatePattern, httpClient,
                         String.format("Pattern in database for %s created!", suiteName),
                         String.format("Error while creating pattern in database for test suite: %s", suiteName));
-                uploadWords(patternRelativePath, httpClient,gVC);
+                uploadWordsAndNodes(patternRelativePath, httpClient, gVC, nodesAndIds);
 
             }
             //if partial result is false, finish early with false status
@@ -324,14 +349,53 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
         return result;
     }
 
-    private void uploadWords(String patternPath,CloseableHttpClient httpClient, GrapheneVisualTestingConfiguration gVC) {
+    private String uploadWord(String token, CloseableHttpClient httpClient, GrapheneVisualTestingConfiguration gVC) {
+        HttpPost postCreateWords = new HttpPost(gVC.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/words");
+        StringEntity wordEnity = new StringEntity("{\"value\": \"" + token + "\"}", ContentType.APPLICATION_JSON);
+        postCreateWords.setHeader("Content-Type", "application/json");
+        postCreateWords.setEntity(wordEnity);
+        String wordJSON = RestUtils.executePost(postCreateWords, httpClient, token + " created", "FAILED TO CREATE: " + token);
+        return wordJSON;
+    }
+
+    private String uploadNode(String word, CloseableHttpClient httpClient, GrapheneVisualTestingConfiguration gVC) {
+        HttpPost postCreateNode = new HttpPost(gVC.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/nodes");
+        StringEntity data = new StringEntity(word, ContentType.APPLICATION_JSON);
+        postCreateNode.setEntity(data);
+        postCreateNode.setHeader(JSON_CONTENT);
+        String response = RestUtils.executePost(postCreateNode, httpClient, "NODE UPLOADED SUCCESFULLY", "ERROR WHEN UPLOADING NODE");
+        return response;
+    }
+    
+    private void addChildToNode(long parentNodeId,long childNodeId,CloseableHttpClient httpClient, GrapheneVisualTestingConfiguration gVC){
+        HttpPut putUpdateNode = new HttpPut(gVC.getManagerContextRootURL() + 
+                "graphene-visual-testing-webapp/rest/nodes/" +
+                parentNodeId + "/" + 
+                childNodeId);
+        RestUtils.executePut(putUpdateNode, httpClient,"NODE UPDATED", "FAILED TO UPDATE NODE");
+    }
+
+    private void uploadWordsAndNodes(String patternPath, CloseableHttpClient httpClient, GrapheneVisualTestingConfiguration gVC, Map<String, Long> uploadedNodesAndTheirIds) {
         String[] tokens = patternPath.replace("/", ".").split("\\.");
-        for (String token : tokens){
-            HttpPost postCreateWords = new HttpPost(gVC.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/words");
-            StringEntity wordEnity = new StringEntity("{\"value\": \"" + token + "\"}",ContentType.APPLICATION_JSON);
-            postCreateWords.setHeader("Content-Type","application/json");
-            postCreateWords.setEntity(wordEnity);
-            RestUtils.executePost(postCreateWords, httpClient, token + " created", "FAILED TO CREATE: " + token);
+        //GETTING RID OF "after","before" and "png"
+        for (int i = 0; i < tokens.length - 2; i++) {
+            String token = tokens[i];
+            String wordUploaded = uploadWord(token, httpClient, gVC);
+            if (!uploadedNodesAndTheirIds.containsKey(token)) {
+                String nodeUploaded = uploadNode(wordUploaded, httpClient, gVC);
+                JSONObject object = new JSONObject(nodeUploaded);
+                uploadedNodesAndTheirIds.put(token, object.getLong("nodeId"));
+            }
+            if (i == 0) {
+                long rootNodeId = uploadedNodesAndTheirIds.get(gVC.getTestSuiteName());
+                long childNodeId = uploadedNodesAndTheirIds.get(token);
+                addChildToNode(rootNodeId, childNodeId, httpClient, gVC);
+            }
+            else {
+                long previousNodeId = uploadedNodesAndTheirIds.get(tokens[i-1]);
+                long currentNodeId = uploadedNodesAndTheirIds.get(token);
+                addChildToNode(previousNodeId, currentNodeId, httpClient, gVC);
+            }
         }
     }
 

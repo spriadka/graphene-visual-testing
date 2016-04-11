@@ -39,7 +39,6 @@ public class WordRESTService {
     public Response addWords(Word word){
         Word response = manager.addWord(word);
         Response toReturn =  Response.ok(response.toJSON(),MediaType.APPLICATION_JSON).build();
-        LOGGER.info(toReturn);
         return toReturn;
     }
     

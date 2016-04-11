@@ -12,7 +12,10 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import org.jboss.arquillian.model.routing.Node;
 
 /**
  *
@@ -41,6 +44,10 @@ public class TestSuite implements Serializable {
     @OneToMany(mappedBy = "testSuite", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JsonManagedReference(value = "test-suite-patterns")
     private List<Pattern> patterns;
+    
+    @OneToOne
+    @JoinColumn(name = "NODE_ID")
+    private Node rootNode;
     
 
     public List<Pattern> getPatterns() {
@@ -119,6 +126,20 @@ public class TestSuite implements Serializable {
             return false;
         }
         return true;
+    }
+
+    /**
+     * @return the rootNode
+     */
+    public Node getRootNode() {
+        return rootNode;
+    }
+
+    /**
+     * @param rootNode the rootNode to set
+     */
+    public void setRootNode(Node rootNode) {
+        this.rootNode = rootNode;
     }
 
 

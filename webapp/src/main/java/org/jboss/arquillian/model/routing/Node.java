@@ -5,19 +5,14 @@
  */
 package org.jboss.arquillian.model.routing;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -25,6 +20,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 /**
  *
@@ -32,7 +29,8 @@ import javax.persistence.OneToOne;
  */
 
 @Entity(name = "NODE")
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,property = "nodeId",scope = Node.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Node implements Serializable {
     
     @Id
@@ -47,7 +45,8 @@ public class Node implements Serializable {
     @JoinColumn(referencedColumnName = "NODE_ID")
     private Node parent;
     
-    @OneToMany(mappedBy = "parent",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "parent")
+    @LazyCollection(LazyCollectionOption.FALSE)
     private Set<Node> children = Collections.<Node>emptySet();
     
 
@@ -110,4 +109,56 @@ public class Node implements Serializable {
     public boolean isParent(){
         return this.parent != null;
     }
+    
+    /*
+    @Override
+    public boolean equals(Object obj){
+        if (obj == null){
+            return false;
+        }
+        if (obj == this){
+            return true;
+        }
+        if (this.getClass() != obj.getClass()){
+            return false;
+        }
+        final Node fromObject = (Node)obj;
+        if (!Objects.equals(word, fromObject.word)){
+            return false;
+        }
+        if (!Objects.equals(parent.word, fromObject.parent.word)){
+            return false;
+        }
+        Collection<Word> thisWords = Collections2.transform(children,new Function<Node, Word>(){
+            @Override
+            public Word apply(Node input) {
+                return input.getWord();
+            }
+            
+        });
+        Collection<Word> toCompareWords = Collections2.transform(fromObject.children,new Function<Node, Word>(){
+
+            @Override
+            public Word apply(Node input) {
+                return input.getWord();
+            }
+            
+        });
+        if (! CollectionUtils.isEqualCollection(thisWords, toCompareWords)){
+            return false;
+        }
+        return true;
+    }
+     
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 37 * hash * word.hashCode();
+        return hash;
+    }
+    */
+    public boolean hasChildren(){
+        return !children.isEmpty();
+    }
+    
 }

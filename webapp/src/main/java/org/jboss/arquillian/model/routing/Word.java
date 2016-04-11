@@ -8,6 +8,7 @@ package org.jboss.arquillian.model.routing;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.Column;
@@ -74,6 +75,28 @@ public class Word implements Serializable {
             Logger.getLogger(Word.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
+    }
+    
+    @Override
+    public boolean equals(Object obj){
+        if (obj == null){
+            return false;
+        }
+        if (obj == this){
+            return true;
+        }
+        if (this.getClass() != obj.getClass()){
+            return false;
+        }
+        final Word fromObject = (Word)obj;
+        return this.value.equals(fromObject.value);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 59 * hash + Objects.hashCode(value);
+        return hash;
     }
     
     

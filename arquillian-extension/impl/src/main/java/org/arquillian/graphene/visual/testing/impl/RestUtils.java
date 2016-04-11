@@ -195,7 +195,6 @@ public class RestUtils {
             }
             HttpEntity entity = response.getEntity();
             if (entity != null) {
-                LOGGER.info(entity.toString());
                 bfr = new BufferedReader(new InputStreamReader(entity.getContent()));
 
                 String line = bfr.readLine();
