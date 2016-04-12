@@ -5,6 +5,8 @@
  */
 package org.jboss.arquillian.managers;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.ejb.Stateless;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
@@ -40,7 +42,7 @@ public class NodeManager {
            return result;
        }
        catch(NoResultException nre){
-           node.setParent(node);
+           //node.setParent(node);
            em.persist(node);
            return node;
        }
@@ -61,6 +63,23 @@ public class NodeManager {
     
     public void deleteNode(Node node){
         em.remove(em.contains(node) ? node : em.merge(node));
+    }
+    
+    public Map<String,Long> createNodesMap(Node node){
+        Node found = em.find(Node.class, node.getNodeId());
+        Map<String,Long> result = new HashMap<>();
+        createMapRecursively(result, found);
+        return result;
+    }
+    
+    public void createMapRecursively(Map<String,Long> entries,Node node){
+        LOGGER.info(node.getNodeId());
+        entries.put(node.getWord().getValue(), node.getNodeId());
+        if (node.hasChildren()){
+            for (Node entry : node.getChildren()){
+                createMapRecursively(entries, entry);
+            }
+        }
     }
     
 

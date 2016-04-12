@@ -19,8 +19,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jboss.arquillian.managers.NodeManager;
+import org.jboss.arquillian.managers.TestSuiteManager;
 import org.jboss.arquillian.model.routing.Node;
 import org.jboss.arquillian.model.routing.Word;
+import org.jboss.arquillian.model.testSuite.TestSuite;
 
 /**
  *
@@ -32,6 +34,9 @@ public class NodeRESTService {
     
     @Inject
     private NodeManager nodeManager;
+    
+    @Inject
+    private TestSuiteManager testSuiteManager;
     
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -48,15 +53,12 @@ public class NodeRESTService {
     public Response addChildToNode(@PathParam("parentId")Long parentId, @PathParam("childId")Long childId){
         Node parentNode = nodeManager.getNode(parentId);
         Node childNode = nodeManager.getNode(childId);
-        if (!parentNode.isParent()){
-            parentNode.setParent(parentNode);
-        }
         Set<Node> children = new HashSet<>(parentNode.getChildren());
         children.add(childNode);
         parentNode.setChildren(children);
         childNode.setParent(parentNode);
         nodeManager.updateNode(childNode);
-        parentNode = nodeManager.updateNode(parentNode);
+        nodeManager.updateNode(parentNode);
         return Response.ok().build();
     }
     @GET
@@ -64,6 +66,20 @@ public class NodeRESTService {
     public Response getNode(@PathParam("nodeId")long nodeId){
         Node toReturn = nodeManager.getNode(nodeId);
         return toReturn != null ? Response.ok(toReturn,MediaType.APPLICATION_JSON).build() : Response.serverError().build();
+    }
+    
+    @GET
+    @Path("/map/{nodeId: [0-9][0-9]*}")
+    public Response getMap(@PathParam("nodeId")long nodeId){
+        Node fromEm = nodeManager.getNode(nodeId);
+        return fromEm != null ? Response.ok(nodeManager.createNodesMap(fromEm),MediaType.APPLICATION_JSON).build() : Response.serverError().build();
+    }
+    
+    @GET
+    @Path("/root-node/{testSuiteName: .*}")
+    public Response getRootNodeForSuite(@PathParam("testSuiteName")String suiteName){
+        Node fromEm = nodeManager.getNode(testSuiteManager.getTestSuite(suiteName).getRootNode().getNodeId());
+        return fromEm != null ? Response.ok(fromEm,MediaType.APPLICATION_JSON).build() : Response.serverError().build();
     }
     
 }

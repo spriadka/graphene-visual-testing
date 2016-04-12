@@ -5,12 +5,15 @@
  */
 package org.jboss.arquillian.model.routing;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -22,6 +25,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.jboss.arquillian.model.testSuite.TestSuite;
 
 /**
  *
@@ -32,6 +36,8 @@ import org.hibernate.annotations.LazyCollectionOption;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,property = "nodeId",scope = Node.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Node implements Serializable {
+    
+    
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,7 +51,7 @@ public class Node implements Serializable {
     @JoinColumn(referencedColumnName = "NODE_ID")
     private Node parent;
     
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent",cascade = CascadeType.REMOVE)
     @LazyCollection(LazyCollectionOption.FALSE)
     private Set<Node> children = Collections.<Node>emptySet();
     
@@ -106,9 +112,6 @@ public class Node implements Serializable {
         this.parent = parent;
     }
     
-    public boolean isParent(){
-        return this.parent != null;
-    }
     
     /*
     @Override
@@ -159,6 +162,10 @@ public class Node implements Serializable {
     */
     public boolean hasChildren(){
         return !children.isEmpty();
+    }
+    
+    public  boolean isRoot(){
+        return this.parent == null;
     }
     
 }

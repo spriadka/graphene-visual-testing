@@ -45,7 +45,7 @@ public class TestSuite implements Serializable {
     @JsonManagedReference(value = "test-suite-patterns")
     private List<Pattern> patterns;
     
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "NODE_ID")
     private Node rootNode;
     
