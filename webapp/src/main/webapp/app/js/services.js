@@ -34,9 +34,24 @@ visualTestingServices.factory('ParticularMask', ['$resource', function ($resourc
 
 visualTestingServices.factory('ParticularRun', ['$resource',
     function ($resource) {
-        return $resource('rest/runs/comparison-result/:runId', {runId: '@runId'}, {
-            query: {method: 'GET', isArray: true}
-        });
+        return {
+            all: $resource('rest/runs/comparison-result/:runId', {runId: '@runId'}, {
+                query: {method: 'GET', isArray: true}}),
+            filter: {
+                diffsOnly: false,
+                name: "",
+                setDiffsOnly: function(val){
+                  this.diffsOnly = val;
+                  return this;
+                },
+                setName: function(string){
+                  this.name = string;
+                  return this;
+                },
+                execute: $resource('rest/runs/comparison-result/:runId', {runId: '@runId'}, {
+                    query: {method: 'GET', isArray: true}})
+            }
+        };
     }]);
 
 visualTestingServices.factory('DeleteParticularSuite',
@@ -114,9 +129,9 @@ visualTestingServices.factory('ParticularSample', ['$resource', function ($resou
     }
 ]);
 
-visualTestingServices.factory('NodeService',['$resource',function($resource){
-        return $resource('rest/nodes/:nodeID',{nodeId: '@nodeID'}, {query: {method: 'GET', isArray: false}});
-}]);
+visualTestingServices.factory('NodeService', ['$resource', function ($resource) {
+        return $resource('rest/nodes/:nodeId', {nodeId: '@nodeId'}, {query: {method: 'GET', isArray: false}});
+    }]);
 
 visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'ParticularRun', '$q', '$log', function ($route, ParticularSuite, ParticularRun, $q, $log) {
         var getSumOfTests = function (run) {
@@ -192,10 +207,10 @@ visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'Par
                     var currentRun = promisedRuns[i];
                     updatePercentageOneRun(currentRun);
                     /*var currentNumberOfTests = getSumOfTests(currentRun);
-                    var previousNumberOfTests = getSumOfTests(promisedRuns[i - 1]);
-                    if (currentNumberOfTests > previousNumberOfTests && (i > 0)) {
-                        currentRun.extraTests = currentNumberOfTests - previousNumberOfTests;
-                    }*/
+                     var previousNumberOfTests = getSumOfTests(promisedRuns[i - 1]);
+                     if (currentNumberOfTests > previousNumberOfTests && (i > 0)) {
+                     currentRun.extraTests = currentNumberOfTests - previousNumberOfTests;
+                     }*/
                     $log.info(currentRun);
                     currentRun.needsToBeUpdated = updateNeedsToBeUpdatedOneRun(currentRun);
                 }
@@ -234,7 +249,7 @@ visualTestingServices.factory('ResolveComparisonResults', ['$route', '$log', '$q
         };
 
         var getPromisedComparisonResults = function () {
-            var promisedResults = ParticularRun.query({runId: $route.current.params.runId}).$promise;
+            var promisedResults = ParticularRun.all.query({runId: $route.current.params.runId}).$promise;
             promisedResults.then(function (comparisonResults) {
                 for (var i = 0; i < comparisonResults.length; i++) {
                     var comparisonResult = comparisonResults[i];

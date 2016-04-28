@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<div >
+    <ul ng-repeat="node in nodes">
+        <li>
+            <a>{{$index}}</a>
+            <a>{{node.word.value}}</a>
+            <button ng-click="fn(node)" class="btn btn-success"></button>
+        </li>
+    </ul>
+</div>

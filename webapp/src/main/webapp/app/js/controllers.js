@@ -32,8 +32,8 @@ visualTestingControllers.controller('SuiteListCtrl', ['$scope', '$route', '$log'
     }]);
 
 visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routeParams',
-    '$route', '$log', 'DeleteParticularSuiteRun', 'ParticularRun', 'AcceptSampleAsNewPattern', 'promisedSuite',
-    function ($scope, $routeParams, $route, $log, DeleteParticularSuiteRun, ParticularRun, AcceptSampleAsNewPattern, promisedSuite) {
+    '$route', '$log', 'DeleteParticularSuiteRun', 'ParticularRun', 'AcceptSampleAsNewPattern', 'promisedSuite', '$compile', 'NodeService',
+    function ($scope, $routeParams, $route, $log, DeleteParticularSuiteRun, ParticularRun, AcceptSampleAsNewPattern, promisedSuite, $compile, NodeService) {
         $scope.testSuiteID = promisedSuite.testSuiteID;
         $scope.runs = promisedSuite.runs;
         $scope.timestampToDate = timestampToDate;
@@ -50,8 +50,26 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                         $log.error('failure delete suite run', errorPayload);
                     });
         };
-        $scope.rootSuiteNode = promisedSuite.rootNode;
-        $log.info($scope.rootSuiteNode);
+        $scope.currentNode = promisedSuite.rootNode;
+        $scope.selections = [];
+        console.log($scope.currentNode);
+        $scope.rollOptions = function () {
+            var value = $("option:selected").last().val();
+            $log.info(value);
+            var promisedNode = NodeService.query({nodeId: value}).$promise;
+            promisedNode.then(function (resource) {
+                $log.info(resource);
+                if (resource.children.length > 0) {
+                    $scope.selections.push(resource);
+                    var index = $scope.selections.length - 1;
+                    $(".form-group").last().after($compile('<div class="form-group" node-nav parent="selections[' + index + ']" style="float: left;"></div>')($scope));
+                }
+            });
+
+        };
+        $scope.removeOthers = function (event) {
+            $log.info("IN CNTRLR");
+        };
         $scope.isDiff = isDiff;
         $scope.acceptAllNewSamplesAsNewPatterns = function (testSuiteRunID) {
             var promised = ParticularRun.query({runId: testSuiteRunID}).$promise;

@@ -11,37 +11,37 @@ var visualTestingDirectives = angular.module('visualTestingDirectives', []);
 
 
 visualTestingDirectives.directive('alertInfo', function ($compile) {
-    
+
     var timestampToDate = function (timestamp) {
-    var date = new Date(timestamp);
+        var date = new Date(timestamp);
 
-    var hours = date.getHours();
-    var minutes = "0" + date.getMinutes();
-    var seconds = "0" + date.getSeconds();
-    var time = hours + ':' + minutes.substr(minutes.length - 2) + ':' + seconds.substr(seconds.length - 2);
+        var hours = date.getHours();
+        var minutes = "0" + date.getMinutes();
+        var seconds = "0" + date.getSeconds();
+        var time = hours + ':' + minutes.substr(minutes.length - 2) + ':' + seconds.substr(seconds.length - 2);
 
-    var monthNames = ["January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"];
+        var monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"];
 
-    return monthNames[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear() + ", " + time;
-};
-    
-    var createMessage = function(run){
-      console.log(run.errorContent);
-      var message = "<div>";
-      for (var i = 0; i < run.errorContent.length; i++){
-          var errorPattern = run.errorContent[i];
-          var fromDate = timestampToDate(parseInt(errorPattern.patternDate));
-          message += "Pattern for test: " + "<b>" + errorPattern.name + "</b>" + " was modified " + "<b>" + fromDate +"</b>";
-          message += "<br/>";
-      }
-      if (run.extraTests){
-          message += "Added <b>" + run.extraTests + "</b> extra tests";
-      }
-      message += "</div>";
-      return message;
+        return monthNames[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear() + ", " + time;
     };
-    
+
+    var createMessage = function (run) {
+        console.log(run.errorContent);
+        var message = "<div>";
+        for (var i = 0; i < run.errorContent.length; i++) {
+            var errorPattern = run.errorContent[i];
+            var fromDate = timestampToDate(parseInt(errorPattern.patternDate));
+            message += "Pattern for test: " + "<b>" + errorPattern.name + "</b>" + " was modified " + "<b>" + fromDate + "</b>";
+            message += "<br/>";
+        }
+        if (run.extraTests) {
+            message += "Added <b>" + run.extraTests + "</b> extra tests";
+        }
+        message += "</div>";
+        return message;
+    };
+
     var linker = function (scope, elem, attr) {
         var run = scope.info;
         run.needsToBeUpdated.then(function (value) {
@@ -55,7 +55,7 @@ visualTestingDirectives.directive('alertInfo', function ($compile) {
                 console.log("ERROR CONTENT: " + numOutDatedPatterns);
                 var badgeNotification = "<span class=\"badge\" style=\"margin-right: 20px; margin-left: 5px;\" >" + numOutDatedPatterns + "</span>";
                 $(elem).addClass("alert alert-danger").html(spanElem + badgeNotification + message).show();
-                $(elem).attr("data-toggle","popover").attr("data-container","body").attr("data-html","true").attr("data-placement","bottom").attr("data-content",createMessage(run));
+                $(elem).attr("data-toggle", "popover").attr("data-container", "body").attr("data-html", "true").attr("data-placement", "bottom").attr("data-content", createMessage(run));
                 $(elem).popover();
                 $compile(elem.contents())(scope);
             }
@@ -104,8 +104,33 @@ visualTestingDirectives.directive('runInfo', function ($compile) {
     };
 }
 );
+
+visualTestingDirectives.directive('nodeNav', function ($compile) {
+    return {
+        restrict: 'A',
+        scope: {
+            'parent': '='
+        },
+        controller: function ($scope) {
+            console.log("CALLED");
+            console.log($scope);
+            $(".form-control").change(function (event) {
+                removeOthers(event);
+            });
+            var removeOthers = function (event) {
+                console.log("IN DIRECTIVE");
+                $(event.target).parent().nextAll().not("#test-class-navigator-button").remove();
+            };
+        }
+        ,
+        template: '<select class="form-control">' +
+                '<option ng-repeat="node in parent.children" value="{{node.nodeId}}" label="{{node.word.value}}" ng-selected="$first"></option>' +
+                '</select>'
+    }
+});
+
 visualTestingDirectives.directive('jcrop', function () {
-    
+
 
     return {
         restrict: 'C',
@@ -122,11 +147,11 @@ visualTestingDirectives.directive('jcrop', function () {
             }, function () {
                 comparisonResult.jcrop_api = this;
                 var container = comparisonResult.jcrop_api.container;
-                container.on('cropcreate',function(element,selection,coordinates){
+                container.on('cropcreate', function (element, selection, coordinates) {
                     var shadesColor = comparisonResult.jcrop_api.opt.bgColor;
                     var shades = $(element.currentTarget).children(".jcrop-shades").children("div");
-                    if ($(shades).css("background-color") !== shadesColor){
-                        $(shades).css("background-color",shadesColor);
+                    if ($(shades).css("background-color") !== shadesColor) {
+                        $(shades).css("background-color", shadesColor);
                     }
                 });
                 if (comparisonResult.masks.length !== 0) {

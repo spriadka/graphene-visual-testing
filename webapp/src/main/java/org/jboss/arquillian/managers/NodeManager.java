@@ -74,7 +74,16 @@ public class NodeManager {
     
     public void createMapRecursively(Map<String,Long> entries,Node node){
         LOGGER.info(node.getNodeId());
-        entries.put(node.getWord().getValue(), node.getNodeId());
+        String toPut = "";
+        if (node.isRoot() || node.getIndex() == 0){
+            toPut = node.getWord().getValue();
+        }
+        else{
+            toPut = node.getWord().getValue() + 
+                    "." + node.getIndex() + 
+                    "." + node.getParentAt((short)0).getNodeId();
+        }
+        entries.put(toPut,node.getNodeId());
         if (node.hasChildren()){
             for (Node entry : node.getChildren()){
                 createMapRecursively(entries, entry);

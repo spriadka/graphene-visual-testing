@@ -5,9 +5,7 @@
  */
 package org.jboss.arquillian.model.routing;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import java.io.Serializable;
@@ -25,7 +23,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.jboss.arquillian.model.testSuite.TestSuite;
 
 /**
  *
@@ -46,6 +43,9 @@ public class Node implements Serializable {
     
     @OneToOne
     private Word word;
+    
+    
+    private Short index = Short.MIN_VALUE;
 
     @ManyToOne
     @JoinColumn(referencedColumnName = "NODE_ID")
@@ -165,7 +165,41 @@ public class Node implements Serializable {
     }
     
     public  boolean isRoot(){
-        return this.parent == null;
+        return this.getParent() == null;
+    }
+
+    /**
+     * @return the index
+     */
+    public Short getIndex() {
+        return index;
+    }
+
+    /**
+     * @param index the index to set
+     */
+    public void setIndex(Short index) {
+        this.index = index;
+    }
+    
+    public boolean hasParent(){
+        return parent != null;
+    }
+    
+    public Node getParentAt(short index){
+        Node result = this;
+        if (index < 0){
+            throw new IllegalArgumentException("index must be >= 0");
+        }
+        else if (this.index < index){
+            throw new IllegalArgumentException("cannot get parent at index:" + index);
+        }
+        else {
+            for (short i = this.index; i > index; i--){
+                result = result.getParent();
+            }
+        }
+        return result;
     }
     
 }

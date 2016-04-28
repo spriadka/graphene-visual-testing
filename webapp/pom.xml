@@ -56,9 +56,9 @@
                     <archive>
                         <manifestFile>src/main/webapp/META-INF/MANIFEST.MF</manifestFile>
                     </archive>
-                    <!--
+                    
                     <packagingExcludes>WEB-INF/lib/ant*,WEB-INF/lib/arquillian-drone*,WEB-INF/lib/arquillian-browser-screenshooter*,WEB-INF/lib/arquillian-container*,WEB-INF/lib/shrinkwrap*,WEB-INF/lib/selenium*,WEB-INF/lib/rusheye-impl*,WEB-INF/lib/opera*,WEB-INF/lib/graphene-webdriver*</packagingExcludes>
-                    -->
+                    
                 </configuration>
             </plugin> 
             <!-- Compiler plugin enforces Java 1.6 compatibility and activates annotation 

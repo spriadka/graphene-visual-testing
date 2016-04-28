@@ -11,6 +11,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -41,9 +42,10 @@ public class NodeRESTService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addNode(Word word){
+    public Response addNode(@HeaderParam("index")short index,Word word){
        Node toAdd = new Node();
        toAdd.setWord(word);
+       toAdd.setIndex(index);
        Node returnNode = nodeManager.addNode(toAdd);
        return Response.ok(returnNode,MediaType.APPLICATION_JSON).build();
     }

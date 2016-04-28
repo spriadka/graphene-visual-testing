@@ -60,8 +60,8 @@
         </tr>
     </tbody>
 </table>
-
-<div>
-    {{rootSuiteNode.word.value}}
-    <a nodeId="{{rootSuiteNode.nodeId}}" ng-hide="true"></a>
-</div>
+<form class="form-inline" id="test-class-navigator">
+    <div class="form-group" node-nav parent="currentNode" style="float: left;">
+    </div>
+    <a id="test-class-navigator-button" class="glyphicon glyphicon-plus-sign" style="color:green; padding-left: 10px; font-size: 2em;" ng-click="rollOptions(node)"></a>
+</form>
