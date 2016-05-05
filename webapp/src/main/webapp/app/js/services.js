@@ -176,7 +176,7 @@ visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'Par
         };
 
         var updateNeedsToBeUpdatedOneRun = function (run) {
-            var comparisonResultsPromised = ParticularRun.query({runId: run.testSuiteRunID}).$promise;
+            var comparisonResultsPromised = ParticularRun.all.query({runId: run.testSuiteRunID}).$promise;
             var resultPromised = $q.defer();
             comparisonResultsPromised.then(function (comparisonResultsResolved) {
                 var result = false;
@@ -249,6 +249,7 @@ visualTestingServices.factory('ResolveComparisonResults', ['$route', '$log', '$q
         };
 
         var getPromisedComparisonResults = function () {
+            console.log($route);
             var promisedResults = ParticularRun.all.query({runId: $route.current.params.runId}).$promise;
             promisedResults.then(function (comparisonResults) {
                 for (var i = 0; i < comparisonResults.length; i++) {

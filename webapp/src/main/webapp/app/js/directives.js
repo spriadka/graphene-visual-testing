@@ -105,29 +105,52 @@ visualTestingDirectives.directive('runInfo', function ($compile) {
 }
 );
 
-visualTestingDirectives.directive('nodeNav', function ($compile) {
-    return {
-        restrict: 'A',
-        scope: {
-            'parent': '='
-        },
-        controller: function ($scope) {
-            console.log("CALLED");
-            console.log($scope);
-            $(".form-control").change(function (event) {
-                removeOthers(event);
-            });
-            var removeOthers = function (event) {
-                console.log("IN DIRECTIVE");
-                $(event.target).parent().nextAll().not("#test-class-navigator-button").remove();
-            };
-        }
-        ,
-        template: '<select class="form-control">' +
-                '<option ng-repeat="node in parent.children" value="{{node.nodeId}}" label="{{node.word.value}}" ng-selected="$first"></option>' +
-                '</select>'
-    }
-});
+visualTestingDirectives.directive('nodeNav', ['$compile', '$timeout', function ($compile, $timeout, $element) {
+        return {
+            restrict: 'A',
+            scope: {
+                'parent': '='
+            },
+            controller: function ($scope, $element) {
+                $scope.selected = $scope.parent.children[0].nodeId;
+                console.log($scope);
+                $scope.index = $scope.parent.children[0].index;
+                $scope.$emit('select-change', $scope.selected);
+                $scope.$on('collapse-others', function (event, data) {
+                    if ($scope.parent && $scope.index > data) {
+                        console.log("DESTROYING");
+                        $timeout(function () {
+                            $scope.$destroy();
+                            $($element).remove();
+                        });
+                    }
+                });
+                $scope.$on('collapse',function(event,nodeIdToCollapse){
+                    if ($scope.parent.nodeId === nodeIdToCollapse){
+                        $scope.$emit('select-change',$scope.parent.nodeId);
+                        $scope.$emit('selections-splice',$scope.index - 1);
+                        $timeout(function () {
+                            $scope.$destroy();
+                            $($element).remove();
+                        });
+                    }
+                });
+                $scope.collapseOthers = function (index) {
+                    console.log($scope);
+                    $scope.$parent.$broadcast('collapse-others', index);
+                    $scope.$emit('select-change', $scope.selected);
+                    $scope.$emit('selections-splice',$scope.index);
+                };
+            }
+            ,
+            template: '<select class="form-control" ng-model="selected" ng-change="collapseOthers(index)" ng-options="node.nodeId as node.word.value for node in parent.children">' +
+                    /*'<option ng-repeat="node in parent.children" ' + 
+                     'value="{{node.nodeId}}"' +  
+                     'label="{{node.word.value}}" ' +  
+                     '></option>' +*/
+                    '</select>'
+        };
+    }]);
 
 visualTestingDirectives.directive('jcrop', function () {
 

@@ -32,8 +32,8 @@ visualTestingControllers.controller('SuiteListCtrl', ['$scope', '$route', '$log'
     }]);
 
 visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routeParams',
-    '$route', '$log', 'DeleteParticularSuiteRun', 'ParticularRun', 'AcceptSampleAsNewPattern', 'promisedSuite', '$compile', 'NodeService',
-    function ($scope, $routeParams, $route, $log, DeleteParticularSuiteRun, ParticularRun, AcceptSampleAsNewPattern, promisedSuite, $compile, NodeService) {
+    '$route', '$log', 'DeleteParticularSuiteRun', 'ParticularRun', 'AcceptSampleAsNewPattern', 'promisedSuite', '$compile', 'NodeService', '$location',
+    function ($scope, $routeParams, $route, $log, DeleteParticularSuiteRun, ParticularRun, AcceptSampleAsNewPattern, promisedSuite, $compile, NodeService, $location) {
         $scope.testSuiteID = promisedSuite.testSuiteID;
         $scope.runs = promisedSuite.runs;
         $scope.timestampToDate = timestampToDate;
@@ -50,11 +50,31 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                         $log.error('failure delete suite run', errorPayload);
                     });
         };
-        $scope.currentNode = promisedSuite.rootNode;
+        //$scope.currentNode = promisedSuite.rootNode
+        /*$(".form-control").change(function (event) {
+         //removeOthers(event);
+         //console.log($scope.parent.index);
+         //$scope.selections = $scope.selections.slice();
+         }); */
+        $scope.first = promisedSuite.rootNode;
+        $scope.first.index = -1000;
         $scope.selections = [];
+        $scope.selections.push($scope.first);
+        $scope.lastSelected = null;
+        $scope.$on('select-change', function (event, data) {
+            $scope.lastSelected = data;
+        });
+        $scope.$on('selections-splice', function (event, indexFromSplice) {
+            $log.info("SPLICING SELECTIONS");
+            $log.info(indexFromSplice);
+            $log.info($scope.selections.length);
+            if ($scope.selections.length > 1) {
+                $scope.selections.splice(indexFromSplice + 1);
+            }
+        });
         console.log($scope.currentNode);
-        $scope.rollOptions = function () {
-            var value = $("option:selected").last().val();
+        $scope.expandClass = function () {
+            var value = $scope.lastSelected;
             $log.info(value);
             var promisedNode = NodeService.query({nodeId: value}).$promise;
             promisedNode.then(function (resource) {
@@ -62,10 +82,15 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                 if (resource.children.length > 0) {
                     $scope.selections.push(resource);
                     var index = $scope.selections.length - 1;
-                    $(".form-group").last().after($compile('<div class="form-group" node-nav parent="selections[' + index + ']" style="float: left;"></div>')($scope));
+                    $(".form-group").last().after($compile('<div class="form-group" node-nav parent="selections[' + index + ']" style="float: left;" id="test-class' + index + '"></div>')($scope));
                 }
             });
-
+        };
+        $scope.collapse = function () {
+            var selections = $scope.selections;
+            if (selections.length > 1) {
+                $scope.$broadcast('collapse', selections[selections.length - 1].nodeId);
+            }
         };
         $scope.removeOthers = function (event) {
             $log.info("IN CNTRLR");
@@ -82,6 +107,19 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                     }
                 }
             });
+        };
+
+        $scope.loadResults = function () {
+            console.log($location);
+            var selectedOptions = $(".form-control").children(":selected");
+            var str = "";
+            for (var i = 0; i < selectedOptions.length; i++) {
+                str += selectedOptions[i].label;
+                str += (i !== selectedOptions.length - 1) ? "." : "";
+            }
+            console.log(str);
+            $location.url($location.$$url
+                    + "/runs/");
         };
 
 
