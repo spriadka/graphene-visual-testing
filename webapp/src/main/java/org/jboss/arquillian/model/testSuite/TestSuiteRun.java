@@ -1,7 +1,10 @@
 package org.jboss.arquillian.model.testSuite;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -16,6 +19,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
 /**
  *
@@ -39,6 +43,10 @@ public class TestSuiteRun implements Serializable {
     private int numberOfFailedComparisons;
     
     private int numberOfSuccessfulComparisons;
+    
+    @JsonIgnore
+    @Transient
+    private boolean needsToBeUpdated = false;
     
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -183,4 +191,39 @@ public class TestSuiteRun implements Serializable {
     public void setNumberOfSuccessfulComparisons(int numberOfSuccessfulComparisons) {
         this.numberOfSuccessfulComparisons = numberOfSuccessfulComparisons;
     }
+
+    /**
+     * @return the needsToBeUpdated
+     */
+    @JsonProperty("needsToBeUpdated")
+    public boolean needsToBeUpdated() {
+        return needsToBeUpdated;
+    }
+
+    /**
+     * @param needsToBeUpdated the needsToBeUpdated to set
+     */
+    @JsonIgnore
+    public void setNeedsToBeUpdated(boolean needsToBeUpdated) {
+        this.needsToBeUpdated = needsToBeUpdated;
+    }
+    
+    private int getSumOfTests(){
+        return numberOfFailedComparisons + numberOfFailedFunctionalTests + numberOfSuccessfulComparisons;
+    }
+    
+    @JsonProperty("successfulPercentage")
+    public float succesfulPercentage(){
+        return 100 * numberOfSuccessfulComparisons / getSumOfTests();
+    }
+    
+    @JsonProperty("failedPercentage")
+    public float failedPercentage(){
+        return 100 * numberOfFailedComparisons / getSumOfTests();
+    }
+    @JsonProperty("failedTestsPercentage")
+    public float failedTestPercentage(){
+        return 100 * numberOfFailedFunctionalTests / getSumOfTests();
+    }
+    
 }

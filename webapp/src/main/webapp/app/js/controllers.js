@@ -50,12 +50,6 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                         $log.error('failure delete suite run', errorPayload);
                     });
         };
-        //$scope.currentNode = promisedSuite.rootNode
-        /*$(".form-control").change(function (event) {
-         //removeOthers(event);
-         //console.log($scope.parent.index);
-         //$scope.selections = $scope.selections.slice();
-         }); */
         $scope.first = promisedSuite.rootNode;
         $scope.first.index = -1000;
         $scope.selections = [];
@@ -72,7 +66,6 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                 $scope.selections.splice(indexFromSplice + 1);
             }
         });
-        console.log($scope.currentNode);
         $scope.expandClass = function () {
             var value = $scope.lastSelected;
             $log.info(value);
@@ -92,9 +85,6 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                 $scope.$broadcast('collapse', selections[selections.length - 1].nodeId);
             }
         };
-        $scope.removeOthers = function (event) {
-            $log.info("IN CNTRLR");
-        };
         $scope.isDiff = isDiff;
         $scope.acceptAllNewSamplesAsNewPatterns = function (testSuiteRunID) {
             var promised = ParticularRun.query({runId: testSuiteRunID}).$promise;
@@ -109,17 +99,28 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
             });
         };
 
-        $scope.loadResults = function () {
-            console.log($location);
-            var selectedOptions = $(".form-control").children(":selected");
-            var str = "";
-            for (var i = 0; i < selectedOptions.length; i++) {
-                str += selectedOptions[i].label;
-                str += (i !== selectedOptions.length - 1) ? "." : "";
+        $scope.loadResults = function (testSuiteRunID) {
+            var filter = $("#filterCheckbox").is(":checked");
+            if (!filter) {
+                $location.url($location.$$url
+                        + "/runs/"
+                        + testSuiteRunID);
             }
-            console.log(str);
-            $location.url($location.$$url
-                    + "/runs/");
+            else {
+                var selectedOptions = $(".form-control").children(":selected");
+                var str = "";
+                var diffsOnly = $("#diffsCheckbox").is(":checked");
+                for (var i = 0; i < selectedOptions.length; i++) {
+                    str += selectedOptions[i].label;
+                    str += (i !== selectedOptions.length - 1) ? "." : "";
+                }
+                console.log(str);
+                $location.url($location.$$url
+                        + "/runs/"
+                        + testSuiteRunID + "/?"
+                        + "testClass=" + str + "&"
+                        + "diffsOnly=" + diffsOnly);
+            }
         };
 
 

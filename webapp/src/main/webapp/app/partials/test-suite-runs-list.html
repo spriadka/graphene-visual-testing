@@ -1,3 +1,9 @@
+<style>
+        a:hover{
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
 <nav class="navbar navbar-inverse navbar-fixed-top" style="height: 50px;">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -22,8 +28,9 @@
         </tr>
     </thead>
     <tbody>
+    
         <tr ng-repeat="run in runs|orderBy:'testSuiteRunID':true">
-            <td><a href="#/suites/{{testSuiteID}}/runs/{{run.testSuiteRunID}}">
+            <td><a ng-click="loadResults(run.testSuiteRunID)">
                     {{timestampToDate(run.timestamp)}}</a>
             </td>
             <td></td>

@@ -44,28 +44,25 @@ visualTestingDirectives.directive('alertInfo', function ($compile) {
 
     var linker = function (scope, elem, attr) {
         var run = scope.info;
-        run.needsToBeUpdated.then(function (value) {
-            var needsToBeUpdated = value;
-            if (needsToBeUpdated) {
-                var spanElem = "<span class=\"glyphicon glyphicon-exclamation-sign\"></span>";
-                var message = "TESTS WERE MODIFIED";
-                var numOutDatedPatterns = run.errorContent.length;
-                var extraTests = run.extraTests ? 1 : 0;
-                numOutDatedPatterns += extraTests;
-                console.log("ERROR CONTENT: " + numOutDatedPatterns);
-                var badgeNotification = "<span class=\"badge\" style=\"margin-right: 20px; margin-left: 5px;\" >" + numOutDatedPatterns + "</span>";
-                $(elem).addClass("alert alert-danger").html(spanElem + badgeNotification + message).show();
-                $(elem).attr("data-toggle", "popover").attr("data-container", "body").attr("data-html", "true").attr("data-placement", "bottom").attr("data-content", createMessage(run));
-                $(elem).popover();
-                $compile(elem.contents())(scope);
-            }
-            else {
-                var spanElem = "<span class=\"glyphicon glyphicon-ok-circle\" style=\"margin-right: 20px;\"></span>";
-                var message = "NO TESTS WERE CHANGED";
-                $(elem).addClass("alert alert-success").html(spanElem + message).show();
-                $compile(elem.contents())(scope);
-            }
-        });
+        if (run.needsToBeUpdated) {
+            var spanElem = "<span class=\"glyphicon glyphicon-exclamation-sign\"></span>";
+            var message = "TESTS WERE MODIFIED";
+            var numOutDatedPatterns = run.errorContent.length;
+            var extraTests = run.extraTests ? 1 : 0;
+            numOutDatedPatterns += extraTests;
+            console.log("ERROR CONTENT: " + numOutDatedPatterns);
+            var badgeNotification = "<span class=\"badge\" style=\"margin-right: 20px; margin-left: 5px;\" >" + numOutDatedPatterns + "</span>";
+            $(elem).addClass("alert alert-danger").html(spanElem + badgeNotification + message).show();
+            $(elem).attr("data-toggle", "popover").attr("data-container", "body").attr("data-html", "true").attr("data-placement", "bottom").attr("data-content", createMessage(run));
+            $(elem).popover();
+            $compile(elem.contents())(scope);
+        }
+        else {
+            var spanElem = "<span class=\"glyphicon glyphicon-ok-circle\" style=\"margin-right: 20px;\"></span>";
+            var message = "NO TESTS WERE CHANGED";
+            $(elem).addClass("alert alert-success").html(spanElem + message).show();
+            $compile(elem.contents())(scope);
+        }
     };
     return {
         restrict: 'A',
@@ -125,10 +122,10 @@ visualTestingDirectives.directive('nodeNav', ['$compile', '$timeout', function (
                         });
                     }
                 });
-                $scope.$on('collapse',function(event,nodeIdToCollapse){
-                    if ($scope.parent.nodeId === nodeIdToCollapse){
-                        $scope.$emit('select-change',$scope.parent.nodeId);
-                        $scope.$emit('selections-splice',$scope.index - 1);
+                $scope.$on('collapse', function (event, nodeIdToCollapse) {
+                    if ($scope.parent.nodeId === nodeIdToCollapse) {
+                        $scope.$emit('select-change', $scope.parent.nodeId);
+                        $scope.$emit('selections-splice', $scope.index - 1);
                         $timeout(function () {
                             $scope.$destroy();
                             $($element).remove();
@@ -139,7 +136,7 @@ visualTestingDirectives.directive('nodeNav', ['$compile', '$timeout', function (
                     console.log($scope);
                     $scope.$parent.$broadcast('collapse-others', index);
                     $scope.$emit('select-change', $scope.selected);
-                    $scope.$emit('selections-splice',$scope.index);
+                    $scope.$emit('selections-splice', $scope.index);
                 };
             }
             ,

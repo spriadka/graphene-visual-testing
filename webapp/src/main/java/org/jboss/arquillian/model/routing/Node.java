@@ -8,6 +8,8 @@ package org.jboss.arquillian.model.routing;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
@@ -160,8 +162,9 @@ public class Node implements Serializable {
         return hash;
     }
     */
+    @JsonSerialize
     public boolean hasChildren(){
-        return !children.isEmpty();
+        return !this.children.isEmpty();
     }
     
     public  boolean isRoot(){

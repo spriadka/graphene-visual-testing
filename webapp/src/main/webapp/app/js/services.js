@@ -37,20 +37,9 @@ visualTestingServices.factory('ParticularRun', ['$resource',
         return {
             all: $resource('rest/runs/comparison-result/:runId', {runId: '@runId'}, {
                 query: {method: 'GET', isArray: true}}),
-            filter: {
-                diffsOnly: false,
-                name: "",
-                setDiffsOnly: function(val){
-                  this.diffsOnly = val;
-                  return this;
-                },
-                setName: function(string){
-                  this.name = string;
-                  return this;
-                },
-                execute: $resource('rest/runs/comparison-result/:runId', {runId: '@runId'}, {
-                    query: {method: 'GET', isArray: true}})
-            }
+            filter: $resource('rest/runs/comparison-result/filter/:runId', {runId: '@runId', testClass: name, diffsOnly: '@diffsOnly'}, {
+                query: {method: 'GET', isArray: true}})
+
         };
     }]);
 
@@ -134,6 +123,7 @@ visualTestingServices.factory('NodeService', ['$resource', function ($resource) 
     }]);
 
 visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'ParticularRun', '$q', '$log', function ($route, ParticularSuite, ParticularRun, $q, $log) {
+        /*
         var getSumOfTests = function (run) {
             console.log("IS RUN? " + isRun(run));
             if (!isRun(run)) {
@@ -166,15 +156,6 @@ visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'Par
             run.failedTestPercentage = getFailedTestsPercentage(run);
         };
 
-        var needsToBeUpdatedOneComparisonResult = function (comparisonResult) {
-            var patternModificationDate = parseInt(comparisonResult.patternModificationDate);
-            var sampleModificationDate = parseInt(comparisonResult.sampleModificationDate);
-            if (patternModificationDate >= sampleModificationDate) {
-                return true;
-            }
-            return false;
-        };
-
         var updateNeedsToBeUpdatedOneRun = function (run) {
             var comparisonResultsPromised = ParticularRun.all.query({runId: run.testSuiteRunID}).$promise;
             var resultPromised = $q.defer();
@@ -197,7 +178,7 @@ visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'Par
             });
             return resultPromised.promise;
         };
-
+*/
         var getPromisedSuite = function () {
             var toBeResolvedSuite = ParticularSuite.query({testSuiteID: $route.current.params.testSuiteID}).$promise;
             toBeResolvedSuite.then(function (successValue) {
@@ -205,14 +186,14 @@ visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'Par
                 var promisedRuns = successValue.runs;
                 for (var i = 0; i < promisedRuns.length; i++) {
                     var currentRun = promisedRuns[i];
-                    updatePercentageOneRun(currentRun);
+                    //updatePercentageOneRun(currentRun);
                     /*var currentNumberOfTests = getSumOfTests(currentRun);
                      var previousNumberOfTests = getSumOfTests(promisedRuns[i - 1]);
                      if (currentNumberOfTests > previousNumberOfTests && (i > 0)) {
                      currentRun.extraTests = currentNumberOfTests - previousNumberOfTests;
                      }*/
                     $log.info(currentRun);
-                    currentRun.needsToBeUpdated = updateNeedsToBeUpdatedOneRun(currentRun);
+                    //currentRun.needsToBeUpdated_ = updateNeedsToBeUpdatedOneRun(currentRun);
                 }
 
             });
@@ -249,8 +230,15 @@ visualTestingServices.factory('ResolveComparisonResults', ['$route', '$log', '$q
         };
 
         var getPromisedComparisonResults = function () {
-            console.log($route);
-            var promisedResults = ParticularRun.all.query({runId: $route.current.params.runId}).$promise;
+            var promisedResults;
+            var testClass = $route.current.params.testClass;
+            var diffsOnly = $route.current.params.diffsOnly;
+            if (testClass && diffsOnly) {
+                promisedResults = ParticularRun.filter.query({runId: $route.current.params.runId, testClass: testClass, diffsOnly: diffsOnly}).$promise;
+            }
+            else {
+                promisedResults = ParticularRun.all.query({runId: $route.current.params.runId}).$promise;
+            }
             promisedResults.then(function (comparisonResults) {
                 for (var i = 0; i < comparisonResults.length; i++) {
                     var comparisonResult = comparisonResults[i];

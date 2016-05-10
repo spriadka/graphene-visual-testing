@@ -1,7 +1,9 @@
 package org.jboss.arquillian.rest;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Set;
 import org.jboss.arquillian.model.testSuite.Diff;
 import org.jboss.arquillian.model.testSuite.Mask;
@@ -56,6 +58,11 @@ public class ComparisonResult implements Serializable {
         this.diffUrl = diff.getUrlOfScreenshot();
         this.masks = pattern.getMasks();
         setComparisonResultFromSampleAndPattern(sample, pattern);
+    }
+    
+    @JsonSerialize
+    public boolean needsToBeUpdated(){
+        return new Date(Long.parseLong(patternModificationDate)).compareTo(new Date(Long.parseLong(sampleModificationDate))) > 0;
     }
     
     public String getPatternUrl() {
@@ -171,5 +178,5 @@ public class ComparisonResult implements Serializable {
     private static String getTestName(Sample sample) {
         return sample.getName().split("/")[1];
     }
-
+    
 }

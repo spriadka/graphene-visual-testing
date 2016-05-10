@@ -36,4 +36,11 @@ public class SampleManager {
         query.setParameter("testSuiteRunID", testSuiteRunID);
         return query.getResultList();
     }
+    
+    public List<Sample> getFilteredSamples(String name, Long testSuiteRunID){
+        Query query = em.createQuery("SELECT s FROM SAMPLE s WHERE s.name LIKE :name AND s.testSuiteRun.testSuiteRunID = :testSuiteRunID");
+        query.setParameter("name", name + "%");
+        query.setParameter("testSuiteRunID", testSuiteRunID);
+        return query.getResultList();
+    }
 }

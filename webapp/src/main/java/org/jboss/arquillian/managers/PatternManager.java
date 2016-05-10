@@ -55,4 +55,18 @@ public class PatternManager {
         query.setParameter("testSuiteID", testSuiteID);
         return query.getResultList();
     }
+    
+    public List<Pattern> getFilteredPatterns(String nameOfPattern,Long testSuiteID){
+        Query query = em.createQuery("SELECT p from PATTERN p WHERE p.name LIKE :name AND p.testSuite.testSuiteID = :testSuiteID");
+        query.setParameter("name", nameOfPattern + "%");
+        query.setParameter("testSuiteID", testSuiteID);
+        return query.getResultList();
+    }
+    
+    public Pattern getFilteredPattern(String nameOfPattern,Long testSuiteID){
+        Query query = em.createQuery("SELECT p from PATTERN p WHERE p.name LIKE :name AND p.testSuite.testSuiteID = :testSuiteID");
+        query.setParameter("name", nameOfPattern + "%");
+        query.setParameter("testSuiteID", testSuiteID);
+        return (Pattern)query.getSingleResult();
+    }
 }

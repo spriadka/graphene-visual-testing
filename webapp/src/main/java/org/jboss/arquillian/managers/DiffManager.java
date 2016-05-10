@@ -41,4 +41,11 @@ public class DiffManager {
     public boolean areThereDiffs(long testSuiteRunID) {
         return !getDiffsForRun(testSuiteRunID).isEmpty();
     }
+    
+    public List<Diff> getFilteredDiffs(String name, Long testSuiteRunID){
+        Query query = em.createQuery("SELECT d FROM DIFF d WHERE d.testSuiteRun.testSuiteRunID = :testSuiteRunID AND d.name LIKE :name");
+        query.setParameter("name", name + "%");
+        query.setParameter("testSuiteRunID", testSuiteRunID);
+        return query.getResultList();
+    }
 }
