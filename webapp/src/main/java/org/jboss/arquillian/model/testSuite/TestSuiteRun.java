@@ -214,16 +214,16 @@ public class TestSuiteRun implements Serializable {
     
     @JsonProperty("successfulPercentage")
     public float succesfulPercentage(){
-        return 100 * numberOfSuccessfulComparisons / getSumOfTests();
+        return 100 * numberOfSuccessfulComparisons / (float)getSumOfTests();
     }
     
     @JsonProperty("failedPercentage")
     public float failedPercentage(){
-        return 100 * numberOfFailedComparisons / getSumOfTests();
+        return 100 * numberOfFailedComparisons / (float)getSumOfTests();
     }
     @JsonProperty("failedTestsPercentage")
     public float failedTestPercentage(){
-        return 100 * numberOfFailedFunctionalTests / getSumOfTests();
+        return 100 * numberOfFailedFunctionalTests / (float)getSumOfTests();
     }
     
 }

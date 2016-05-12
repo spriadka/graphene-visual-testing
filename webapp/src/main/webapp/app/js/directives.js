@@ -74,6 +74,7 @@ visualTestingDirectives.directive('alertInfo', function ($compile) {
 });
 
 visualTestingDirectives.directive('runInfo', function ($compile) {
+
     var linker = function (scope, elem, attr) {
         var isDiff = scope.result.isDiff;
         var urlOfTemplate;
@@ -92,11 +93,11 @@ visualTestingDirectives.directive('runInfo', function ($compile) {
     };
     return {
         restrict: 'A',
+        controller: 'RunController',
         scope: {
             result: '='
         },
         link: linker
-
 
     };
 }
@@ -116,19 +117,19 @@ visualTestingDirectives.directive('nodeNav', ['$compile', '$timeout', function (
                 $scope.$on('collapse-others', function (event, data) {
                     if ($scope.parent && $scope.index > data) {
                         console.log("DESTROYING");
+                        $($element).remove();
                         $timeout(function () {
                             $scope.$destroy();
-                            $($element).remove();
                         });
                     }
                 });
                 $scope.$on('collapse', function (event, nodeIdToCollapse) {
                     if ($scope.parent.nodeId === nodeIdToCollapse) {
+                        $($element).remove();
                         $scope.$emit('select-change', $scope.parent.nodeId);
                         $scope.$emit('selections-splice', $scope.index - 1);
                         $timeout(function () {
                             $scope.$destroy();
-                            $($element).remove();
                         });
                     }
                 });
@@ -154,38 +155,45 @@ visualTestingDirectives.directive('jcrop', function () {
 
     return {
         restrict: 'C',
-        scope: true,
+        scope: {
+            run: '='
+        },
         link: function (scope, elem, attr) {
-            console.log("directive called");
-            var comparisonResult = scope.$parent.result;
-            console.log(comparisonResult);
+            var comparisonResult = scope.run;
+            //GETTING RID OF CONSOLE SHIT
+            scope.masks = scope.run.masks;
             $(elem).attr("src", comparisonResult.sampleUrl);
             $(elem).attr("patternid", comparisonResult.patternID);
             $(elem).Jcrop({
                 bgColor: 'black',
                 multi: true
             }, function () {
-                comparisonResult.jcrop_api = this;
-                var container = comparisonResult.jcrop_api.container;
+                scope.jcropApi = this;
+                var jcrop_api = scope.jcropApi;
+                var container = jcrop_api.container;
                 container.on('cropcreate', function (element, selection, coordinates) {
-                    var shadesColor = comparisonResult.jcrop_api.opt.bgColor;
+                    var shadesColor = jcrop_api.opt.bgColor;
                     var shades = $(element.currentTarget).children(".jcrop-shades").children("div");
                     if ($(shades).css("background-color") !== shadesColor) {
                         $(shades).css("background-color", shadesColor);
                     }
                 });
-                if (comparisonResult.masks.length !== 0) {
-                    for (var i = 0; i < comparisonResult.masks.length; i++) {
-                        var mask = comparisonResult.masks[i];
-                        var selection = comparisonResult.jcrop_api.newSelection();
+                var masks = scope.masks;
+                if (masks.length !== 0) {
+                    for (var i = 0; i < masks.length; i++) {
+                        var mask = masks[i];
+                        var selection = scope.jcropApi.newSelection();
                         selection.update($.Jcrop.wrapFromXywh([mask.left, mask.top, mask.width, mask.height]));
                         selection.maskID = mask.maskID;
                         selection.setColor("#00ffd4", 0.3);
                     }
                 }
+                scope.$emit('masks-created', scope.masks);
+                scope.$emit('jcrop-api-created', scope.jcropApi);
             });
 
-        }
+        },
+        controller: 'RunController'
     };
 });
 

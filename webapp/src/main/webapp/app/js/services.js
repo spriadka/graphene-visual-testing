@@ -124,38 +124,6 @@ visualTestingServices.factory('NodeService', ['$resource', function ($resource) 
 
 visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'ParticularRun', '$q', '$log', function ($route, ParticularSuite, ParticularRun, $q, $log) {
         /*
-        var getSumOfTests = function (run) {
-            console.log("IS RUN? " + isRun(run));
-            if (!isRun(run)) {
-                return 0;
-            }
-            else {
-                var success = run.numberOfSuccessfulComparisons;
-                var failed = run.numberOfFailedComparisons;
-                var failedTests = run.numberOfFailedFunctionalTests;
-                var sum = success + failed + failedTests;
-                return sum;
-            }
-        };
-
-        var getSuccessfulPercentage = function (run) {
-            return 100 * (run.numberOfSuccessfulComparisons / getSumOfTests(run));
-        };
-
-        var getFailedPercentage = function (run) {
-            return 100 * (run.numberOfFailedComparisons / getSumOfTests(run));
-        };
-
-        var getFailedTestsPercentage = function (run) {
-            return 100 * (run.numberOfFailedFunctionalTests / getSumOfTests(run));
-        };
-
-        var updatePercentageOneRun = function (run) {
-            run.successfulPercentage = getSuccessfulPercentage(run);
-            run.failedPercentage = getFailedPercentage(run);
-            run.failedTestPercentage = getFailedTestsPercentage(run);
-        };
-
         var updateNeedsToBeUpdatedOneRun = function (run) {
             var comparisonResultsPromised = ParticularRun.all.query({runId: run.testSuiteRunID}).$promise;
             var resultPromised = $q.defer();
@@ -177,8 +145,7 @@ visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'Par
                 resultPromised.resolve(result);
             });
             return resultPromised.promise;
-        };
-*/
+        };*/
         var getPromisedSuite = function () {
             var toBeResolvedSuite = ParticularSuite.query({testSuiteID: $route.current.params.testSuiteID}).$promise;
             toBeResolvedSuite.then(function (successValue) {
@@ -215,20 +182,12 @@ visualTestingServices.factory('ResolveComparisonResults', ['$route', '$log', '$q
             });
             return defferedWidth.promise;
         };
-
-        var isDiff = function (result) {
-            if (result.diffUrl !== null) {
-                return true;
-            }
-            return false;
-        };
-
         var setImageWidth = function (comparisonResult) {
             getImageWidth(comparisonResult).then(function (width) {
                 comparisonResult.imageWidth = width;
             });
         };
-
+        
         var getPromisedComparisonResults = function () {
             var promisedResults;
             var testClass = $route.current.params.testClass;
@@ -241,9 +200,7 @@ visualTestingServices.factory('ResolveComparisonResults', ['$route', '$log', '$q
             }
             promisedResults.then(function (comparisonResults) {
                 for (var i = 0; i < comparisonResults.length; i++) {
-                    var comparisonResult = comparisonResults[i];
-                    comparisonResult.isDiff = isDiff(comparisonResult);
-                    setImageWidth(comparisonResult);
+                    setImageWidth(comparisonResults[i]);
                 }
                 $log.info(promisedResults);
             });

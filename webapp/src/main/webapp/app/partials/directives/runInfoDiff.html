@@ -26,14 +26,14 @@ and open the template in the editor.
             </span>
         </div>
         <div id="sample{{result.sampleID}}" class="tab-pane fade">
-            <img class="jcrop" style="margin:auto;">
+            <img class="jcrop" style="margin:auto;" run="result">
             <hr>
             <span style="text-align: center; display: block">
-                <a ng-click="$parent.rejectSample(result.sampleID)" class="btn btn-small btn-primary">Reject sample</a>
-                <a ng-click="$parent.acceptSampleAsNewPattern(result.diffID)" class="btn btn-small btn-success">Accept sample as new pattern</a>
-                <a ng-click="$parent.acceptNewAlphaMask(result.patternID)" class="btn btn-small btn-success">Accept new alpha mask</a>
-                <a ng-click="$parent.destroyCurrentMask(result.patternID)" class="btn btn-small btn-danger">Destroy selected mask</a>
-                <a ng-click="$parent.updateSelectedMask(result.patternID)" class="btn btn-small btn-danger">Update selected mask</a>
+                <a ng-click="rejectSample()" class="btn btn-small btn-primary">Reject sample</a>
+                <a ng-click="acceptSampleAsNewPattern()" class="btn btn-small btn-success">Accept sample as new pattern</a>
+                <a ng-click="acceptNewAlphaMask()" class="btn btn-small btn-success">Accept new alpha mask</a>
+                <a ng-click="destroyCurrentMask()" class="btn btn-small btn-danger">Destroy selected mask</a>
+                <a ng-click="updateSelectedMask()" class="btn btn-small btn-danger">Update selected mask</a>
             </span>
         </div>
         <div id="diff{{result.diffID}}" class="tab-pane fade">

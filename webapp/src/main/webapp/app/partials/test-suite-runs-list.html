@@ -30,7 +30,7 @@
     <tbody>
     
         <tr ng-repeat="run in runs|orderBy:'testSuiteRunID':true">
-            <td><a ng-click="loadResults(run.testSuiteRunID)">
+            <td><a ng-href="#/suites/{{testSuiteID}}/runs/{{run.testSuiteRunID + href}}">
                     {{timestampToDate(run.timestamp)}}</a>
             </td>
             <td></td>
@@ -80,10 +80,10 @@
     <div style="float: right;">
             <form>
                 <div class="checkbox">
-                    <label style="color: white;"><input type="checkbox" id="filterCheckbox"> Filter results </label>;
+                    <label style="color: white;"><input type="checkbox" id="filterCheckbox" ng-model="filter" ng-change="changeHref()"> Filter results </label>;
                 </div>
                 <div class="checkbox">
-                    <label style="color: white;"><input type="checkbox" id="diffsCheckbox">Only diffs</label>
+                    <label style="color: white;"><input type="checkbox" id="diffsCheckbox" ng-model="diffs">Only diffs</label>
                 </div>
             </form>
         </div>

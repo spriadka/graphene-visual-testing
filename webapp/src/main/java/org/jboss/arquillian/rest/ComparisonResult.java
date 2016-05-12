@@ -1,5 +1,6 @@
 package org.jboss.arquillian.rest;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Collections;
@@ -63,6 +64,12 @@ public class ComparisonResult implements Serializable {
     @JsonSerialize
     public boolean needsToBeUpdated(){
         return new Date(Long.parseLong(patternModificationDate)).compareTo(new Date(Long.parseLong(sampleModificationDate))) > 0;
+    }
+    
+    @JsonSerialize
+    @JsonProperty("isDiff")
+    public boolean isDiff(){
+        return this.diffUrl != null;
     }
     
     public String getPatternUrl() {
