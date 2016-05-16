@@ -26,14 +26,12 @@ visualTestingControllers.controller('SuiteListCtrl', ['$scope', '$route', '$log'
                         $log.error('failure delete suite', errorPayload);
                     });
         };
-        $scope.getFailedPercentage = getFailedPercentage;
-        $scope.getSuccessfulPercentage = getSuccessfulPercentage;
-        $scope.getFailedTestsPercentage = getFailedTestsPercentage;
+        $scope.query = "";
     }]);
 
 visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routeParams',
-    '$route', '$log', 'DeleteParticularSuiteRun', 'ParticularRun', 'AcceptSampleAsNewPattern', 'promisedSuite', '$compile', 'NodeService', '$location','$timeout',
-    function ($scope, $routeParams, $route, $log, DeleteParticularSuiteRun, ParticularRun, AcceptSampleAsNewPattern, promisedSuite, $compile, NodeService, $location,$timeout) {
+    '$route', '$log', 'DeleteParticularSuiteRun', 'ParticularRun', 'AcceptSampleAsNewPattern', 'promisedSuite', '$compile', 'NodeService', '$location', '$timeout',
+    function ($scope, $routeParams, $route, $log, DeleteParticularSuiteRun, ParticularRun, AcceptSampleAsNewPattern, promisedSuite, $compile, NodeService, $location, $timeout) {
         $scope.testSuiteID = promisedSuite.testSuiteID;
         $scope.runs = promisedSuite.runs;
         $scope.timestampToDate = timestampToDate;
@@ -57,38 +55,32 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
         $scope.selections.push($scope.first);
         $scope.lastSelected = null;
         $scope.$on('select-change', function (event, data) {
-            $scope.lastSelected = data;
-            $timeout(function(){
-               $scope.testClass = generateTestClass();
-               $scope.changeHref();
-            });           
-            $log.info($scope);
+            $timeout(function () {
+                $scope.lastSelected = data;
+                $scope.testClass = generateTestClass();
+
+            });
         });
         $scope.filter = false;
         $scope.diffs = false;
         $scope.href = "";
-        $scope.changeHref = function () {
-            if ($scope.filter) {
-                var testClass = generateTestClass();
-                $scope.href = "?testClass=" + $scope.testClass +
-                        "&diffsOnly=" + $scope.diffs;
-                ;
+        $scope.$watchGroup(['filter', 'testClass', 'diffs'], function (newVals, oldVals, $scope) {
+            if (newVals !== oldVals) {
+                if (newVals[0]) {
+                    $scope.href = "?testClass=" + newVals[1] + "&diffsOnly=" + newVals[2];
+                }
+                else {
+                    $scope.href = "";
+                }
             }
-            else {
-                $scope.href = "";
-            }
-        };
+        });
         $scope.$on('selections-splice', function (event, indexFromSplice) {
-            $log.info("SPLICING SELECTIONS");
-            $log.info(indexFromSplice);
-            $log.info($scope.selections.length);
             if ($scope.selections.length > 1) {
                 $scope.selections.splice(indexFromSplice + 1);
             }
         });
         $scope.expandClass = function () {
             var value = $scope.lastSelected;
-            $log.info(value);
             var promisedNode = NodeService.query({nodeId: value}).$promise;
             promisedNode.then(function (resource) {
                 $log.info(resource);
@@ -105,7 +97,6 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
                 $scope.$broadcast('collapse', selections[selections.length - 1].nodeId);
             }
         };
-        $scope.isDiff = isDiff;
         $scope.acceptAllNewSamplesAsNewPatterns = function (testSuiteRunID) {
             var promised = ParticularRun.query({runId: testSuiteRunID}).$promise;
             promised.then(function (comparisonResults) {
@@ -127,32 +118,6 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
             }
             return str;
         };
-        /*$scope.loadResults = function (testSuiteRunID) {
-         var filter = $("#filterCheckbox").is(":checked");
-         if (!filter) {
-         $location.url($location.$$url
-         + "/runs/"
-         + testSuiteRunID);
-         }
-         else {
-         var selectedOptions = $(".form-control").children(":selected");
-         var str = "";
-         var diffsOnly = $("#diffsCheckbox").is(":checked");
-         for (var i = 0; i < selectedOptions.length; i++) {
-         str += selectedOptions[i].label;
-         str += (i !== selectedOptions.length - 1) ? "." : "";
-         }
-         console.log(str);
-         $location.url($location.$$url
-         + "/runs/"
-         + testSuiteRunID + "/?"
-         + "testClass=" + str + "&"
-         + "diffsOnly=" + diffsOnly);
-         }
-         };*/
-
-
-
     }
 
 
@@ -236,10 +201,10 @@ visualTestingControllers.controller('RunController', ['$scope', '$log', '$route'
                     for (var i = 0; i < masks.length; i++) {
                         var mask = masks[i];
                         var selection = jcropApi.newSelection();
-                        $log.info(selection);
                         selection.update($.Jcrop.wrapFromXywh([mask.left, mask.top, mask.width, mask.height]));
                         selection.maskID = mask.maskID;
-                        selection.setColor("#00ffd4", 0.3);
+                        var color = "#00ffd4";
+                        selection.setColor(color).setOpacity(0.3);
                     }
                 };
                 $scope.acceptNewAlphaMask = function () {
@@ -282,12 +247,21 @@ visualTestingControllers.controller('RunController', ['$scope', '$log', '$route'
                         $log.error("Mask to be destroyed not selected");
                     }
                     else {
-                        DeleteSelectedMask.deleteSelectedMask(selectedMaskId);
-                        jcropApi.deleteSelection();
+                        DeleteSelectedMask.deleteSelectedMask(selectedMaskId).then(function (success) {
+                            return Masks.query({patternID: $scope.result.patternID}).$promise;
+                        }).then(function (newMasks) {
+                            $scope.masks = newMasks;
+                            $scope.reloadJcrop();
+                            if (jcropApi.ui.multi.length === 0) {
+                                $scope.clearJcrop();
+                            }
+                        });
+                        /*jcropApi.deleteSelection();
                         $log.info(jcropApi);
+                        $scope.reloadJcrop();
                         if (jcropApi.ui.multi.length === 0) {
-                            $scope.clearJcrop(jcropApi);
-                        }
+                            $scope.clearJcrop();
+                        }*/
                     }
                 };
                 $scope.updateSelectedMask = function () {
@@ -386,44 +360,3 @@ var timestampToDate = function (timestamp) {
 var back = function () {
     window.history.back();
 };
-
-var getSumOfTests = function (run) {
-    if (!isRun(run)) {
-        return 0;
-    }
-    else {
-        var success = run.numberOfSuccessfulComparisons;
-        var failed = run.numberOfFailedComparisons;
-        var failedTests = run.numberOfFailedFunctionalTests;
-        var sum = success + failed + failedTests;
-        return sum;
-    }
-};
-
-var getSuccessfulPercentage = function (run) {
-    return 100 * (run.numberOfSuccessfulComparisons / getSumOfTests(run));
-};
-
-var getFailedPercentage = function (run) {
-    return 100 * (run.numberOfFailedComparisons / getSumOfTests(run));
-};
-
-var getFailedTestsPercentage = function (run) {
-    return 100 * (run.numberOfFailedFunctionalTests / getSumOfTests(run));
-};
-
-var isRun = function (run) {
-    if (run === null || angular.isUndefined(run)) {
-        return false;
-    }
-    var success = run.numberOfSuccessfulComparisons;
-    var failed = run.numberOfFailedComparisons;
-    var failedTests = run.numberOfFailedFunctionalTests;
-    var sum = success + failed + failedTests;
-    return sum !== 0;
-};
-
-var isDiff = function (result) {
-    return result.diffUrl !== null;
-};
-

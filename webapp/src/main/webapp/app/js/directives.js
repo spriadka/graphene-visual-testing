@@ -107,16 +107,16 @@ visualTestingDirectives.directive('nodeNav', ['$compile', '$timeout', function (
         return {
             restrict: 'A',
             scope: {
-                'parent': '='
+                'node': '&parent'
             },
             controller: function ($scope, $element) {
+                $scope.parent = $scope.node();
                 $scope.selected = $scope.parent.children[0].nodeId;
                 console.log($scope);
                 $scope.index = $scope.parent.children[0].index;
                 $scope.$emit('select-change', $scope.selected);
                 $scope.$on('collapse-others', function (event, data) {
                     if ($scope.parent && $scope.index > data) {
-                        console.log("DESTROYING");
                         $($element).remove();
                         $timeout(function () {
                             $scope.$destroy();
@@ -125,9 +125,10 @@ visualTestingDirectives.directive('nodeNav', ['$compile', '$timeout', function (
                 });
                 $scope.$on('collapse', function (event, nodeIdToCollapse) {
                     if ($scope.parent.nodeId === nodeIdToCollapse) {
-                        $($element).remove();
-                        $scope.$emit('select-change', $scope.parent.nodeId);
+                        console.log("COLLAPSE");
+                        $scope.$emit('select-change', $scope.parent);
                         $scope.$emit('selections-splice', $scope.index - 1);
+                        $($element).remove();
                         $timeout(function () {
                             $scope.$destroy();
                         });
@@ -182,10 +183,12 @@ visualTestingDirectives.directive('jcrop', function () {
                 if (masks.length !== 0) {
                     for (var i = 0; i < masks.length; i++) {
                         var mask = masks[i];
-                        var selection = scope.jcropApi.newSelection();
+                        var selection = jcrop_api.newSelection();
                         selection.update($.Jcrop.wrapFromXywh([mask.left, mask.top, mask.width, mask.height]));
                         selection.maskID = mask.maskID;
-                        selection.setColor("#00ffd4", 0.3);
+                        var color = "#00ffd4";
+                        selection = selection.setColor(color).setOpacity(0.3);
+                        console.log(selection);
                     }
                 }
                 scope.$emit('masks-created', scope.masks);
