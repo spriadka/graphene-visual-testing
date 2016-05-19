@@ -481,6 +481,8 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
     }
     
     public static void main(String[] args){
+        float divide = 100 * 1/5;
+        System.out.println("" + divide);
     }
 
 }

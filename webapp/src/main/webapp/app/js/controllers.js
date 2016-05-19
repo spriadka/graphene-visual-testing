@@ -55,8 +55,8 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
         $scope.selections.push($scope.first);
         $scope.lastSelected = null;
         $scope.$on('select-change', function (event, data) {
+            $scope.lastSelected = data;
             $timeout(function () {
-                $scope.lastSelected = data;
                 $scope.testClass = generateTestClass();
 
             });
@@ -75,6 +75,9 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
             }
         });
         $scope.$on('selections-splice', function (event, indexFromSplice) {
+            $log.info("REGISTERED SPLICE");
+            $log.info(indexFromSplice);
+            $log.info($scope.selections);
             if ($scope.selections.length > 1) {
                 $scope.selections.splice(indexFromSplice + 1);
             }
@@ -124,9 +127,9 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
 ]);
 
 visualTestingControllers.controller('ParticularRunCtrl', ['$scope', '$routeParams', '$log',
-    '$route', '$location', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern', 'AcceptNewMask', 'PatternService', 'ParticularSuite', 'DeleteSelectedMask', 'ParticularMask', 'UpdateSelectedMask', 'Masks', 'promisedRuns', '$window',
-    function ($scope, $routeParams, $log, $route, $location, RejectSample, AcceptSampleAsNewPattern, RejectPattern, AcceptNewMask, PatternService, ParticularSuite, DeleteSelectedMask, ParticularMask, UpdateSelectedMask, Masks, promisedRuns, $window) {
-        $scope.comparisonResults = promisedRuns;
+    '$route', '$location', 'RejectSample', 'AcceptSampleAsNewPattern', 'RejectPattern', 'AcceptNewMask', 'PatternService', 'ParticularSuite', 'DeleteSelectedMask', 'ParticularMask', 'UpdateSelectedMask', 'Masks', 'runs', '$window',
+    function ($scope, $routeParams, $log, $route, $location, RejectSample, AcceptSampleAsNewPattern, RejectPattern, AcceptNewMask, PatternService, ParticularSuite, DeleteSelectedMask, ParticularMask, UpdateSelectedMask, Masks, runs, $window) {
+        $scope.comparisonResults = runs;
         $scope.allResults = $scope.comparisonResults.length;
         $log.info($scope.comparisonResults.length);
         $scope.back = back;

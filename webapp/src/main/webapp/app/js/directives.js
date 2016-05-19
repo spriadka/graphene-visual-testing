@@ -117,6 +117,7 @@ visualTestingDirectives.directive('nodeNav', ['$compile', '$timeout', function (
                 $scope.$emit('select-change', $scope.selected);
                 $scope.$on('collapse-others', function (event, data) {
                     if ($scope.parent && $scope.index > data) {
+                        console.log("REMOVING");
                         $($element).remove();
                         $timeout(function () {
                             $scope.$destroy();
@@ -126,7 +127,7 @@ visualTestingDirectives.directive('nodeNav', ['$compile', '$timeout', function (
                 $scope.$on('collapse', function (event, nodeIdToCollapse) {
                     if ($scope.parent.nodeId === nodeIdToCollapse) {
                         console.log("COLLAPSE");
-                        $scope.$emit('select-change', $scope.parent);
+                        $scope.$emit('select-change', $scope.parent.nodeId);
                         $scope.$emit('selections-splice', $scope.index - 1);
                         $($element).remove();
                         $timeout(function () {

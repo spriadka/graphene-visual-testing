@@ -123,7 +123,7 @@ visualTestingServices.factory('NodeService', ['$resource', function ($resource) 
     }]);
 
 visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'ParticularRun', '$q', '$log', function ($route, ParticularSuite, ParticularRun, $q, $log) {
-        /*
+
         var updateNeedsToBeUpdatedOneRun = function (run) {
             var comparisonResultsPromised = ParticularRun.all.query({runId: run.testSuiteRunID}).$promise;
             var resultPromised = $q.defer();
@@ -145,7 +145,7 @@ visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'Par
                 resultPromised.resolve(result);
             });
             return resultPromised.promise;
-        };*/
+        };
         var getPromisedSuite = function () {
             var toBeResolvedSuite = ParticularSuite.query({testSuiteID: $route.current.params.testSuiteID}).$promise;
             toBeResolvedSuite.then(function (successValue) {
@@ -153,14 +153,15 @@ visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'Par
                 var promisedRuns = successValue.runs;
                 for (var i = 0; i < promisedRuns.length; i++) {
                     var currentRun = promisedRuns[i];
-                    //updatePercentageOneRun(currentRun);
-                    /*var currentNumberOfTests = getSumOfTests(currentRun);
-                     var previousNumberOfTests = getSumOfTests(promisedRuns[i - 1]);
-                     if (currentNumberOfTests > previousNumberOfTests && (i > 0)) {
-                     currentRun.extraTests = currentNumberOfTests - previousNumberOfTests;
-                     }*/
+                    var currentNumberOfTests = currentRun.numberOfTests;
+                    var previousNumberOfTests = promisedRuns[i - 1].numberOfTests;
+                    if (currentNumberOfTests > previousNumberOfTests && (i > 0)) {
+                        currentRun.extraTests = currentNumberOfTests - previousNumberOfTests;
+                    }
+                    /*if (currentRun.needsToBeUpdated) {
+                        
+                    }*/
                     $log.info(currentRun);
-                    //currentRun.needsToBeUpdated_ = updateNeedsToBeUpdatedOneRun(currentRun);
                 }
 
             });
@@ -182,25 +183,16 @@ visualTestingServices.factory('ResolveComparisonResults', ['$route', '$log', '$q
             });
             return defferedWidth.promise;
         };
-        var setImageWidth = function (comparisonResult) {
-            getImageWidth(comparisonResult).then(function (width) {
-                comparisonResult.imageWidth = width;
-            });
-        };
-        
         var getPromisedComparisonResults = function () {
             var promisedResults;
             var testClass = $route.current.params.testClass;
             var diffsOnly = $route.current.params.diffsOnly;
-            if (testClass && diffsOnly) {
-                promisedResults = ParticularRun.filter.query({runId: $route.current.params.runId, testClass: testClass, diffsOnly: diffsOnly}).$promise;
-            }
-            else {
-                promisedResults = ParticularRun.all.query({runId: $route.current.params.runId}).$promise;
-            }
+            promisedResults = (testClass && diffsOnly)
+                    ? ParticularRun.filter.query({runId: $route.current.params.runId, testClass: testClass, diffsOnly: diffsOnly}).$promise
+                    : ParticularRun.all.query({runId: $route.current.params.runId}).$promise;
             promisedResults.then(function (comparisonResults) {
                 for (var i = 0; i < comparisonResults.length; i++) {
-                    setImageWidth(comparisonResults[i]);
+                    comparisonResults[i].imageWidth = getImageWidth(comparisonResults[i]);
                 }
                 $log.info(promisedResults);
             });
@@ -215,3 +207,40 @@ visualTestingServices.factory('ResolveComparisonResults', ['$route', '$log', '$q
         }
 
     }]);
+
+visualTestingServices.factory('Mask',function(){
+    var Mask = function(){
+        this.sourceData = null;
+        this.horizontalAlignment = null;
+        this.verticalAlignment = null;
+        this.top = 0;
+        this.left = 0;
+        this.width = 0;
+        this.height = 0;
+    };
+    Mask.prototype = {
+        constructor: Mask,
+        getSourceData: function(){
+            return this.sourceData;
+        },
+        getHorizontalAlignment: function(){
+            return this.horizontalAlignment;
+        },
+        getVerticalAlignment: function(){
+            return this.verticalAlignment;
+        },
+        getTop: function(){
+            return this.top;
+        },
+        getLeft: function(){
+            return this.left;
+        },
+        getWidth: function(){
+            return this.width;
+        },
+        getHeight: function(){
+            return this.height;
+        }
+    };
+    return Mask;
+});
