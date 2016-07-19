@@ -42,8 +42,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- *
+ * Handler for TestSuite descriptor and patterns
  * @author jhuska
+ * @author spriadka
  */
 public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHandler {
 
@@ -107,7 +108,14 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
         //UPLOADING PATTERNS
         return crawlAndUploadPatterns(patternsRootDir, patternsRootDir.getName(), httpclient, timestamp, nodesAndIds);
     }
-
+    
+    
+    /**
+     * Uploads the root node of class hierarchy to WebManager
+     * @param conf GrapheneVisualtestingConfiguration bound to the comparison process
+     * @param httpClient HttpClient to be used for upload process
+     * @return Response message from the WebManager
+     */
     private String uploadRootNode(GrapheneVisualTestingConfiguration conf, CloseableHttpClient httpClient) {
         HttpPost postRootWord = new HttpPost(conf.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/words");
         StringEntity rootWordEntity = new StringEntity("{\"value\":\"/\"}", ContentType.APPLICATION_JSON);
@@ -158,6 +166,11 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
 
     }
     
+    /**
+     * Creates map to manage and keep node hierarchy. Used when new tests are added
+     * @param json JSON representation of class hierarchy obtained from REST service usually
+     * @return Map &lt; WordValue,NodeID &gt;
+     */
     private Map<String,Long> getMapFromJSON(JSONObject json){
         Map<String,Long> result = new HashMap<>();
         Iterator<String> iterator = json.keys();
@@ -279,7 +292,11 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
             builder = new StringBuilder();
         }
     }
-
+    
+    /**
+     * Returns number of tests ran by TestSuite
+     * @return sum of tests
+     */
     private int getNumberOfTests() {
         int result = 0;
         for (File testClassDir : screenshooterConf.get().getRootDir().listFiles()) {
@@ -327,7 +344,16 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
             }
         }
     }
-
+    
+    /**
+     * Crawls patterns created by TestSuite to the SuiteDescriptor and uploads them to the WebManager
+     * @param patternsDir Patterns directory File
+     * @param rootOfPatterns Path to root patterns directory 
+     * @param httpClient HttpClient to be used
+     * @param timestamp timestamp of test run
+     * @param nodesAndIds Map of class hierarchy nodes and their respective IDs
+     * @return Success of this operation
+     */
     private boolean crawlAndUploadPatterns(File patternsDir, String rootOfPatterns, CloseableHttpClient httpClient, String timestamp, Map<String, Long> nodesAndIds) {
         GrapheneVisualTestingConfiguration gVC = grapheneVisualTestingConf.get();
         boolean result = true;
@@ -371,7 +397,15 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
         }
         return result;
     }
-
+    
+    /**
+     * Uploads one word of the class hierarchy to WebManager.
+     * Word database contains only unique entries
+     * @param token String value of the word to be uploaded
+     * @param httpClient HttpClient to be used
+     * @param gVC GrapheneVisualTestingConfiguration configuration bound with the comparison process
+     * @return JSON representation of the uploaded word
+     */
     private String uploadWord(String token, CloseableHttpClient httpClient, GrapheneVisualTestingConfiguration gVC) {
         HttpPost postCreateWords = new HttpPost(gVC.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/words");
         StringEntity wordEnity = new StringEntity("{\"value\": \"" + token + "\"}", ContentType.APPLICATION_JSON);
@@ -380,7 +414,15 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
         String wordJSON = RestUtils.executePost(postCreateWords, httpClient, token + " created", "FAILED TO CREATE: " + token);
         return wordJSON;
     }
-
+    
+    /**
+     * Uploads one node of the class hierarchy to WebManager.
+     * @param word String JSON value of the word to be bound with the node
+     * @param index Position of the node in the class hierarchy
+     * @param httpClient HttpClient to be used
+     * @param gVC GrapheneVisualTestingConfiguration configuration bound with the comparison process
+     * @return JSON representation of the uploaded node
+     */
     private String uploadNode(String word,short index,CloseableHttpClient httpClient, GrapheneVisualTestingConfiguration gVC) {
         HttpPost postCreateNode = new HttpPost(gVC.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/nodes");
         StringEntity data = new StringEntity(word, ContentType.APPLICATION_JSON);
@@ -391,6 +433,13 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
         return response;
     }
     
+    /**
+     * Executes HTTP PUT calls to WebManager and manages parent <-> child representation for the class hierarchy
+     * @param parentNodeId ID of parent node
+     * @param childNodeId ID of child node
+     * @param httpClient HttpClient to be used
+     * @param gVC GrapheneVisualTestingConfiguration configuration bound with the comparison process
+     */
     private void addChildToNode(long parentNodeId,long childNodeId,CloseableHttpClient httpClient, GrapheneVisualTestingConfiguration gVC){
         HttpPut putUpdateNode = new HttpPut(gVC.getManagerContextRootURL() + 
                 "graphene-visual-testing-webapp/rest/nodes/" +
@@ -398,7 +447,14 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
                 childNodeId);
         RestUtils.executePut(putUpdateNode, httpClient,"NODE UPDATED", "FAILED TO UPDATE NODE");
     }
-
+    
+    /**
+     * Uploads class hierarchy to WebManager
+     * @param patternPath Path to patterns
+     * @param httpClient HttpClient used
+     * @param gVC GrapheneVisualTestingConfiguration bound with comparison process
+     * @param uploadedNodesAndTheirIds  Map of already uploaded nodes and their respective IDs
+     */
     private void uploadWordsAndNodes(String patternPath, CloseableHttpClient httpClient, GrapheneVisualTestingConfiguration gVC, Map<String, Long> uploadedNodesAndTheirIds) {
         String[] tokens = patternPath.replace("/", ".").split("\\.");
         //GETTING RID OF "after","before" and "png"
@@ -429,7 +485,8 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
             }
         }
     }
-
+    
+    
     private boolean crawlAndUploadMissingPatterns(File patternsDir, String rootOfPatterns, CloseableHttpClient httpclient, List<String> missingTests, String timestamp,Map<String,Long> nodesAndIds) {
         GrapheneVisualTestingConfiguration gVC = grapheneVisualTestingConf.get();
         boolean result = true;
@@ -478,11 +535,6 @@ public class JCRDescriptorAndPatternsHandler implements DescriptorAndPatternsHan
 
         }
         return result;
-    }
-    
-    public static void main(String[] args){
-        float divide = 100 * 1/5;
-        System.out.println("" + divide);
     }
 
 }

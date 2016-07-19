@@ -6,6 +6,8 @@
 package org.arquillian.graphene.visual.testing.test;
 
 import java.util.logging.Logger;
+import jdk.nashorn.internal.scripts.JS;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -26,6 +28,8 @@ public class RestUtilsTest {
     
     private GrapheneVisualTestingConfiguration conf = new GrapheneVisualTestingConfiguration();
     
+    private CloseableHttpClient httpClient = RestUtils.getHTTPClient(conf.getJcrContextRootURL(), conf.getJcrUserName(), conf.getJcrPassword());
+    
     public RestUtilsTest(){
         conf.setJcrUserName("redhat");
         conf.setJcrPassword("redhat2");
@@ -34,7 +38,6 @@ public class RestUtilsTest {
     @Test
     public void testResponse() {
         String token = "test-word";
-        CloseableHttpClient httpClient = RestUtils.getHTTPClient(conf.getJcrContextRootURL(), conf.getJcrUserName(), conf.getJcrPassword());
         HttpPost postCreateWords = new HttpPost(conf.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/words");
         StringEntity wordEnity = new StringEntity("{\"value\": \"" + token + "\"}", ContentType.APPLICATION_JSON);
         postCreateWords.setHeader("Content-Type", "application/json");
@@ -51,5 +54,10 @@ public class RestUtilsTest {
         Assert.assertEquals((long) 1, parser.getLong("nodeId"));
     }
     
+    public void testMaskUrl(){
+        HttpGet httpGet = new HttpGet(conf.getManagerContextRootURL() + "graphene-visual-testing-webapp/rest/suites?name=suiting-redicates-15");
+        String json = RestUtils.executeGet(httpGet, httpClient, "got suite", "nok");
+        JSONObject suite = new JSONObject(json);
+    }
 
 }

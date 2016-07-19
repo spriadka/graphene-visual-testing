@@ -5,27 +5,57 @@
  */
 package org.arquillian.graphene.visual.testing.api;
 
-import org.arquillian.graphene.visual.testing.api.builder.MaskFromRESTBuilder;
-import org.jboss.rusheye.suite.HorizontalAlign;
 import org.jboss.rusheye.suite.MaskType;
-import org.jboss.rusheye.suite.VerticalAlign;
 
 /**
  *
  * @author spriadka
+ * Class that represents Mask object received from REST service and to be compatible with RushEye 
  */
 public class MaskFromREST {
+
+    public static class Builder {
+
+        private String id = "";
+        private String sourceUrl = "";
+        private MaskType maskType = MaskType.SELECTIVE_ALPHA;
+        private String name = "";
+        
+        public Builder id(String id){
+            this.id = id;
+            return this;
+        }
+        
+        public Builder url(String url){
+            this.sourceUrl = url;
+            return this;
+        }
+        
+        public Builder type(MaskType type){
+            this.maskType = type;
+            return this;
+        }
+        
+        public Builder name(String name){
+            this.name = name;
+            return this;
+        }
+        
+        public MaskFromREST build(){
+            return new MaskFromREST(this);
+        }
+    }
     
     private String id;
     private String sourceUrl;
     private MaskType maskType = MaskType.SELECTIVE_ALPHA;
     private String name;
     
-    public MaskFromREST(MaskFromRESTBuilder builder){
-        this.id = builder.getId();
-        this.sourceUrl = builder.getSourceUrl();
-        this.name = builder.getName();
-        this.maskType = builder.getMaskType();
+    private MaskFromREST(Builder builder) {
+        this.id = builder.id;
+        this.sourceUrl = builder.sourceUrl;
+        this.name = builder.name;
+        this.maskType = builder.maskType;
     }
 
     /**
@@ -83,5 +113,5 @@ public class MaskFromREST {
     public void setName(String name) {
         this.name = name;
     }
-   
+
 }

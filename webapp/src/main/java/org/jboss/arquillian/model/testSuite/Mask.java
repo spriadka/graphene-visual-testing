@@ -79,6 +79,7 @@ public class Mask {
         this.pattern = objectMapper.convertValue(props.get("pattern"), Pattern.class);
         this.testSuiteName = (String)props.get("testSuiteName");
         this.sourceData = (String) props.get("sourceData");
+        this.sourceUrl = (String) props.get("sourceUrl");
         this.top = (int) props.get("top");
         this.left = (int) props.get("left");
         this.width = (int) props.get("width");

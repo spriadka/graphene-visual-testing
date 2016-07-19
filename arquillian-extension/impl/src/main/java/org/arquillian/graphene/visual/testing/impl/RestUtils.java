@@ -28,11 +28,19 @@ import org.apache.http.util.EntityUtils;
 /**
  *
  * @author jhuska
+ * @author spriadka
  */
 public class RestUtils {
 
     private static final Logger LOGGER = Logger.getLogger(RestUtils.class.getName());
-
+    /**
+     * Executes HTTP GET call to REST interface
+     * @param httpGet HttpGet to be executed
+     * @param httpclient HttpClient to be used
+     * @param successLog Message displayed when the the call is successful
+     * @param errorLog Message displayed when the the call fails
+     * @return Response message
+     */
     public static String executeGet(HttpGet httpGet, CloseableHttpClient httpclient, String successLog, String errorLog) {
         CloseableHttpResponse response = null;
         BufferedReader bfr = null;
@@ -80,7 +88,14 @@ public class RestUtils {
         }
         return builder.toString();
     }
-
+    /**
+     * Executes HTTP GET and writes Response to file
+     * @param httpGet HttpGet to be executed
+     * @param httpclient HttpClient to be used
+     * @param pathToSaveResponse Path for the output file
+     * @param successLog Message displayed when the the call is successful
+     * @param errorLog Message displayed when the the call fails
+     */
     public static void executeGetAndSaveToFile(HttpGet httpGet, CloseableHttpClient httpclient, String pathToSaveResponse, String successLog, String errorLog) {
         CloseableHttpResponse response = null;
         OutputStream os = null;
@@ -141,12 +156,20 @@ public class RestUtils {
         }
     }
     
-    public static String executePut(HttpPut put, CloseableHttpClient httpclient, String successLog, String errorLog){
+    /**
+     * Executes HTTP PUT call to REST service
+     * @param httpPut HttpPut to be executed
+     * @param httpclient HttpClient to be used
+     * @param successLog Message displayed when the the call is successful
+     * @param errorLog Message displayed when the the call fails
+     * @return Response message
+     */
+    public static String executePut(HttpPut httpPut, CloseableHttpClient httpclient, String successLog, String errorLog){
         CloseableHttpResponse response = null;
         BufferedReader bfr = null;
         StringBuilder builder = new StringBuilder();
         try {
-            response = httpclient.execute(put);
+            response = httpclient.execute(httpPut);
             if (!isOKOrCreated(response)) {
                 StatusLine status = response.getStatusLine();
                 LOGGER.info(String.format("%s %s %s", errorLog, status.getReasonPhrase(), status.getStatusCode()));
@@ -181,13 +204,21 @@ public class RestUtils {
         }
         return builder.toString();
     }
-
-    public static String executePost(HttpPost post, CloseableHttpClient httpclient, String successLog, String errorLog) {
+    
+    /**
+     * Executes HTTP POST call to REST service
+     * @param httpPost HttpPost to be executed
+     * @param httpclient HttpClient to be used
+     * @param successLog Message displayed when the the call is successful
+     * @param errorLog Message displayed when the the call fails
+     * @return Response message
+     */
+    public static String executePost(HttpPost httpPost, CloseableHttpClient httpclient, String successLog, String errorLog) {
         CloseableHttpResponse response = null;
         BufferedReader bfr = null;
         StringBuilder builder = new StringBuilder();
         try {
-            response = httpclient.execute(post);
+            response = httpclient.execute(httpPost);
             if (!isOKOrCreated(response)) {
                 StatusLine status = response.getStatusLine();
                 LOGGER.info(String.format("%s %s %s", errorLog, status.getReasonPhrase(), status.getStatusCode()));

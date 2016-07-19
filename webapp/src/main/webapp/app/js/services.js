@@ -210,37 +210,66 @@ visualTestingServices.factory('ResolveComparisonResults', ['$route', '$log', '$q
 
 visualTestingServices.factory('Mask',function(){
     var Mask = function(){
+        this.maskID = null;
         this.sourceData = null;
+        this.sourceUrl = null;
         this.horizontalAlignment = null;
         this.verticalAlignment = null;
         this.top = 0;
         this.left = 0;
         this.width = 0;
         this.height = 0;
+        this.pattern = null;
+        this.testSuiteName = null;
     };
     Mask.prototype = {
         constructor: Mask,
         getSourceData: function(){
             return this.sourceData;
         },
+        setSourceData: function(sourceData){
+            this.sourceData = sourceData;
+        },
         getHorizontalAlignment: function(){
             return this.horizontalAlignment;
+        },
+        setHorizontalAlignment: function(horizontalAlignment){
+            this.horizontalAlignment = horizontalAlignment;
         },
         getVerticalAlignment: function(){
             return this.verticalAlignment;
         },
+        setVerticalAlignment: function(verticalAlignment){
+            this.verticalAlignment = verticalAlignment;
+        },
         getTop: function(){
             return this.top;
+        },
+        setTop: function(top){
+            this.top = top;
         },
         getLeft: function(){
             return this.left;
         },
+        setLeft: function(left){
+            this.left = left;
+        },
         getWidth: function(){
             return this.width;
         },
+        setWidth: function(width){
+            this.width = width;
+        },
         getHeight: function(){
             return this.height;
+        },
+        setHeight: function(height){
+            this.height = height;
         }
     };
     return Mask;
+});
+
+visualTestingServices.factory('CropService',function(){
+    
 });

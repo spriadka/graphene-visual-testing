@@ -157,11 +157,11 @@ visualTestingControllers.controller('RunController', ['$scope', '$log', '$route'
             , 'ParticularSuite', 'PatternService'
             , 'Masks', 'AcceptNewMask', 'ParticularMask'
             , 'DeleteSelectedMask', 'UpdateSelectedMask'
-            , 'AcceptSampleAsNewPattern', 'RejectPattern', 'RejectSample', function ($scope, $log, $route, ParticularSuite
+            , 'AcceptSampleAsNewPattern', 'RejectPattern', 'RejectSample','Mask', function ($scope, $log, $route, ParticularSuite
                     , PatternService, Masks
                     , AcceptNewMask, ParticularMask
                     , DeleteSelectedMask, UpdateSelectedMask
-                    , AcceptSampleAsNewPattern, RejectPattern, RejectSample) {
+                    , AcceptSampleAsNewPattern, RejectPattern, RejectSample,Mask) {
                 $scope.jcropApi = null;
                 $scope.masks = null;
                 $scope.setCroppedImageAndAlignmentFromMask = function (maskObj) {
@@ -184,14 +184,11 @@ visualTestingControllers.controller('RunController', ['$scope', '$log', '$route'
                     context.rect(startX, startY, width, height);
                     context.fill();
                     var result = canvas.toDataURL();
-                    $log.info(result);
-                    maskObj.sourceData = result;
-                    maskObj.horizontalAlignment = null;
-                    maskObj.verticalAlignment = null;
-                    maskObj.top = startY;
-                    maskObj.left = startX;
-                    maskObj.width = width;
-                    maskObj.height = height;
+                    maskObj.setSourceData(result);
+                    maskObj.setTop(startY);
+                    maskObj.setLeft(startX);
+                    maskObj.setWidth(width);
+                    maskObj.setHeight(height);
                 };
                 $scope.reloadJcrop = function () {
                     var jcropApi = $scope.jcropApi;
@@ -214,8 +211,7 @@ visualTestingControllers.controller('RunController', ['$scope', '$log', '$route'
                     $log.info($scope);
                     var promiseStart = Promise.resolve();
                     var promiseEnd = Promise.resolve();
-                    var maskObj = {};
-                    maskObj.maskID = null;
+                    var maskObj = new Mask();
                     var patternId = $scope.result.patternID;
                     var promisedTestSuite = ParticularSuite.query({testSuiteID: $route.current.params.testSuiteID}).$promise;
                     var promisedPattern = PatternService.query({patternID: patternId}).$promise;
@@ -273,10 +269,8 @@ visualTestingControllers.controller('RunController', ['$scope', '$log', '$route'
                     if (typeof selectedMaskId !== 'undefined') {
                         var promisedSelectedMask = ParticularMask.query({maskID: selectedMaskId}).$promise;
                         promisedSelectedMask.then(function (originalMask) {
-                            var maskObj = originalMask;
-                            $scope.setCroppedImageAndAlignmentFromMask(maskObj);
-                            $log.info(maskObj);
-                            return UpdateSelectedMask.updateSelectedMask(JSON.stringify(maskObj));
+                            $scope.setCroppedImageAndAlignmentFromMask(originalMask);
+                            return UpdateSelectedMask.updateSelectedMask(JSON.stringify(originalMask));
                         }).then(function (succesPayload) {
                             var masks = Masks.query({patternID: patternId});
                             return masks.$promise;

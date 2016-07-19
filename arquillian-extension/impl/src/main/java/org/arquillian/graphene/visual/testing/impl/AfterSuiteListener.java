@@ -16,6 +16,10 @@ import org.jboss.rusheye.arquillian.event.FailedTestsCollection;
 import org.jboss.rusheye.arquillian.event.InsertDescriptorAndPatternsHandlerEvent;
 import org.jboss.rusheye.arquillian.event.VisuallyUnstableTestsCollection;
 
+/**
+ * Listener for the AfterSuite Event
+ * @author spriadka
+ */
 public class AfterSuiteListener {
 
     @Inject
@@ -40,7 +44,11 @@ public class AfterSuiteListener {
     private Instance<VisuallyUnstableTestsCollection> visuallyUnstableTestsCollection;
 
     private static final Logger LOGGER = Logger.getLogger(AfterSuiteListener.class.getName());
-
+    
+    /**
+     * Listens to the AfterSuite event and starts the process of visual comparison
+     * @param event AfterSuite event observed
+     */
     public void listenToAfterSuite(@Observes(precedence = Integer.MAX_VALUE) AfterSuite event) {
         String samplesPath = screenshooterConfiguration.get().getRootDir().getAbsolutePath();
         String descriptorAndPatternsDir
@@ -48,7 +56,11 @@ public class AfterSuiteListener {
         serviceLoader.get().onlyOne(DescriptorAndPatternsHandler.class).retreiveMasks();
         startParsingEvent.fire(new StartParsingEvent(descriptorAndPatternsDir, samplesPath, failedTestsCollection.get(), visuallyUnstableTestsCollection.get()));
     }
-
+    
+    /**
+     * Retrieves the TestSuite descriptor and patterns created
+     * @param event event observed
+     */
     public void getDescriptionAndPatterns(@Observes InsertDescriptorAndPatternsHandlerEvent event) {
         serviceLoader.get().onlyOne(DescriptorAndPatternsHandler.class).retrieveDescriptorAndPatterns();
 

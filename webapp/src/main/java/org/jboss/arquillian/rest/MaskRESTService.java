@@ -23,7 +23,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.arquillian.graphene.visual.testing.api.MaskFromREST;
-import org.arquillian.graphene.visual.testing.api.builder.MaskFromRESTBuilder;
 import org.jboss.arquillian.bean.JCRBean;
 import org.jboss.arquillian.managers.MaskManager;
 import org.jboss.arquillian.model.testSuite.Mask;
@@ -97,6 +96,8 @@ public class MaskRESTService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateMask(Mask mask){
+        LOGGER.info(mask.getMaskID());
+        LOGGER.info(mask.getSourceUrl());
         Mask updatedMask = maskManager.updateMask(mask);
         jcrBean.updateMaskSource(updatedMask);
         return Response.ok().build();
@@ -104,10 +105,16 @@ public class MaskRESTService {
     
     private void deleteMaskFromSuite(Mask mask){
         String name = mask.getTestSuiteName() + ":" + mask.getPattern().getName();
-        MaskFromREST maskFromREST = new MaskFromRESTBuilder().id(mask.getMaskID())
+        /*MaskFromREST maskFromREST = MaskFromREST.Builder().id(mask.getMaskID())
+        .name(name)
+        .sourceUrl(mask.getSourceUrl())
+        .maskType(MaskType.SELECTIVE_ALPHA)
+        .build();*/
+        MaskFromREST maskFromREST = new MaskFromREST.Builder()
+                .id(mask.getMaskID())
                 .name(name)
-                .sourceUrl(mask.getSourceUrl())
-                .maskType(MaskType.SELECTIVE_ALPHA)
+                .type(MaskType.SELECTIVE_ALPHA)
+                .url(mask.getSourceUrl())
                 .build();
         maskHandler.get().deleteMasks(new DeleteMaskFromSuiteEvent(maskFromREST, jcrBean.getDescriptorForMask(mask)));
     }
@@ -124,11 +131,11 @@ public class MaskRESTService {
     private void addMaskToSuite(Mask mask){
         List<MaskFromREST> masksToBeCrawled = new ArrayList<>();
         String name = mask.getTestSuiteName() + ":" + mask.getPattern().getName();
-        MaskFromREST maskFromREST = new MaskFromRESTBuilder()
+        MaskFromREST maskFromREST = new MaskFromREST.Builder()
                 .id(mask.getMaskID())
                 .name(name)
-                .maskType(MaskType.SELECTIVE_ALPHA)
-                .sourceUrl(mask.getSourceUrl())
+                .type(MaskType.SELECTIVE_ALPHA)
+                .url(mask.getSourceUrl())
                 .build();
         masksToBeCrawled.add(maskFromREST);
         System.out.println("--------------------------");

@@ -11,6 +11,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.jboss.arquillian.bean.JCRBean;
@@ -68,5 +69,11 @@ public class TestSuiteRESTService {
     @Produces(MediaType.APPLICATION_JSON)
     public TestSuite getTestSuite(@PathParam("testSuiteID") long id) {
         return testSuiteManager.findById(id);
+    }
+    
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public TestSuite getByName(@QueryParam("name") String name){
+        return testSuiteManager.getTestSuite(name);
     }
 }

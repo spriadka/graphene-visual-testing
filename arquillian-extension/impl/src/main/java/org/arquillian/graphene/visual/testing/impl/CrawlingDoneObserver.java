@@ -9,7 +9,7 @@ import org.jboss.rusheye.arquillian.event.CrawlingDoneEvent;
 import org.jboss.rusheye.arquillian.event.StartCrawlMissingTestsEvent;
 
 /**
- *
+ * Observer for the crawling process of visual comparison
  * @author jhuska
  */
 public class CrawlingDoneObserver {
@@ -17,6 +17,10 @@ public class CrawlingDoneObserver {
     @Inject
     private Instance<ServiceLoader> serviceLoader;
     
+    /**
+     * Fired when crawling process of patterns finishes
+     * @param event CrawlingDoneEvent observed
+     */
     public void saveDescriptorAndPatterns(@Observes CrawlingDoneEvent event) {
         DescriptorAndPatternsHandler handler = serviceLoader.get().onlyOne(DescriptorAndPatternsHandler.class);
         boolean success = handler.saveDescriptorAndPatterns();
@@ -25,6 +29,10 @@ public class CrawlingDoneObserver {
         }
     }
     
+    /**
+     * Fired when crawling process of missing patterns finished
+     * @param event StartCrawlingMissingTestsEvent observed
+     */
     public void saveDescriptorAndMissingPatterns(@Observes StartCrawlMissingTestsEvent event){
         DescriptorAndPatternsHandler handler = serviceLoader.get().onlyOne(DescriptorAndPatternsHandler.class);
         boolean success = handler.saveDescriptorAndMissingPatterns(event);

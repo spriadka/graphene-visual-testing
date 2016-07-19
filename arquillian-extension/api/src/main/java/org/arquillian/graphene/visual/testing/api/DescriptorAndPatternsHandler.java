@@ -26,5 +26,9 @@ public interface DescriptorAndPatternsHandler {
      */
     String retrieveDescriptorAndPatterns();
     
+    /**
+     * Retrieves masks for respective patterns, to they can be included in comparison process
+     * 
+     */
     void retreiveMasks();
 }
