@@ -15,6 +15,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import org.hibernate.annotations.LazyToOne;
+import org.hibernate.annotations.LazyToOneOption;
 import org.jboss.arquillian.model.routing.Node;
 
 /**
@@ -37,11 +39,11 @@ public class TestSuite implements Serializable {
 
     private int numberOfVisualComparisons;
 
-    @OneToMany(mappedBy = "testSuite", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "testSuite", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JsonManagedReference(value = "test-suite-runs")
     private List<TestSuiteRun> runs;
 
-    @OneToMany(mappedBy = "testSuite", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "testSuite", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JsonManagedReference(value = "test-suite-patterns")
     private List<Pattern> patterns;
     

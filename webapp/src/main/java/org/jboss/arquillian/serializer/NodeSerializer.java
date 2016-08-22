@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
+import java.util.List;
 import org.jboss.arquillian.model.routing.Node;
 
 /**
@@ -43,6 +44,11 @@ public class NodeSerializer extends StdSerializer<Node> {
         }
         jg.writeEndArray();
         jg.writeEndObject();
+    }
+    
+    public static void main(String[] args){
+        List<String> arr = null;
+        System.out.println(arr.isEmpty());
     }
 
 }

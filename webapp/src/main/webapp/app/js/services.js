@@ -15,7 +15,7 @@ visualTestingServices.factory('Suites', ['$resource',
 
 visualTestingServices.factory('ParticularSuite', ['$resource',
     function ($resource) {
-        return $resource('rest/suites/:testSuiteID', {testSuiteID: '@testSuiteID'}, {
+        return $resource('rest/suites/:testSuiteID', {testSuiteID: '@testSuiteID', fetch: "runs"}, {
             query: {method: 'GET', isArray: false}
         });
     }]);

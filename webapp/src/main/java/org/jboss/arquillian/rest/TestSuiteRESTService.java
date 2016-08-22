@@ -1,5 +1,8 @@
 package org.jboss.arquillian.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
@@ -12,8 +15,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Providers;
 import org.jboss.arquillian.bean.JCRBean;
 import org.jboss.arquillian.managers.TestSuiteManager;
 import org.jboss.arquillian.model.testSuite.TestSuite;
@@ -32,12 +38,19 @@ public class TestSuiteRESTService {
     @Inject
     private JCRBean jcrBean;
     
+    @Context
+    private Providers provider;
+    
     private static final Logger LOGGER = Logger.getLogger(TestSuiteRESTService.class.getName());
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<TestSuite> getAllTestSuites() {
-        return testSuiteManager.getAllTestSuites();
+    public Response getAllTestSuites() throws JsonProcessingException {
+        ContextResolver<ObjectMapper> resolver = provider
+                .getContextResolver(ObjectMapper.class, MediaType.APPLICATION_JSON_TYPE);
+        ObjectMapper mapper = resolver.getContext(TestSuite.class);
+        return Response.ok(mapper.writeValueAsString(testSuiteManager.getAllTestSuites())
+                , MediaType.APPLICATION_JSON).build();
     }
     
     @DELETE
@@ -45,9 +58,9 @@ public class TestSuiteRESTService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteTestSuite(@PathParam("testSuiteID") long id) {
         LOGGER.info("I AM GOING TO DELETE TEST SUITE");
-        TestSuite testSuiteToRemove = testSuiteManager.findById(id);
+        TestSuite testSuiteToRemove = testSuiteManager.findById(id,Collections.EMPTY_LIST);
         jcrBean.removeTestSuite(testSuiteToRemove.getName());
-        testSuiteManager.deleteTestSuite(testSuiteManager.findById(id));
+        testSuiteManager.deleteTestSuite(testSuiteManager.findById(id,Collections.EMPTY_LIST));
         return Response.ok().build();
     }
     
@@ -67,8 +80,8 @@ public class TestSuiteRESTService {
     @GET
     @Path("/{testSuiteID:[0-9][0-9]*}")
     @Produces(MediaType.APPLICATION_JSON)
-    public TestSuite getTestSuite(@PathParam("testSuiteID") long id) {
-        return testSuiteManager.findById(id);
+    public TestSuite getTestSuite(@PathParam("testSuiteID") long id, @QueryParam("fetch")List<String> list) {
+        return testSuiteManager.findById(id,list);
     }
     
     @GET

@@ -1,6 +1,11 @@
 package org.jboss.arquillian.managers;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.ejb.Stateful;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -20,16 +25,28 @@ public class TestSuiteManager {
     @Inject
     private EntityManager em;
 
-    public TestSuite findById(long id) {
+    public TestSuite findById(long id, List<String> params) {
+        EntityGraph<TestSuite> graph = null;
+        boolean added = false;
+        if (!params.isEmpty()) {
+            graph = em.createEntityGraph(TestSuite.class);
+            for (String field : params) {
+                if (field.equals("rootNode") || field.equals("runs") || field.equals("patterns")) {
+                    added = true;
+                    graph.addAttributeNodes(field);
+                }
+            }
+        }
+        if (added) {
+            HashMap<String, Object> hints = new HashMap<>();
+            hints.put("javax.persistence.loadgraph", graph);
+            return em.find(TestSuite.class, id, hints);
+        }
         return em.find(TestSuite.class, id);
     }
 
-    public List<TestSuite> getAllTestSuites() {
-        /*EntityGraph<TestSuite> graph = em.createEntityGraph(TestSuite.class);
-        graph.addAttributeNodes("rootNode");*/
-        Query query = em.createQuery("SELECT e FROM TEST_SUITE e");
-        List<TestSuite> result = query./*setHint("javax.persistence.loadgraph", graph)*/getResultList();
-        return result;
+    public Set<TestSuite> getAllTestSuites() {
+        return new LinkedHashSet<>(em.createQuery("SELECT e FROM TEST_SUITE e JOIN FETCH e.runs").getResultList());
     }
 
     public TestSuite createTestSuite(TestSuite testSuite) {
@@ -48,7 +65,7 @@ public class TestSuiteManager {
         }
         return result;
     }
-    
+
     public void deleteTestSuite(TestSuite testSuite) {
         em.remove(em.contains(testSuite) ? testSuite : em.merge(testSuite));
     }

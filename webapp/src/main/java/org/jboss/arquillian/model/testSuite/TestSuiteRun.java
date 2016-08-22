@@ -54,11 +54,11 @@ public class TestSuiteRun implements Serializable {
     @JsonBackReference(value = "test-suite-runs")
     private TestSuite testSuite;
 
-    @OneToMany(mappedBy = "testSuiteRun", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "testSuiteRun", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JsonManagedReference(value = "test-suite-run-sample")
     private List<Sample> samples;
 
-    @OneToMany(mappedBy = "testSuiteRun", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "testSuiteRun", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JsonManagedReference(value = "test-suite-run-diff")
     private List<Diff> diffs;
 
