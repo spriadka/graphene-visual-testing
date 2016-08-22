@@ -6,14 +6,20 @@
 package org.jboss.arquillian.managers;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import javax.ejb.Stateless;
-import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
+import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Root;
 import org.jboss.arquillian.model.routing.Node;
 import org.jboss.logging.Logger;
 
@@ -57,8 +63,13 @@ public class NodeManager {
         return found;
     }
     
-    public Node getNode(long nodeId){
-        return em.find(Node.class, nodeId);
+    public Node getNode(long nodeId){        
+        /*EntityGraph<Node> entityGraph = em.createEntityGraph(Node.class);
+        entityGraph.addAttributeNodes("children");
+        Map<String,Object> props = new HashMap<>();
+        props.put("javax.persistence.loadgraph", entityGraph);*/
+        Node ret = em.find(Node.class, nodeId);
+        return ret;
     }
     
     public void deleteNode(Node node){
@@ -84,7 +95,7 @@ public class NodeManager {
                     "." + node.getParentAt((short)0).getNodeId();
         }
         entries.put(toPut,node.getNodeId());
-        if (node.hasChildren()){
+        if (!node.getChildren().isEmpty()){
             for (Node entry : node.getChildren()){
                 createMapRecursively(entries, entry);
             }
@@ -97,5 +108,9 @@ public class NodeManager {
      */
     public void setEm(EntityManager em) {
         this.em = em;
+    }
+    
+    public List<Node> getAllNodes(){
+        return em.createQuery("SELECT n FROM NODE n").getResultList();
     }
 }

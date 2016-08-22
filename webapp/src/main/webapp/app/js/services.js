@@ -151,7 +151,7 @@ visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'Par
             toBeResolvedSuite.then(function (successValue) {
                 $log.info(successValue);
                 var promisedRuns = successValue.runs;
-                for (var i = 0; i < promisedRuns.length; i++) {
+                /*for (var i = 0; i < promisedRuns.length; i++) {
                     var currentRun = promisedRuns[i];
                     var currentNumberOfTests = currentRun.numberOfTests;
                     var previousNumberOfTests = promisedRuns[i - 1].numberOfTests;
@@ -160,9 +160,9 @@ visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'Par
                     }
                     /*if (currentRun.needsToBeUpdated) {
                         
-                    }*/
+                    }
                     $log.info(currentRun);
-                }
+                }*/
 
             });
             return toBeResolvedSuite;
@@ -222,6 +222,18 @@ visualTestingServices.factory('Mask',function(){
         this.pattern = null;
         this.testSuiteName = null;
     };
+    Mask.fromJson = function(obj){
+        if (typeof obj == "string") obj = JSON.parse(obj);
+        var instance = new Mask();
+        instance.setMaskID(obj.maskID);
+        instance.setHeight(obj.height);
+        instance.setLeft(obj.left);
+        instance.setTop(obj.top);
+        instance.setWidth(obj.width);
+        instance.sourceUrl = obj.sourceUrl;
+        instance.testSuiteName = obj.testSuiteName;
+        return instance;
+    };
     Mask.prototype = {
         constructor: Mask,
         getSourceData: function(){
@@ -265,6 +277,9 @@ visualTestingServices.factory('Mask',function(){
         },
         setHeight: function(height){
             this.height = height;
+        },
+        setMaskID: function(maskID){
+            this.maskID = maskID;
         }
     };
     return Mask;

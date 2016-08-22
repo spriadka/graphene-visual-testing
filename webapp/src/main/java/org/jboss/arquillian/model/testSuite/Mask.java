@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.Objects;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -21,7 +20,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.GenericGenerator;
 import org.jboss.logging.Logger;
 
@@ -91,7 +89,7 @@ public class Mask {
     }
 
 
-
+    /*
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -109,7 +107,7 @@ public class Mask {
         equalsBuilder.append(this.getPattern(), mask.getPattern());
         return equalsBuilder.isEquals();
 
-    }
+    }*/
 
     @Override
     public int hashCode() {

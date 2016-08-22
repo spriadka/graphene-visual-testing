@@ -110,9 +110,9 @@ visualTestingDirectives.directive('nodeNav', ['$compile', '$timeout', function (
                 'node': '&parent'
             },
             controller: function ($scope, $element) {
+                console.log($scope);
                 $scope.parent = $scope.node();
                 $scope.selected = $scope.parent.children[0].nodeId;
-                console.log($scope);
                 $scope.index = $scope.parent.children[0].index;
                 $scope.$emit('select-change', $scope.selected);
                 $scope.$on('collapse-others', function (event, data) {

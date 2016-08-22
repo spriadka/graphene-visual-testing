@@ -4,6 +4,7 @@ import java.util.List;
 import javax.ejb.Stateful;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -24,8 +25,10 @@ public class TestSuiteManager {
     }
 
     public List<TestSuite> getAllTestSuites() {
+        /*EntityGraph<TestSuite> graph = em.createEntityGraph(TestSuite.class);
+        graph.addAttributeNodes("rootNode");*/
         Query query = em.createQuery("SELECT e FROM TEST_SUITE e");
-        List<TestSuite> result = query.getResultList();
+        List<TestSuite> result = query./*setHint("javax.persistence.loadgraph", graph)*/getResultList();
         return result;
     }
 

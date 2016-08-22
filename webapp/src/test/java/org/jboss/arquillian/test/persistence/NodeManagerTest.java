@@ -6,20 +6,15 @@
 package org.jboss.arquillian.test.persistence;
 
 
-import com.google.common.collect.ImmutableSet;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 import javax.inject.Inject;
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.managers.NodeManager;
 import org.jboss.arquillian.managers.WordManager;
 import org.jboss.arquillian.model.routing.Word;
 import org.jboss.arquillian.model.routing.Node;
-import org.jboss.arquillian.util.TreePrinter;
 import org.jboss.logging.Logger;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -44,7 +39,6 @@ public class NodeManagerTest {
                 .addClass(WordManager.class)
                 .addClass(Word.class)
                 .addClass(NodeManager.class)
-                .addClass(TreePrinter.class)
                 .addClass(Node.class);
     }
     
@@ -96,7 +90,6 @@ public class NodeManagerTest {
             Node toAdd = new Node();
             toAdd.setWord(wordManager.getWordFromValue(token));
             addedNodes.add(nodeManager.addNode(toAdd));
-            LOGGER.info(TreePrinter.print(toAdd));
         }
         Assert.assertEquals(tokens.length, addedNodes.size());
         

@@ -5,12 +5,9 @@
  */
 package org.jboss.arquillian.rest;
 
-import java.util.ArrayList;
 import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.New;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -22,15 +19,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.arquillian.graphene.visual.testing.api.MaskFromREST;
 import org.jboss.arquillian.bean.JCRBean;
 import org.jboss.arquillian.managers.MaskManager;
 import org.jboss.arquillian.model.testSuite.Mask;
 import org.jboss.logging.Logger;
-import org.arquillian.graphene.visual.testing.api.event.CrawlMaskToSuiteEvent;
-import org.arquillian.graphene.visual.testing.api.event.DeleteMaskFromSuiteEvent;
-import org.arquillian.graphene.visual.testing.impl.JCRMaskHandler;
-import org.jboss.rusheye.suite.MaskType;
+import org.jboss.arquillian.event.CrawlMaskToSuiteEvent;
+import org.jboss.arquillian.event.DeleteMaskFromSuiteEvent;
 
 /**
  *
@@ -44,11 +38,10 @@ public class MaskRESTService {
     private MaskManager maskManager;
     
     @Inject
-    private Event<CrawlMaskToSuiteEvent> crawlMaskEvent;
+    private Event<CrawlMaskToSuiteEvent> crawlEvent;
     
     @Inject
-    @New
-    private Instance<JCRMaskHandler> maskHandler;
+    private Event<DeleteMaskFromSuiteEvent> deleteEvent;
 
     @Inject
     private JCRBean jcrBean;
@@ -105,18 +98,7 @@ public class MaskRESTService {
     
     private void deleteMaskFromSuite(Mask mask){
         String name = mask.getTestSuiteName() + ":" + mask.getPattern().getName();
-        /*MaskFromREST maskFromREST = MaskFromREST.Builder().id(mask.getMaskID())
-        .name(name)
-        .sourceUrl(mask.getSourceUrl())
-        .maskType(MaskType.SELECTIVE_ALPHA)
-        .build();*/
-        MaskFromREST maskFromREST = new MaskFromREST.Builder()
-                .id(mask.getMaskID())
-                .name(name)
-                .type(MaskType.SELECTIVE_ALPHA)
-                .url(mask.getSourceUrl())
-                .build();
-        maskHandler.get().deleteMasks(new DeleteMaskFromSuiteEvent(maskFromREST, jcrBean.getDescriptorForMask(mask)));
+        deleteEvent.fire(new DeleteMaskFromSuiteEvent(mask,jcrBean.getDescriptorForMask(mask)));
     }
     
     private void deleteMaskFromDatabase(Mask mask){
@@ -129,18 +111,9 @@ public class MaskRESTService {
     }
     
     private void addMaskToSuite(Mask mask){
-        List<MaskFromREST> masksToBeCrawled = new ArrayList<>();
         String name = mask.getTestSuiteName() + ":" + mask.getPattern().getName();
-        MaskFromREST maskFromREST = new MaskFromREST.Builder()
-                .id(mask.getMaskID())
-                .name(name)
-                .type(MaskType.SELECTIVE_ALPHA)
-                .url(mask.getSourceUrl())
-                .build();
-        masksToBeCrawled.add(maskFromREST);
         System.out.println("--------------------------");
-        maskHandler.get().uploadMasks(new CrawlMaskToSuiteEvent(masksToBeCrawled, jcrBean.getDescriptorForMask(mask)));
-        //crawlMaskEvent.fire(new CrawlMaskToSuiteEvent(masksToBeCrawled, jcrBean.getDescriptorForMask(mask)));
+        crawlEvent.fire(new CrawlMaskToSuiteEvent(mask,jcrBean.getDescriptorForMask(mask)));
         
     }
 

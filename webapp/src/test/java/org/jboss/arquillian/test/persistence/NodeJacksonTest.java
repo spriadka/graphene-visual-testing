@@ -15,7 +15,6 @@ import org.jboss.arquillian.managers.NodeManager;
 import org.jboss.arquillian.managers.WordManager;
 import org.jboss.arquillian.model.routing.Node;
 import org.jboss.arquillian.model.routing.Word;
-import org.jboss.arquillian.util.TreePrinter;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;
@@ -35,7 +34,6 @@ public class NodeJacksonTest {
                 .addClass(WordManager.class)
                 .addClass(Word.class)
                 .addClass(NodeManager.class)
-                .addClass(TreePrinter.class)
                 .addClass(Node.class);
     }
     

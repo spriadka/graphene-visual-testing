@@ -5,10 +5,13 @@
  */
 package org.jboss.arquillian.model.routing;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Collections;
@@ -16,6 +19,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -23,8 +27,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
+import org.jboss.arquillian.model.util.Views;
+import org.jboss.arquillian.serializer.NodeSerializer;
 
 /**
  *
@@ -34,27 +38,25 @@ import org.hibernate.annotations.LazyCollectionOption;
 @Entity(name = "NODE")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,property = "nodeId",scope = Node.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonSerialize(using = NodeSerializer.class)
 public class Node implements Serializable {
-    
-    
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "NODE_ID")
     private Long nodeId;
     
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     private Word word;
-    
     
     private Short index = Short.MIN_VALUE;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(referencedColumnName = "NODE_ID")
     private Node parent;
     
-    @OneToMany(mappedBy = "parent",cascade = CascadeType.REMOVE)
-    @LazyCollection(LazyCollectionOption.FALSE)
+    
+    @OneToMany(mappedBy = "parent",cascade = CascadeType.REMOVE,fetch = FetchType.EAGER)
     private Set<Node> children = Collections.<Node>emptySet();
     
 
@@ -162,10 +164,6 @@ public class Node implements Serializable {
         return hash;
     }
     */
-    @JsonSerialize
-    public boolean hasChildren(){
-        return !this.children.isEmpty();
-    }
     
     public  boolean isRoot(){
         return this.getParent() == null;

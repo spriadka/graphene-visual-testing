@@ -26,8 +26,7 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.version.VersionException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FileUtils;
-import org.arquillian.graphene.visual.testing.api.event.CrawlMaskDoneEvent;
-import org.arquillian.graphene.visual.testing.api.event.CrawlMaskToJCREvent;
+import org.jboss.arquillian.event.CrawlMaskToJCREvent;
 import org.jboss.arquillian.model.testSuite.Mask;
 import org.jboss.arquillian.model.testSuite.Pattern;
 import org.jboss.arquillian.model.testSuite.Sample;
@@ -45,9 +44,6 @@ public class JCRBean implements Serializable {
 
     @Inject
     private BasicAuthSessionStore sessionStore;
-    
-    @Inject
-    private Event<CrawlMaskDoneEvent> event;
     
     @Inject
     private HttpServletRequest servletRequest;
@@ -239,7 +235,6 @@ public class JCRBean implements Serializable {
             Binary toWrite = session.getValueFactory().createBinary(new FileInputStream(crawlMasksTestsDoneEvent.getSuiteDescriptor()));
             descriptorNode.setProperty(Property.JCR_DATA, toWrite);
             session.save();
-            event.fire(new CrawlMaskDoneEvent());
         }
         catch (RepositoryException | FileNotFoundException ex){
             LOGGER.error(ex);        

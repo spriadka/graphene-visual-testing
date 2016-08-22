@@ -165,6 +165,7 @@ visualTestingControllers.controller('RunController', ['$scope', '$log', '$route'
                 $scope.jcropApi = null;
                 $scope.masks = null;
                 $scope.setCroppedImageAndAlignmentFromMask = function (maskObj) {
+                    $log.info(maskObj);
                     var jcropApi = $scope.jcropApi;
                     var selection = jcropApi.ui.selection;
                     var imgSource = jcropApi.ui.stage.imgsrc;
@@ -269,8 +270,11 @@ visualTestingControllers.controller('RunController', ['$scope', '$log', '$route'
                     if (typeof selectedMaskId !== 'undefined') {
                         var promisedSelectedMask = ParticularMask.query({maskID: selectedMaskId}).$promise;
                         promisedSelectedMask.then(function (originalMask) {
-                            $scope.setCroppedImageAndAlignmentFromMask(originalMask);
-                            return UpdateSelectedMask.updateSelectedMask(JSON.stringify(originalMask));
+                            $log.info(originalMask);
+                            var obj = Mask.fromJson(originalMask);
+                            $log.info(obj);
+                            $scope.setCroppedImageAndAlignmentFromMask(obj);
+                            return UpdateSelectedMask.updateSelectedMask(JSON.stringify(obj));
                         }).then(function (succesPayload) {
                             var masks = Masks.query({patternID: patternId});
                             return masks.$promise;
