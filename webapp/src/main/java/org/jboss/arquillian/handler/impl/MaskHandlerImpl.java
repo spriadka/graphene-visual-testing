@@ -8,14 +8,12 @@ package org.jboss.arquillian.handler.impl;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.ejb.Stateless;
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.Node;
@@ -28,17 +26,20 @@ import org.jboss.arquillian.event.CrawlMaskToSuiteEvent;
 import org.jboss.arquillian.event.DeleteMaskFromSuiteEvent;
 import org.jboss.arquillian.handler.MaskHandler;
 import org.jboss.arquillian.model.testSuite.Mask;
+import org.jboss.logging.Logger;
 import org.jboss.rusheye.RushEye;
 
 /**
  *
  * @author spriadka
  */
-@RequestScoped
+@Stateless
 public class MaskHandlerImpl implements MaskHandler {
 
     @Inject
     private Event<CrawlMaskToJCREvent> crawlingMasksDoneEvent;
+    
+    private Logger LOGGER = Logger.getLogger(MaskHandlerImpl.class);
 
     @Override
     public void deleteMasks(@Observes DeleteMaskFromSuiteEvent event) {
@@ -48,25 +49,26 @@ public class MaskHandlerImpl implements MaskHandler {
             Document suiteXml = new SAXReader().read(descriptor);
             deleteMaskFromConfiguration(maskID, suiteXml);
             deleteMaskFromTest(maskID, suiteXml);
-            String suiteName = event.getMask().getTestSuiteName().split(":")[0];
+            String suiteName = event.getMask().getTestSuiteName();
             writeDocumentToFile(suiteName, suiteXml);
         } catch (Exception e) {
-
+            LOGGER.error(maskID);
         }
     }
 
     @Override
     public void uploadMasks(@Observes CrawlMaskToSuiteEvent event) {
+        LOGGER.info("OVSERVED");
         File descriptor = event.getDescriptor();
         try {
             Document suiteXml = new SAXReader().read(descriptor);
             addMasksToConfiguration(event.getMask(), suiteXml);
             addMasksToTest(event.getMask(), suiteXml);
-            String suiteName = event.getMask().getTestSuiteName().split(":")[0];
+            String suiteName = event.getMask().getTestSuiteName();
             writeDocumentToFile(suiteName, suiteXml);
 
-        } catch (DocumentException ex) {
-            Logger.getLogger(MaskHandlerImpl.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            LOGGER.error(ex);
         }
     }
 
@@ -88,7 +90,10 @@ public class MaskHandlerImpl implements MaskHandler {
     @Override
     public void deleteMaskFromConfiguration(String maskID, Document doc) {
         Namespace ns = Namespace.get(RushEye.NAMESPACE_VISUAL_SUITE);
-        String xPath = "/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"visual-suite\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"global-configuration\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"mask\" and @id=\"" + maskID + "\"]";
+        String xPath = "/*[namespace-uri()=\"" + ns.getURI() + 
+                "\" and name()=\"visual-suite\"]/*[namespace-uri()=\"" + ns.getURI() + 
+                "\" and name()=\"global-configuration\"]/*[namespace-uri()=\"" + ns.getURI() + 
+                "\" and name()=\"mask\" and @id=\"" + maskID + "\"]";
         Node maskElement = doc.selectSingleNode(xPath);
         maskElement.detach();
     }
@@ -108,7 +113,7 @@ public class MaskHandlerImpl implements MaskHandler {
     @Override
     public void addMasksToTest(Mask mask, Document doc) {
         Namespace ns = Namespace.get(RushEye.NAMESPACE_VISUAL_SUITE);
-        String testName = mask.getTestSuiteName().split(":")[1].replaceAll("/", ".");
+        String testName = mask.getPattern().getName().replaceAll("/", ".");
         testName = testName.substring(0, testName.lastIndexOf(".png"));
         String xPath = "/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"visual-suite\"]/*[namespace-uri()=\"" + ns.getURI() + "\" and name()=\"test\" and @name=\"" + testName + "\"]";
         Element testElement = (Element) doc.selectSingleNode(xPath);
@@ -128,7 +133,7 @@ public class MaskHandlerImpl implements MaskHandler {
             writer.write(doc);
             crawlingMasksDoneEvent.fire(new CrawlMaskToJCREvent(toWrite, suiteName));
         } catch (IOException ex) {
-            Logger.getLogger(MaskHandlerImpl.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(ex);
         }
     }
 

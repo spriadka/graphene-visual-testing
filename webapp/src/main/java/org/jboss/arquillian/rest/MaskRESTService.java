@@ -46,7 +46,7 @@ public class MaskRESTService {
     @Inject
     private JCRBean jcrBean;
 
-    private static Logger LOGGER = Logger.getLogger(MaskRESTService.class.getName());
+    private Logger LOGGER = Logger.getLogger(MaskRESTService.class);
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -54,7 +54,7 @@ public class MaskRESTService {
     public void createMask(Mask mask) {
         Mask result = maskManager.createMask(mask);
         addMaskToDatabase(result);
-        LOGGER.info("Mask(s) in database created");
+        //LOGGER.info("Mask(s) in database created");
         addMaskToSuite(result);
     }
     
