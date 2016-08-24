@@ -29,79 +29,76 @@ import org.jboss.logging.Logger;
  */
 @Stateless
 public class NodeManager {
-    
-    
+
     @PersistenceContext
     private EntityManager em;
-    
+
     @Inject
     private WordManager wordManager;
-    
+
     private Logger LOGGER = Logger.getLogger(NodeManager.class);
-    
-    public Node addNode(Node node){
-       Query query = em.createQuery("SELECT n FROM NODE n WHERE n.nodeId=:nodeId");
-       query.setParameter("nodeId", node.getNodeId());
-       Node result = null;
-       try{
-           result = (Node) query.getSingleResult();
-           return result;
-       }
-       catch(NoResultException nre){
-           //node.setParent(node);
-           em.persist(node);
-           return node;
-       }
+
+    public Node addNode(Node node) {
+        Query query = em.createQuery("SELECT n FROM NODE n WHERE n.nodeId=:nodeId");
+        query.setParameter("nodeId", node.getNodeId());
+        Node result = null;
+        try {
+            result = (Node) query.getSingleResult();
+            return result;
+        } catch (NoResultException nre) {
+            //node.setParent(node);
+            em.persist(node);
+            return node;
+        }
     }
-    
-    
-    public Node updateNode(Node node){
+
+    public Node updateNode(Node node) {
         Node found = em.find(Node.class, node.getNodeId());
         found.setWord(node.getWord());
         found.setParent(node.getParent());
         found.setChildren(node.getChildren());
         return found;
     }
-    
-    public Node getNode(long nodeId){        
-        /*EntityGraph<Node> entityGraph = em.createEntityGraph(Node.class);
-        entityGraph.addAttributeNodes("children");
-        Map<String,Object> props = new HashMap<>();
-        props.put("javax.persistence.loadgraph", entityGraph);*/
-        Node ret = em.find(Node.class, nodeId);
-        return ret;
+
+    public Node getNode(long nodeId, boolean children) {
+        if (children) {
+            EntityGraph<Node> entityGraph = em.createEntityGraph(Node.class);
+            entityGraph.addAttributeNodes("children");
+            Map<String, Object> props = new HashMap<>();
+            props.put("javax.persistence.loadgraph", entityGraph);
+            return em.find(Node.class, nodeId,props);
+        }
+        return em.find(Node.class,nodeId);
     }
-    
-    public void deleteNode(Node node){
+
+    public void deleteNode(Node node) {
         em.remove(em.contains(node) ? node : em.merge(node));
     }
-    
-    public Map<String,Long> createNodesMap(Node node){
+
+    public Map<String, Long> createNodesMap(Node node) {
         Node found = em.find(Node.class, node.getNodeId());
-        Map<String,Long> result = new HashMap<>();
+        Map<String, Long> result = new HashMap<>();
         createMapRecursively(result, found);
         return result;
     }
-    
-    public void createMapRecursively(Map<String,Long> entries,Node node){
+
+    public void createMapRecursively(Map<String, Long> entries, Node node) {
         LOGGER.info(node.getNodeId());
         String toPut = "";
-        if (node.isRoot() || node.getIndex() == 0){
+        if (node.isRoot() || node.getIndex() == 0) {
             toPut = node.getWord().getValue();
+        } else {
+            toPut = node.getWord().getValue()
+                    + "." + node.getIndex()
+                    + "." + node.getParentAt((short) 0).getNodeId();
         }
-        else{
-            toPut = node.getWord().getValue() + 
-                    "." + node.getIndex() + 
-                    "." + node.getParentAt((short)0).getNodeId();
-        }
-        entries.put(toPut,node.getNodeId());
-        if (!node.getChildren().isEmpty()){
-            for (Node entry : node.getChildren()){
+        entries.put(toPut, node.getNodeId());
+        if (!node.getChildren().isEmpty()) {
+            for (Node entry : node.getChildren()) {
                 createMapRecursively(entries, entry);
             }
         }
     }
-    
 
     /**
      * @param em the em to set
@@ -109,8 +106,8 @@ public class NodeManager {
     public void setEm(EntityManager em) {
         this.em = em;
     }
-    
-    public List<Node> getAllNodes(){
+
+    public List<Node> getAllNodes() {
         return em.createQuery("SELECT n FROM NODE n").getResultList();
     }
 }

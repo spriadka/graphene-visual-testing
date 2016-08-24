@@ -13,6 +13,9 @@ import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.persistence.Subgraph;
+import org.jboss.arquillian.model.meta.TestSuite_;
+import org.jboss.arquillian.model.routing.Node;
 import org.jboss.arquillian.model.testSuite.TestSuite;
 
 /**
@@ -25,15 +28,23 @@ public class TestSuiteManager {
     @Inject
     private EntityManager em;
 
-    public TestSuite findById(long id, List<String> params) {
+    public TestSuite findById(long id, String params) {
         EntityGraph<TestSuite> graph = null;
         boolean added = false;
         if (!params.isEmpty()) {
             graph = em.createEntityGraph(TestSuite.class);
-            for (String field : params) {
-                if (field.equals("rootNode") || field.equals("runs") || field.equals("patterns")) {
-                    added = true;
-                    graph.addAttributeNodes(field);
+            for (String field : params.split(",")) {
+                switch (field) {
+                    case "rootNode":
+                        added = true;
+                        Subgraph<Node> rootNode = graph.addSubgraph("rootNode");
+                        rootNode.addAttributeNodes("children");
+                        break;
+                    case "runs":
+                    case "patterns":
+                        added = true;
+                        graph.addAttributeNodes(field);
+                        break;
                 }
             }
         }

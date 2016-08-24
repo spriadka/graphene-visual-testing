@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -38,7 +39,7 @@ import org.jboss.arquillian.serializer.NodeSerializer;
 @Entity(name = "NODE")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,property = "nodeId",scope = Node.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonSerialize(using = NodeSerializer.class)
+//@JsonSerialize(using = NodeSerializer.class)
 public class Node implements Serializable {
     
     @Id
@@ -51,13 +52,13 @@ public class Node implements Serializable {
     
     private Short index = Short.MIN_VALUE;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(referencedColumnName = "NODE_ID")
     private Node parent;
     
     
-    @OneToMany(mappedBy = "parent",cascade = CascadeType.REMOVE,fetch = FetchType.EAGER)
-    private Set<Node> children = Collections.<Node>emptySet();
+    @OneToMany(mappedBy = "parent",cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
+    private Set<Node> children = Collections.EMPTY_SET;
     
 
     /**
@@ -92,7 +93,7 @@ public class Node implements Serializable {
      * @return the children
      */
     public Set<Node> getChildren() {
-        return Collections.unmodifiableSet(children);
+        return children;
     }
 
     /**
@@ -186,6 +187,7 @@ public class Node implements Serializable {
     public boolean hasParent(){
         return parent != null;
     }
+    
     
     public Node getParentAt(short index){
         Node result = this;

@@ -1,0 +1,135 @@
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Graphene Visual Testing Webapp 0.0.1-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ graphene-visual-testing-webapp ---
+[INFO] org.jboss.arquillian.extension:graphene-visual-testing-webapp:war:0.0.1-SNAPSHOT
+[INFO] +- javax.enterprise:cdi-api:jar:1.2:provided
+[INFO] |  +- javax.el:javax.el-api:jar:3.0.0:provided
+[INFO] |  +- javax.interceptor:javax.interceptor-api:jar:1.2:provided
+[INFO] |  \- javax.inject:javax.inject:jar:1:provided
+[INFO] +- org.jboss.spec.javax.annotation:jboss-annotations-api_1.2_spec:jar:1.0.0.Final:provided
+[INFO] +- org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.0_spec:jar:1.0.0.Final:provided
+[INFO] +- org.jboss.resteasy:resteasy-jaxrs:jar:3.0.8.Final:provided
+[INFO] |  +- org.jboss.resteasy:jaxrs-api:jar:3.0.10.Final:provided (version managed from 3.0.8.Final)
+[INFO] |  +- org.jboss.spec.javax.annotation:jboss-annotations-api_1.1_spec:jar:1.0.1.Final:provided
+[INFO] |  +- javax.activation:activation:jar:1.1.1:provided (version managed from 1.1)
+[INFO] |  +- org.apache.httpcomponents:httpclient:jar:4.2.1:provided
+[INFO] |  |  +- org.apache.httpcomponents:httpcore:jar:4.2.1:provided
+[INFO] |  |  +- commons-logging:commons-logging:jar:1.1.1:provided
+[INFO] |  |  \- commons-codec:commons-codec:jar:1.6:provided
+[INFO] |  +- (commons-io:commons-io:jar:2.1:provided - omitted for conflict with 2.5)
+[INFO] |  \- net.jcip:jcip-annotations:jar:1.0:provided
+[INFO] +- org.jboss.resteasy:resteasy-jaxb-provider:jar:3.0.8.Final:provided
+[INFO] |  \- com.sun.xml.bind:jaxb-impl:jar:2.2.7:provided
+[INFO] |     +- com.sun.xml.bind:jaxb-core:jar:2.2.7:provided
+[INFO] |     |  +- javax.xml.bind:jaxb-api:jar:2.2.7:provided
+[INFO] |     |  \- com.sun.istack:istack-commons-runtime:jar:2.16:provided
+[INFO] |     \- com.sun.xml.fastinfoset:FastInfoset:jar:1.2.12:provided
+[INFO] |        \- javax.xml.bind:jsr173_api:jar:1.0:provided
+[INFO] +- javax.jcr:jcr:jar:2.0:provided
+[INFO] +- org.modeshape:modeshape-jcr-api:jar:4.0.0.Final:provided
+[INFO] |  \- (javax.jcr:jcr:jar:2.0:provided - omitted for duplicate)
+[INFO] +- org.hibernate.javax.persistence:hibernate-jpa-2.1-api:jar:1.0.0.Final:compile
+[INFO] +- org.hibernate:hibernate-validator:jar:5.1.3.Final:provided
+[INFO] |  +- javax.validation:validation-api:jar:1.1.0.Final:provided
+[INFO] |  +- org.jboss.logging:jboss-logging:jar:3.1.4.GA:provided (version managed from 3.1.3.GA)
+[INFO] |  \- com.fasterxml:classmate:jar:1.0.0:provided
+[INFO] +- org.jboss.spec.javax.ejb:jboss-ejb-api_3.2_spec:jar:1.0.0.Final:provided
+[INFO] +- org.jboss.spec.javax.servlet:jboss-servlet-api_3.1_spec:jar:1.0.0.Final:provided
+[INFO] +- org.hibernate:hibernate-core:jar:4.3.7.Final:provided
+[INFO] |  +- (org.jboss.logging:jboss-logging:jar:3.1.4.GA:provided - version managed from 3.1.3.GA; omitted for duplicate)
+[INFO] |  +- org.jboss.logging:jboss-logging-annotations:jar:1.2.0.Beta1:provided
+[INFO] |  +- org.jboss.spec.javax.transaction:jboss-transaction-api_1.2_spec:jar:1.0.0.Final:provided
+[INFO] |  +- dom4j:dom4j:jar:1.6.1:provided
+[INFO] |  +- org.hibernate.common:hibernate-commons-annotations:jar:4.0.5.Final:provided
+[INFO] |  |  +- (org.jboss.logging:jboss-logging:jar:3.1.4.GA:provided - version managed from 3.1.3.GA; omitted for duplicate)
+[INFO] |  |  \- (org.jboss.logging:jboss-logging-annotations:jar:1.2.0.Beta1:provided - omitted for duplicate)
+[INFO] |  +- (org.hibernate.javax.persistence:hibernate-jpa-2.1-api:jar:1.0.0.Final:provided - omitted for duplicate)
+[INFO] |  +- org.javassist:javassist:jar:3.18.1-GA:provided
+[INFO] |  +- antlr:antlr:jar:2.7.7:provided
+[INFO] |  \- org.jboss:jandex:jar:1.1.0.Final:provided
+[INFO] +- org.jboss.weld.servlet:weld-servlet:jar:1.1.9.Final:compile
+[INFO] +- joda-time:joda-time:jar:2.1:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-databind:jar:2.7.0:compile
+[INFO] |  +- (com.fasterxml.jackson.core:jackson-annotations:jar:2.7.0:compile - omitted for duplicate)
+[INFO] |  \- (com.fasterxml.jackson.core:jackson-core:jar:2.7.0:compile - omitted for duplicate)
+[INFO] +- com.fasterxml.jackson.core:jackson-core:jar:2.7.0:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-annotations:jar:2.7.0:compile
+[INFO] +- com.fasterxml.jackson.datatype:jackson-datatype-hibernate4:jar:2.7.0:compile
+[INFO] |  +- (com.fasterxml.jackson.core:jackson-databind:jar:2.7.0:compile - omitted for duplicate)
+[INFO] |  \- (com.fasterxml.jackson.core:jackson-core:jar:2.7.0:compile - omitted for duplicate)
+[INFO] +- commons-io:commons-io:jar:2.5:compile
+[INFO] +- org.dom4j:dom4j:jar:2.0.0:compile
+[INFO] |  \- jaxen:jaxen:jar:1.1.6:compile
+[INFO] +- junit:junit:jar:4.11:test
+[INFO] |  \- org.hamcrest:hamcrest-core:jar:1.3:test
+[INFO] +- org.jboss.arquillian.junit:arquillian-junit-container:jar:1.1.11.Final:test
+[INFO] |  +- org.jboss.arquillian.junit:arquillian-junit-core:jar:1.1.11.Final:test
+[INFO] |  |  \- (org.jboss.arquillian.test:arquillian-test-spi:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  +- org.jboss.arquillian.test:arquillian-test-api:jar:1.1.11.Final:test
+[INFO] |  |  \- org.jboss.arquillian.core:arquillian-core-api:jar:1.1.11.Final:test
+[INFO] |  +- org.jboss.arquillian.test:arquillian-test-spi:jar:1.1.11.Final:test
+[INFO] |  |  +- org.jboss.arquillian.core:arquillian-core-spi:jar:1.1.11.Final:test
+[INFO] |  |  |  \- (org.jboss.arquillian.core:arquillian-core-api:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  \- (org.jboss.arquillian.test:arquillian-test-api:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  +- org.jboss.arquillian.container:arquillian-container-test-api:jar:1.1.11.Final:test
+[INFO] |  |  \- org.jboss.shrinkwrap:shrinkwrap-api:jar:1.2.3:test
+[INFO] |  +- org.jboss.arquillian.container:arquillian-container-test-spi:jar:1.1.11.Final:test
+[INFO] |  |  +- (org.jboss.arquillian.container:arquillian-container-spi:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  +- (org.jboss.arquillian.test:arquillian-test-spi:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  \- (org.jboss.arquillian.container:arquillian-container-test-api:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  +- org.jboss.arquillian.core:arquillian-core-impl-base:jar:1.1.11.Final:test
+[INFO] |  |  +- (org.jboss.arquillian.core:arquillian-core-api:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  \- (org.jboss.arquillian.core:arquillian-core-spi:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  +- org.jboss.arquillian.test:arquillian-test-impl-base:jar:1.1.11.Final:test
+[INFO] |  |  +- (org.jboss.arquillian.test:arquillian-test-api:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  \- (org.jboss.arquillian.test:arquillian-test-spi:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  +- org.jboss.arquillian.container:arquillian-container-impl-base:jar:1.1.11.Final:test
+[INFO] |  |  +- (org.jboss.arquillian.core:arquillian-core-api:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  +- (org.jboss.arquillian.core:arquillian-core-spi:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  +- org.jboss.arquillian.config:arquillian-config-api:jar:1.1.11.Final:test
+[INFO] |  |  |  \- (org.jboss.shrinkwrap.descriptors:shrinkwrap-descriptors-api-base:jar:2.0.0-alpha-8:test - omitted for duplicate)
+[INFO] |  |  +- org.jboss.arquillian.config:arquillian-config-impl-base:jar:1.1.11.Final:test
+[INFO] |  |  |  +- (org.jboss.arquillian.config:arquillian-config-api:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  |  +- (org.jboss.arquillian.core:arquillian-core-api:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  |  +- (org.jboss.arquillian.core:arquillian-core-spi:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  |  \- (org.jboss.shrinkwrap.descriptors:shrinkwrap-descriptors-spi:jar:2.0.0-alpha-8:test - omitted for duplicate)
+[INFO] |  |  +- (org.jboss.arquillian.container:arquillian-container-spi:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  \- (org.jboss.shrinkwrap.descriptors:shrinkwrap-descriptors-spi:jar:2.0.0-alpha-8:test - omitted for duplicate)
+[INFO] |  +- org.jboss.arquillian.container:arquillian-container-test-impl-base:jar:1.1.11.Final:test
+[INFO] |  |  +- (org.jboss.arquillian.container:arquillian-container-spi:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  +- (org.jboss.arquillian.test:arquillian-test-api:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  +- (org.jboss.arquillian.container:arquillian-container-test-api:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  \- (org.jboss.arquillian.container:arquillian-container-test-spi:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  \- org.jboss.shrinkwrap:shrinkwrap-impl-base:jar:1.2.3:test
+[INFO] |     +- (org.jboss.shrinkwrap:shrinkwrap-api:jar:1.2.3:test - omitted for duplicate)
+[INFO] |     \- org.jboss.shrinkwrap:shrinkwrap-spi:jar:1.2.3:test
+[INFO] |        \- (org.jboss.shrinkwrap:shrinkwrap-api:jar:1.2.3:test - omitted for duplicate)
+[INFO] +- org.jboss.arquillian.protocol:arquillian-protocol-servlet:jar:1.1.11.Final:test
+[INFO] |  +- org.jboss.arquillian.container:arquillian-container-spi:jar:1.1.11.Final:test
+[INFO] |  |  +- (org.jboss.arquillian.core:arquillian-core-spi:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  +- (org.jboss.arquillian.config:arquillian-config-api:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  +- (org.jboss.arquillian.config:arquillian-config-impl-base:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  |  +- (org.jboss.shrinkwrap:shrinkwrap-api:jar:1.2.3:test - omitted for duplicate)
+[INFO] |  |  \- org.jboss.shrinkwrap.descriptors:shrinkwrap-descriptors-api-base:jar:2.0.0-alpha-8:test
+[INFO] |  +- (org.jboss.arquillian.container:arquillian-container-test-api:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  +- (org.jboss.arquillian.container:arquillian-container-test-spi:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  +- (org.jboss.arquillian.container:arquillian-container-test-impl-base:jar:1.1.11.Final:test - omitted for duplicate)
+[INFO] |  \- org.jboss.shrinkwrap.descriptors:shrinkwrap-descriptors-spi:jar:2.0.0-alpha-8:test
+[INFO] |     \- (org.jboss.shrinkwrap.descriptors:shrinkwrap-descriptors-api-base:jar:2.0.0-alpha-8:test - omitted for duplicate)
+[INFO] +- org.hibernate:hibernate-jpamodelgen:jar:1.2.0.Final:provided
+[INFO] +- org.mockito:mockito-all:jar:1.9.5:test
+[INFO] +- org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-api-maven:jar:2.2.0:test
+[INFO] |  \- org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-api:jar:2.2.0:test
+[INFO] +- org.jboss.rusheye:rusheye-api:jar:1.0.0-SNAPSHOT:compile
+[INFO] \- com.google.code.gson:gson:jar:2.3.1:compile
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 3.591 s
+[INFO] Finished at: 2016-08-24T10:31:51+02:00
+[INFO] Final Memory: 17M/319M
+[INFO] ------------------------------------------------------------------------

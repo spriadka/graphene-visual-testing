@@ -5,6 +5,7 @@
  */
 package org.jboss.arquillian.model.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -29,7 +30,9 @@ public class JacksonHibernate4ModuleConfig implements ContextResolver<ObjectMapp
         Hibernate4Module hibernate4Module = new Hibernate4Module();
         hibernate4Module.disable(Hibernate4Module.Feature.FORCE_LAZY_LOADING);
         registerModule(hibernate4Module);
+        //setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        enable(SerializationFeature.INDENT_OUTPUT);
     }   
         
     };

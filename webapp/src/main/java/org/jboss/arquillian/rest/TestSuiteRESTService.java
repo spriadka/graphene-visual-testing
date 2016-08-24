@@ -45,7 +45,7 @@ public class TestSuiteRESTService {
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllTestSuites() throws JsonProcessingException {
+    public Response getAllTestSuites(@QueryParam("fetch")List<String> fetch) throws JsonProcessingException {
         ContextResolver<ObjectMapper> resolver = provider
                 .getContextResolver(ObjectMapper.class, MediaType.APPLICATION_JSON_TYPE);
         ObjectMapper mapper = resolver.getContext(TestSuite.class);
@@ -58,9 +58,9 @@ public class TestSuiteRESTService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteTestSuite(@PathParam("testSuiteID") long id) {
         LOGGER.info("I AM GOING TO DELETE TEST SUITE");
-        TestSuite testSuiteToRemove = testSuiteManager.findById(id,Collections.EMPTY_LIST);
+        TestSuite testSuiteToRemove = testSuiteManager.findById(id,"");
         jcrBean.removeTestSuite(testSuiteToRemove.getName());
-        testSuiteManager.deleteTestSuite(testSuiteManager.findById(id,Collections.EMPTY_LIST));
+        testSuiteManager.deleteTestSuite(testSuiteManager.findById(id,""));
         return Response.ok().build();
     }
     
@@ -80,8 +80,15 @@ public class TestSuiteRESTService {
     @GET
     @Path("/{testSuiteID:[0-9][0-9]*}")
     @Produces(MediaType.APPLICATION_JSON)
-    public TestSuite getTestSuite(@PathParam("testSuiteID") long id, @QueryParam("fetch")List<String> list) {
-        return testSuiteManager.findById(id,list);
+    public Response getTestSuite(@PathParam("testSuiteID") long id, @QueryParam("fetch")String list) throws JsonProcessingException {
+        ContextResolver<ObjectMapper> resolver = provider
+                .getContextResolver(ObjectMapper.class, MediaType.APPLICATION_JSON_TYPE);
+        ObjectMapper mapper = resolver.getContext(TestSuite.class);
+        TestSuite entity = testSuiteManager.findById(id, list);
+        String json = mapper.writeValueAsString(entity);
+        System.out.println(json);
+        return Response.ok(json,
+                MediaType.APPLICATION_JSON).build();
     }
     
     @GET

@@ -84,7 +84,7 @@ visualTestingControllers.controller('ParticularSuiteCtrl', ['$scope', '$routePar
         });
         $scope.expandClass = function () {
             var value = $scope.lastSelected;
-            var promisedNode = NodeService.query({nodeId: value}).$promise;
+            var promisedNode = NodeService.query({nodeId: value,children: true}).$promise;
             promisedNode.then(function (resource) {
                 $log.info(resource);
                 if (resource.children.length > 0) {

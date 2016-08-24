@@ -1,10 +1,13 @@
 package org.jboss.arquillian.model.testSuite;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,22 +44,22 @@ public class TestSuite implements Serializable {
 
     @OneToMany(mappedBy = "testSuite", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JsonManagedReference(value = "test-suite-runs")
-    private List<TestSuiteRun> runs;
+    private Set<TestSuiteRun> runs = Collections.EMPTY_SET;
 
     @OneToMany(mappedBy = "testSuite", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JsonManagedReference(value = "test-suite-patterns")
-    private List<Pattern> patterns;
+    private Set<Pattern> patterns = Collections.EMPTY_SET;
     
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne(cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
     @JoinColumn(name = "NODE_ID")
     private Node rootNode;
     
 
-    public List<Pattern> getPatterns() {
+    public Set<Pattern> getPatterns() {
         return patterns;
     }
 
-    public void setPatterns(List<Pattern> patterns) {
+    public void setPatterns(Set<Pattern> patterns) {
         this.patterns = patterns;
     }
 
@@ -92,11 +95,11 @@ public class TestSuite implements Serializable {
         this.testSuiteID = testSuiteID;
     }
 
-    public List<TestSuiteRun> getRuns() {
+    public Set<TestSuiteRun> getRuns() {
         return runs;
     }
 
-    public void setRuns(List<TestSuiteRun> runs) {
+    public void setRuns(Set<TestSuiteRun> runs) {
         this.runs = runs;
     }
 

@@ -15,7 +15,7 @@ visualTestingServices.factory('Suites', ['$resource',
 
 visualTestingServices.factory('ParticularSuite', ['$resource',
     function ($resource) {
-        return $resource('rest/suites/:testSuiteID', {testSuiteID: '@testSuiteID', fetch: "runs"}, {
+        return $resource('rest/suites/:testSuiteID', {testSuiteID: '@testSuiteID',fetch: fetch}, {
             query: {method: 'GET', isArray: false}
         });
     }]);
@@ -147,7 +147,7 @@ visualTestingServices.factory('ResolveSuite', ['$route', 'ParticularSuite', 'Par
             return resultPromised.promise;
         };
         var getPromisedSuite = function () {
-            var toBeResolvedSuite = ParticularSuite.query({testSuiteID: $route.current.params.testSuiteID}).$promise;
+            var toBeResolvedSuite = ParticularSuite.query({testSuiteID: $route.current.params.testSuiteID, fetch: "runs,rootNode"}).$promise;
             toBeResolvedSuite.then(function (successValue) {
                 $log.info(successValue);
                 var promisedRuns = successValue.runs;

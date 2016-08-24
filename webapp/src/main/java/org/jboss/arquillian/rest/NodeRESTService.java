@@ -5,6 +5,8 @@
  */
 package org.jboss.arquillian.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashSet;
 import java.util.Set;
 import javax.enterprise.context.RequestScoped;
@@ -17,9 +19,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Providers;
 import org.jboss.arquillian.managers.NodeManager;
 import org.jboss.arquillian.managers.TestSuiteManager;
@@ -34,34 +39,34 @@ import org.jboss.logging.Logger;
 @RequestScoped
 @Path("/nodes")
 public class NodeRESTService {
-    
+
     @Inject
     private NodeManager nodeManager;
-    
+
     @Inject
     private TestSuiteManager testSuiteManager;
-    
+
     @Context
     private Providers providers;
-    
+
     private final Logger LOGGER = Logger.getLogger(NodeRESTService.class);
-    
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addNode(@HeaderParam("index")short index,Word word){
-       Node toAdd = new Node();
-       toAdd.setWord(word);
-       toAdd.setIndex(index);
-       Node returnNode = nodeManager.addNode(toAdd);
-       return Response.ok(returnNode,MediaType.APPLICATION_JSON).build();
+    public Response addNode(@HeaderParam("index")short index, Word word) {
+        Node toAdd = new Node();
+        toAdd.setWord(word);
+        toAdd.setIndex(index);
+        Node returnNode = nodeManager.addNode(toAdd);
+        return Response.ok(returnNode, MediaType.APPLICATION_JSON).build();
     }
-    
+
     @PUT
     @Path("/{parentId:[0-9][0-9]*}/{childId:[0-9][0-9]*}")
-    public Response addChildToNode(@PathParam("parentId")Long parentId, @PathParam("childId")Long childId){
-        Node parentNode = nodeManager.getNode(parentId);
-        Node childNode = nodeManager.getNode(childId);
+    public Response addChildToNode(@PathParam("parentId") Long parentId, @PathParam("childId") Long childId) {
+        Node parentNode = nodeManager.getNode(parentId, true);
+        Node childNode = nodeManager.getNode(childId, true);
         int initLazy = parentNode.getChildren().size();
         Set<Node> children = new HashSet<>(parentNode.getChildren());
         children.add(childNode);
@@ -71,25 +76,30 @@ public class NodeRESTService {
         nodeManager.updateNode(parentNode);
         return Response.ok().build();
     }
+
     @GET
     @Path("/{nodeId:[0-9][0-9]*}")
-    public Response getNode(@PathParam("nodeId")long nodeId){
-        Node response = nodeManager.getNode(nodeId);
-        return Response.ok(response,MediaType.APPLICATION_JSON).build();
+    public Response getNode(@PathParam("nodeId") long nodeId, @QueryParam("children") boolean children) throws JsonProcessingException {
+        Node response = children ? nodeManager.getNode(nodeId, true) : nodeManager.getNode(nodeId, false);
+        ContextResolver<ObjectMapper> resolver = providers
+                .getContextResolver(ObjectMapper.class, MediaType.APPLICATION_JSON_TYPE);
+        ObjectMapper mapper = resolver.getContext(Node.class);
+        String json = mapper.writeValueAsString(response);
+        return Response.ok(json, MediaType.APPLICATION_JSON).build();
     }
-    
+
     @GET
     @Path("/map/{nodeId: [0-9][0-9]*}")
-    public Response getMap(@PathParam("nodeId")long nodeId){
-        Node fromEm = nodeManager.getNode(nodeId);
-        return fromEm != null ? Response.ok(nodeManager.createNodesMap(fromEm),MediaType.APPLICATION_JSON).build() : Response.serverError().build();
+    public Response getMap(@PathParam("nodeId") long nodeId) {
+        Node fromEm = nodeManager.getNode(nodeId, true);
+        return fromEm != null ? Response.ok(nodeManager.createNodesMap(fromEm), MediaType.APPLICATION_JSON).build() : Response.serverError().build();
     }
-    
+
     @GET
     @Path("/root-node/{testSuiteName: .*}")
-    public Response getRootNodeForSuite(@PathParam("testSuiteName")String suiteName){
-        Node fromEm = nodeManager.getNode(testSuiteManager.getTestSuite(suiteName).getRootNode().getNodeId());
-        return fromEm != null ? Response.ok(fromEm,MediaType.APPLICATION_JSON).build() : Response.serverError().build();
+    public Response getRootNodeForSuite(@PathParam("testSuiteName") String suiteName) {
+        Node fromEm = nodeManager.getNode(testSuiteManager.getTestSuite(suiteName).getRootNode().getNodeId(), false);
+        return fromEm != null ? Response.ok(fromEm, MediaType.APPLICATION_JSON).build() : Response.serverError().build();
     }
-    
+
 }
