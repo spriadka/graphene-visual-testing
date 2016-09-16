@@ -5,15 +5,9 @@
  */
 package org.jboss.arquillian.model.routing;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
@@ -28,8 +22,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import org.jboss.arquillian.model.util.Views;
-import org.jboss.arquillian.serializer.NodeSerializer;
 
 /**
  *
@@ -39,7 +31,6 @@ import org.jboss.arquillian.serializer.NodeSerializer;
 @Entity(name = "NODE")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,property = "nodeId",scope = Node.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-//@JsonSerialize(using = NodeSerializer.class)
 public class Node implements Serializable {
     
     @Id
@@ -50,7 +41,8 @@ public class Node implements Serializable {
     @OneToOne(fetch = FetchType.EAGER)
     private Word word;
     
-    private Short index = Short.MIN_VALUE;
+    @Column(name = "INDEX")
+    private Short index = -1000;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(referencedColumnName = "NODE_ID")
@@ -188,21 +180,5 @@ public class Node implements Serializable {
         return parent != null;
     }
     
-    
-    public Node getParentAt(short index){
-        Node result = this;
-        if (index < 0){
-            throw new IllegalArgumentException("index must be >= 0");
-        }
-        else if (this.index < index){
-            throw new IllegalArgumentException("cannot get parent at index:" + index);
-        }
-        else {
-            for (short i = this.index; i > index; i--){
-                result = result.getParent();
-            }
-        }
-        return result;
-    }
     
 }

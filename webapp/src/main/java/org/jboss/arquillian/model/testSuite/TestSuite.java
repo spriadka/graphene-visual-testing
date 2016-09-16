@@ -18,6 +18,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.FilterJoinTable;
 import org.hibernate.annotations.LazyToOne;
 import org.hibernate.annotations.LazyToOneOption;
 import org.jboss.arquillian.model.routing.Node;
@@ -28,6 +32,7 @@ import org.jboss.arquillian.model.routing.Node;
  */
 @Entity(name = "TEST_SUITE")
 @JsonIgnoreProperties(ignoreUnknown = true)
+@FilterDef(name = "lastRunFilter")
 public class TestSuite implements Serializable {
 
     @Id
@@ -44,16 +49,17 @@ public class TestSuite implements Serializable {
 
     @OneToMany(mappedBy = "testSuite", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JsonManagedReference(value = "test-suite-runs")
+    @Filter(name = "lastRunFilter", condition = 
+            "TEST_SUITE_RUN_TIMESTAMP=(SELECT MAX(r.TEST_SUITE_RUN_TIMESTAMP) FROM TEST_SUITE_RUN r WHERE r.TEST_SUITE_ID=TEST_SUITE_ID)")
     private Set<TestSuiteRun> runs = Collections.EMPTY_SET;
 
     @OneToMany(mappedBy = "testSuite", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JsonManagedReference(value = "test-suite-patterns")
     private Set<Pattern> patterns = Collections.EMPTY_SET;
-    
-    @OneToOne(cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
+
+    @OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @JoinColumn(name = "NODE_ID")
     private Node rootNode;
-    
 
     public Set<Pattern> getPatterns() {
         return patterns;
@@ -146,7 +152,5 @@ public class TestSuite implements Serializable {
     public void setRootNode(Node rootNode) {
         this.rootNode = rootNode;
     }
-
-
 
 }

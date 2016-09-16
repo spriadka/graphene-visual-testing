@@ -39,13 +39,13 @@
     </thead>
     <tbody>
         <tr ng-repeat="suite in suites| filter:query | orderBy:orderProp">
-            <td><a href="#/suites/{{suite.testSuiteID}}">{{suite.name}}</a></td>
+            <td><a href="#/suites/{{:: suite.testSuiteID}}">{{:: suite.name}}</a></td>
             <td>
                 <div class="progress progress-striped" style="margin: 10px 20px 10px 0px; border-radius: 25px;">
                     <div>
-                        <div class="progress-bar progress-bar-success" style="width: {{lastRun(suite).successfulPercentage}}%" role="progressbar">SAME {{lastRun(suite).numberOfSuccessfulComparisons}}</div>
-                        <div class="progress-bar progress-bar-danger" style="width: {{(lastRun(suite)).failedPercentage}}%" role="progressbar">DIFFERS {{lastRun(suite).numberOfFailedComparisons}}</div>
-                        <div class="progress-bar progress-bar-error" style="width: {{lastRun(suite).failedTestsPercentage}}%"  role="progressbar">FAILED {{lastRun(suite).numberOfFailedFunctionalTests}}</div>                    
+                        <div class="progress-bar progress-bar-success" style="width: {{:: lastRun(suite).successfulPercentage}}%" role="progressbar">SAME {{:: lastRun(suite).numberOfSuccessfulComparisons}}</div>
+                        <div class="progress-bar progress-bar-danger" style="width: {{:: (lastRun(suite)).failedPercentage}}%" role="progressbar">DIFFERS {{:: lastRun(suite).numberOfFailedComparisons}}</div>
+                        <div class="progress-bar progress-bar-error" style="width: {{:: lastRun(suite).failedTestsPercentage}}%"  role="progressbar">FAILED {{:: lastRun(suite).numberOfFailedFunctionalTests}}</div>                    
                     </div>
                 </div>
             </td>

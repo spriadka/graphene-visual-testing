@@ -66,9 +66,9 @@ public class NodeManager {
             entityGraph.addAttributeNodes("children");
             Map<String, Object> props = new HashMap<>();
             props.put("javax.persistence.loadgraph", entityGraph);
-            return em.find(Node.class, nodeId,props);
+            return em.find(Node.class, nodeId, props);
         }
-        return em.find(Node.class,nodeId);
+        return em.find(Node.class, nodeId);
     }
 
     public void deleteNode(Node node) {
@@ -90,7 +90,7 @@ public class NodeManager {
         } else {
             toPut = node.getWord().getValue()
                     + "." + node.getIndex()
-                    + "." + node.getParentAt((short) 0).getNodeId();
+                    + "." + getParentAt(node,(short) 0).getNodeId();
         }
         entries.put(toPut, node.getNodeId());
         if (!node.getChildren().isEmpty()) {
@@ -109,5 +109,25 @@ public class NodeManager {
 
     public List<Node> getAllNodes() {
         return em.createQuery("SELECT n FROM NODE n").getResultList();
+    }
+
+    public Node getParentAt(Node fromNode, short index) {
+        Node result = fromNode;
+        if (index < 0) {
+            throw new IllegalArgumentException("index must be >= 0");
+        } else if (result.getIndex() < index) {
+            throw new IllegalArgumentException("cannot get parent at index:" + index);
+        } else {
+            EntityGraph<Node> graph = em.createEntityGraph(Node.class);
+            graph.addAttributeNodes("parent");
+            Map<String, Object> props = new HashMap<>();
+            props.put("javax.persistence.loadgraph", graph);
+            for (short i = result.getIndex(); i > index; i--) {
+                Node parent = em.find(Node.class, result.getNodeId(),props).getParent();
+                result = parent;
+            }
+            return result;
+        }
+        
     }
 }

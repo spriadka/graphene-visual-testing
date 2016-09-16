@@ -90,9 +90,12 @@ public class NodeRESTService {
 
     @GET
     @Path("/map/{nodeId: [0-9][0-9]*}")
-    public Response getMap(@PathParam("nodeId") long nodeId) {
+    public Response getMap(@PathParam("nodeId") long nodeId) throws JsonProcessingException {
+        ContextResolver<ObjectMapper> resolver = providers
+                .getContextResolver(ObjectMapper.class, MediaType.APPLICATION_JSON_TYPE);
+        ObjectMapper mapper = resolver.getContext(Node.class);
         Node fromEm = nodeManager.getNode(nodeId, true);
-        return fromEm != null ? Response.ok(nodeManager.createNodesMap(fromEm), MediaType.APPLICATION_JSON).build() : Response.serverError().build();
+        return fromEm != null ? Response.ok(mapper.writeValueAsString(nodeManager.createNodesMap(fromEm)), MediaType.APPLICATION_JSON).build() : Response.serverError().build();
     }
 
     @GET

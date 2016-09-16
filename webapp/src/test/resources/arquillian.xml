@@ -30,4 +30,6 @@
             <property name="jcrUserPassword">admin</property>
         </extension>
 
+
+
 </arquillian>

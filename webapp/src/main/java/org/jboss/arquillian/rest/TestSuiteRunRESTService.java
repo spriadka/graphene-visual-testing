@@ -89,7 +89,7 @@ public class TestSuiteRunRESTService {
     @Path("/{testSuiteRunID:[0-9][0-9]*}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteTestSuiteRun(@PathParam("testSuiteRunID") long testSuiteRunID) {
-        TestSuiteRun testSuiteRunToRemove = testSuiteRunManager.findById(testSuiteRunID);
+        TestSuiteRun testSuiteRunToRemove = testSuiteRunManager.deleteById(testSuiteRunID);
         jcrBean.removeTestSuiteRun("" + testSuiteRunToRemove.getTimestamp().getTime(),
                 testSuiteRunToRemove.getTestSuite().getName());
         deleteDiffsFromTestSuiteRun(testSuiteRunToRemove);

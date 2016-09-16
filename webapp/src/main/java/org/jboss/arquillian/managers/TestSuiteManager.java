@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.Subgraph;
+import org.hibernate.Session;
 import org.jboss.arquillian.model.meta.TestSuite_;
 import org.jboss.arquillian.model.routing.Node;
 import org.jboss.arquillian.model.testSuite.TestSuite;
@@ -31,7 +32,7 @@ public class TestSuiteManager {
     public TestSuite findById(long id, String params) {
         EntityGraph<TestSuite> graph = null;
         boolean added = false;
-        if (!params.isEmpty()) {
+        if (!params.equals("")) {
             graph = em.createEntityGraph(TestSuite.class);
             for (String field : params.split(",")) {
                 switch (field) {
@@ -57,7 +58,11 @@ public class TestSuiteManager {
     }
 
     public Set<TestSuite> getAllTestSuites() {
-        return new LinkedHashSet<>(em.createQuery("SELECT e FROM TEST_SUITE e JOIN FETCH e.runs").getResultList());
+        Session session = (Session)em.getDelegate();
+        session.enableFilter("lastRunFilter");
+        List result = em.createQuery("SELECT e FROM TEST_SUITE e JOIN FETCH e.runs").getResultList();
+        session.close();
+        return new LinkedHashSet<>(result);
     }
 
     public TestSuite createTestSuite(TestSuite testSuite) {

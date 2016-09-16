@@ -1,8 +1,11 @@
 package org.jboss.arquillian.managers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;
+import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import org.jboss.arquillian.model.testSuite.TestSuiteRun;
 import javax.inject.Inject;
@@ -41,6 +44,16 @@ public class TestSuiteRunManager {
     public TestSuiteRun createTestSuiteRun(TestSuiteRun testSuiteRun) {
         em.persist(testSuiteRun);
         return testSuiteRun;
+    }
+
+    public TestSuiteRun deleteById(long id){
+        EntityGraph<TestSuiteRun> runGraph = em.createEntityGraph(TestSuiteRun.class);
+        runGraph.addAttributeNodes("diffs");
+        runGraph.addAttributeNodes("samples");
+        Map<String,Object> hints = new HashMap<>();
+        hints.put("javax.persistence.loadgraph",runGraph);
+        return em.find(TestSuiteRun.class,id,hints);
+
     }
 
     public EntityManager getEm() {

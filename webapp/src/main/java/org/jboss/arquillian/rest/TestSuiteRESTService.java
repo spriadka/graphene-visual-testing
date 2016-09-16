@@ -7,14 +7,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -80,7 +73,7 @@ public class TestSuiteRESTService {
     @GET
     @Path("/{testSuiteID:[0-9][0-9]*}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getTestSuite(@PathParam("testSuiteID") long id, @QueryParam("fetch")String list) throws JsonProcessingException {
+    public Response getTestSuite(@PathParam("testSuiteID") long id, @QueryParam("fetch") String list) throws JsonProcessingException {
         ContextResolver<ObjectMapper> resolver = provider
                 .getContextResolver(ObjectMapper.class, MediaType.APPLICATION_JSON_TYPE);
         ObjectMapper mapper = resolver.getContext(TestSuite.class);

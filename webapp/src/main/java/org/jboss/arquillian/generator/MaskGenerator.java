@@ -29,8 +29,9 @@ public class MaskGenerator implements IdentifierGenerator {
     private final String SELECT_NEXTVAL = "SELECT NEXTVAL('seq_mask_id');";
 
     private final String CREATE_SEQUENCE = "CREATE SEQUENCE public." + SEQUENCE_NAME;
-    
+
     private boolean sequenceExists(SessionImplementor si, Object o) {
+
         try (PreparedStatement ps = si.getTransactionCoordinator().getJdbcCoordinator().getStatementPreparer().prepareStatement("SELECT COUNT(*) FROM pg_class WHERE relname='seq_mask_id'")) {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -45,6 +46,7 @@ public class MaskGenerator implements IdentifierGenerator {
             return false;
         }
     }
+
 
     @Override
     public Serializable generate(SessionImplementor si, Object o) throws HibernateException {

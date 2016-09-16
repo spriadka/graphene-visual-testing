@@ -4,28 +4,28 @@ To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
-<div id="container{{$parent.$index}}" class="container" style="border: 1px #e4e4e4 solid; padding: 20px; border-radius: 4px; box-shadow: 0 0 6px #ccc; width: {{result.imageWidth + 40}}px;">
+<div id="container{{:: $parent.$index}}" class="container" style="border: 1px #e4e4e4 solid; padding: 20px; border-radius: 4px; box-shadow: 0 0 6px #ccc; width: {{result.imageWidth + 40}}px;">
     <div class="jumbotron">
-        <h2>Test class: {{result.testClassName}}</h2>
-        <h2>Test name: {{result.testName}}</h2>
+        <h2>Test class: {{:: result.testClassName}}</h2>
+        <h2>Test name: {{:: result.testName}}</h2>
     </div>
     <hr>
     <ul class="nav nav-tabs nav-justified">
-        <li class="active"><a data-toggle="tab" ng-href="{{$parent.path}}#pattern{{result.patternID}}">Pattern</a></li>
-        <li><a data-toggle="tab" ng-href="{{$parent.path}}#sample{{result.sampleID}}">Sample</a></li>
-        <li><a data-toggle="tab" ng-href="{{$parent.path}}#diff{{result.diffID}}">Diff</a></li>
+        <li class="active"><a data-toggle="tab" ng-href="{{:: $parent.path}}#pattern{{:: result.patternID}}">Pattern</a></li>
+        <li><a data-toggle="tab" ng-href="{{:: $parent.path}}#sample{{:: result.sampleID}}">Sample</a></li>
+        <li><a data-toggle="tab" ng-href="{{:: $parent.path}}#diff{{:: result.diffID}}">Diff</a></li>
     </ul>
     <br>
     <div class="tab-content">
 
-        <div id="pattern{{result.patternID}}" class="tab-pane fade in active">
-            <img ng-src="{{result.patternUrl}}" style="margin:auto;">
+        <div id="pattern{{:: result.patternID}}" class="tab-pane fade in active">
+            <img ng-src="{{:: result.patternUrl}}" style="margin:auto;">
             <hr>
             <span style="text-align: center; display: block;">
                 <a ng-click="$parent.rejectPattern(result.diffID)" class="btn btn-small btn-danger">Reject pattern</a>
             </span>
         </div>
-        <div id="sample{{result.sampleID}}" class="tab-pane fade">
+        <div id="sample{{:: result.sampleID}}" class="tab-pane fade">
             <img class="jcrop" style="margin:auto;" run="result">
             <hr>
             <span style="text-align: center; display: block">
@@ -36,8 +36,8 @@ and open the template in the editor.
                 <a ng-click="updateSelectedMask()" class="btn btn-small btn-danger">Update selected mask</a>
             </span>
         </div>
-        <div id="diff{{result.diffID}}" class="tab-pane fade">
-            <img ng-src="{{result.diffUrl}}" style="margin:auto;">
+        <div id="diff{{:: result.diffID}}" class="tab-pane fade">
+            <img ng-src="{{:: result.diffUrl}}" style="margin:auto;">
         </div>
     </div>
 </div> 
