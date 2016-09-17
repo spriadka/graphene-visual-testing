@@ -214,7 +214,7 @@ visualTestingControllers.controller('RunController', ['$scope', '$log', '$route'
                     var promiseEnd = Promise.resolve();
                     var maskObj = new Mask();
                     var patternId = $scope.result.patternID;
-                    var promisedTestSuite = ParticularSuite.query({testSuiteID: $route.current.params.testSuiteID,fetch: "a"}).$promise;
+                    var promisedTestSuite = ParticularSuite.query({testSuiteID: $route.current.params.testSuiteID}).$promise;
                     var promisedPattern = PatternService.query({patternID: patternId}).$promise;
                     promiseStart.then(function (value) {
                         $scope.setCroppedImageAndAlignmentFromMask(maskObj);

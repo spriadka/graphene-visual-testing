@@ -19,4 +19,7 @@ public class Resources {
         return em;
     }
 
+    public static void main(String[] args){
+        System.out.println(! "".equals(null));
+    }
 }

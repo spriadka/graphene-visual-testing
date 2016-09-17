@@ -32,7 +32,7 @@ public class TestSuiteManager {
     public TestSuite findById(long id, String params) {
         EntityGraph<TestSuite> graph = null;
         boolean added = false;
-        if (!params.equals("")) {
+        if (params != null && ! "".equals(params)) {
             graph = em.createEntityGraph(TestSuite.class);
             for (String field : params.split(",")) {
                 switch (field) {
